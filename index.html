@@ -120,6 +120,37 @@
       box-shadow: 0 0 0 2px rgba(129,140,248,0.2);
     }
 
+    /* Multi-select combo box */
+    .ms-wrapper { position: relative; }
+    .ms-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #2d2b52; border: 1px solid #4a4870; border-radius: 6px;
+      padding: 6px 10px; cursor: pointer; min-height: 36px; flex-wrap: wrap; gap: 4px;
+    }
+    .ms-trigger:hover { border-color: #7c78c0; }
+    .ms-placeholder { color: #9997c0; font-size: 0.82rem; }
+    .ms-arrow { color: #9997c0; font-size: 0.7rem; margin-left: 4px; flex-shrink: 0; transition: transform 0.15s; }
+    .ms-wrapper.open .ms-arrow { transform: rotate(180deg); }
+    .ms-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #4a4870; color: #e2e0ff; border-radius: 4px;
+      padding: 1px 6px; font-size: 0.78rem;
+    }
+    .ms-chip-x { cursor: pointer; opacity: 0.7; }
+    .ms-chip-x:hover { opacity: 1; }
+    .ms-options-wrap {
+      max-height: 0; overflow: hidden; transition: max-height 0.2s ease;
+      background: #2d2b52; border: 1px solid #4a4870; border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+    .ms-wrapper.open .ms-options-wrap { max-height: 200px; overflow-y: auto; }
+    .ms-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; cursor: pointer; font-size: 0.82rem; color: #c8c6f0;
+    }
+    .ms-option:hover { background: #3d3b62; }
+    .ms-option input[type=checkbox] { accent-color: #7c78c0; }
+
     /* File upload widget */
     .file-upload-wrapper {
       position: relative;
@@ -485,13 +516,25 @@
       <div class="section-label">Simulation Parameters</div>
 
       <div class="field-group">
-        <label>Historical Quarter (λ source)</label>
-        <input type="text" id="hist-quarter" value="Q2 2026" placeholder="e.g. Q2 2026">
+        <label>Historical Quarter(s) — λ source</label>
+        <div class="ms-wrapper" id="hist-ms">
+          <div class="ms-trigger">
+            <span class="ms-placeholder">Upload CSV to populate</span>
+            <span class="ms-arrow">▼</span>
+          </div>
+          <div class="ms-options-wrap"></div>
+        </div>
       </div>
 
       <div class="field-group">
-        <label>Target Quarter</label>
-        <input type="text" id="target-quarter" value="Q3 2026" placeholder="e.g. Q3 2026">
+        <label>Target Quarter(s)</label>
+        <div class="ms-wrapper" id="target-ms">
+          <div class="ms-trigger">
+            <span class="ms-placeholder">Upload CSV to populate</span>
+            <span class="ms-arrow">▼</span>
+          </div>
+          <div class="ms-options-wrap"></div>
+        </div>
       </div>
 
       <div class="field-group">
@@ -586,6 +629,87 @@
 
   </main>
 </div><!-- #app -->
+
+
+<!-- ============================================================
+     MODULE 0 · Multi-Select Widget + Quarter Extraction
+     ============================================================ -->
+<script>
+function extractQuarters(rows) {
+  const s = new Set();
+  rows.forEach(r => { const q = (r.quarter || '').trim(); if (q) s.add(q); });
+  return [...s].sort((a, b) => {
+    const pa = a.match(/^Q(\d)\s+(\d{4})$/), pb = b.match(/^Q(\d)\s+(\d{4})$/);
+    if (pa && pb) return (+pa[2] - +pb[2]) || (+pa[1] - +pb[1]);
+    return a.localeCompare(b);
+  });
+}
+
+class MultiSelect {
+  constructor(wrapperId) {
+    this.wrapper  = document.getElementById(wrapperId);
+    this.trigger  = this.wrapper.querySelector('.ms-trigger');
+    this.optWrap  = this.wrapper.querySelector('.ms-options-wrap');
+    this.selected = new Set();
+    this.quarters = [];
+    this.trigger.addEventListener('click', () => this.toggle());
+    document.addEventListener('click', e => {
+      if (!this.wrapper.contains(e.target)) this.close();
+    });
+  }
+  populate(quarters, defaultSelections = []) {
+    this.quarters = quarters;
+    this.selected = new Set(defaultSelections.filter(q => quarters.includes(q)));
+    this._renderOptions();
+    this._renderChips();
+  }
+  getSelected() { return [...this.selected]; }
+  toggle() { this.wrapper.classList.toggle('open'); }
+  close()  { this.wrapper.classList.remove('open'); }
+  _renderOptions() {
+    this.optWrap.innerHTML = this.quarters.map(q => `
+      <label class="ms-option">
+        <input type="checkbox" value="${q}" ${this.selected.has(q) ? 'checked' : ''}>
+        ${q}
+      </label>`).join('');
+    this.optWrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', e => {
+        e.target.checked ? this.selected.add(e.target.value)
+                         : this.selected.delete(e.target.value);
+        this._renderChips();
+        this.wrapper.dispatchEvent(new CustomEvent('ms-change', { bubbles: true }));
+      });
+    });
+  }
+  _renderChips() {
+    const arrow = this.trigger.querySelector('.ms-arrow');
+    this.trigger.querySelectorAll('.ms-chip, .ms-placeholder').forEach(el => el.remove());
+    if (this.selected.size === 0) {
+      const ph = document.createElement('span');
+      ph.className = 'ms-placeholder';
+      ph.textContent = 'Select quarters…';
+      this.trigger.insertBefore(ph, arrow);
+    } else {
+      [...this.selected].sort().forEach(q => {
+        const chip = document.createElement('span');
+        chip.className = 'ms-chip';
+        chip.innerHTML = `${q}<span class="ms-chip-x" data-q="${q}">✕</span>`;
+        chip.querySelector('.ms-chip-x').addEventListener('click', ev => {
+          ev.stopPropagation();
+          this.selected.delete(q);
+          this._renderOptions();
+          this._renderChips();
+          this.wrapper.dispatchEvent(new CustomEvent('ms-change', { bubbles: true }));
+        });
+        this.trigger.insertBefore(chip, arrow);
+      });
+    }
+  }
+}
+
+const histMS   = new MultiSelect('hist-ms');
+const targetMS = new MultiSelect('target-ms');
+</script>
 
 
 <!-- ============================================================
@@ -834,6 +958,12 @@ function loadInitiativesCSV(text) {
   const moscowCol   = detectMoscowCol(parsedInitiatives);
   detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol };
   console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}"`);
+
+  const quarters  = extractQuarters(parsedInitiatives);
+  const histDef   = quarters.includes('Q2 2026') ? ['Q2 2026'] : quarters.slice(0, 1);
+  const targetDef = quarters.includes('Q3 2026') ? ['Q3 2026'] : quarters.slice(1, 2);
+  histMS.populate(quarters, histDef);
+  targetMS.populate(quarters, targetDef);
 }
 
 function loadEpicsCSV(text) {
@@ -860,11 +990,11 @@ function loadEpicsCSV(text) {
  * @param {string} targetQuarter  e.g. "Q3 2026"
  * @returns {{ lambda, epicSizingDist, kMustShould, kMust, preview }}
  */
-function prepareSimulationData(histQuarter, targetQuarter) {
+function prepareSimulationData(histQuarters, targetQuarters) {
   const { initKeyCol, moscowCol, epicLinkCol } = detectedCols;
 
   // ── STEP 1: Historical initiatives ───────────────────────────────
-  const histInits = parsedInitiatives.filter(r => (r.quarter || '').trim() === histQuarter);
+  const histInits = parsedInitiatives.filter(r => histQuarters.includes((r.quarter || '').trim()));
   const histKeys  = new Set(histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean));
 
   // Count sized epics per historical initiative (initialise to 0 so
@@ -894,7 +1024,7 @@ function prepareSimulationData(histQuarter, targetQuarter) {
   }
 
   // ── STEP 3: Target quarter initiative counts by MoSCoW ───────────
-  const targetInits = parsedInitiatives.filter(r => (r.quarter || '').trim() === targetQuarter);
+  const targetInits = parsedInitiatives.filter(r => targetQuarters.includes((r.quarter || '').trim()));
 
   const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
   for (const r of targetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
@@ -908,11 +1038,11 @@ function prepareSimulationData(histQuarter, targetQuarter) {
   for (const s of epicSizingDist) sizeDist[s] = (sizeDist[s] || 0) + 1;
 
   const preview = {
-    histQuarter, histInitCount: histInits.length,
+    histQuarter: histQuarters.join(', '), histInitCount: histInits.length,
     lambda, epicSizingCount: epicSizingDist.length, sizeDist,
     epicCountMin: countArray.length ? Math.min(...countArray) : 0,
     epicCountMax: countArray.length ? Math.max(...countArray) : 0,
-    targetQuarter, targetInitCount: targetInits.length,
+    targetQuarter: targetQuarters.join(', '), targetInitCount: targetInits.length,
     moscowGroups, kMustShould, kMust, kMustShouldCould,
   };
 
@@ -1273,10 +1403,11 @@ function checkRunButton() {
 /** Attempt to refresh the sidebar preview. Silently ignores errors. */
 function tryUpdatePreview() {
   if (!parsedInitiatives || !parsedEpics) return;
-  const hist   = document.getElementById('hist-quarter').value.trim();
-  const target = document.getElementById('target-quarter').value.trim();
+  const histQs   = histMS.getSelected();
+  const targetQs = targetMS.getSelected();
+  if (!histQs.length || !targetQs.length) return;
   try {
-    const { preview } = prepareSimulationData(hist, target);
+    const { preview } = prepareSimulationData(histQs, targetQs);
     renderPreview(preview);
   } catch (err) {
     console.warn('[preview]', err.message);
@@ -1314,18 +1445,18 @@ document.getElementById('epics-file').addEventListener('change', async e => {
   } catch (err) { alert('Error loading epics CSV:\n' + err.message); }
 });
 
-// Live preview refresh when quarter fields change
-['hist-quarter', 'target-quarter'].forEach(id => {
-  document.getElementById(id).addEventListener('input',  tryUpdatePreview);
-  document.getElementById(id).addEventListener('change', tryUpdatePreview);
-});
+// Live preview refresh when quarter selections change
+document.getElementById('hist-ms').addEventListener('ms-change', tryUpdatePreview);
+document.getElementById('target-ms').addEventListener('ms-change', tryUpdatePreview);
 
 // ── Run button ────────────────────────────────────────────────────
 document.getElementById('run-btn').addEventListener('click', () => {
   if (!parsedInitiatives || !parsedEpics) { alert('Upload both CSV files first.'); return; }
 
-  const histQ    = document.getElementById('hist-quarter').value.trim();
-  const targetQ  = document.getElementById('target-quarter').value.trim();
+  const histQs   = histMS.getSelected();
+  const targetQs = targetMS.getSelected();
+  if (!histQs.length)   { alert('Select at least one historical quarter.'); return; }
+  if (!targetQs.length) { alert('Select at least one target quarter.'); return; }
   const capacity = parseFloat(document.getElementById('capacity').value)   || 120;
   const iters    = Math.min(100000, Math.max(1000,
                     parseInt(document.getElementById('iterations').value)  || 10000));
@@ -1339,15 +1470,15 @@ document.getElementById('run-btn').addEventListener('click', () => {
   setTimeout(() => {
     try {
       const { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview } =
-        prepareSimulationData(histQ, targetQ);
+        prepareSimulationData(histQs, targetQs);
 
       // ── Validate inputs ───────────────────────────────────────
       if (epicSizingDist.length === 0) {
         throw new Error(
-          `No sized epics found for historical quarter "${histQ}".\n\n` +
+          `No sized epics found for historical quarter(s) "${histQs.join(', ')}".\n\n` +
           `Detected columns → init key: "${detectedCols.initKeyCol}", ` +
           `epic link: "${detectedCols.epicLinkCol}".\n\n` +
-          `Verify that epics link to initiatives in "${histQ}" and have a recognised ` +
+          `Verify that epics link to initiatives in the selected quarter(s) and have a recognised ` +
           `t_shirt_size (XS, S, M, L, XL, XL+).`
         );
       }
@@ -1355,7 +1486,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
         console.warn('[run] λ = 0 — all historical initiatives had 0 sized epics');
       }
       if (kMustShould === 0 && kMust === 0) {
-        console.warn(`[run] No Must/Should initiatives found for "${targetQ}"`);
+        console.warn(`[run] No Must/Should initiatives found for "${targetQs.join(', ')}"`);
       }
 
       // ── Run simulation ────────────────────────────────────────
@@ -1367,7 +1498,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
       renderStatsTable(results, capacity);
 
       document.getElementById('results-subtitle').textContent =
-        `— ${targetQ} · ${iters.toLocaleString()} iterations`;
+        `— ${targetQs.join(', ')} · ${iters.toLocaleString()} iterations`;
       document.getElementById('results-content').style.display = 'flex';
 
     } catch (err) {
