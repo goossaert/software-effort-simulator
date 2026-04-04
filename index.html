@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Effort Simulator — Bootstrap Monte Carlo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+  <style>
+    /* =====================================================
+       BASE RESET & TYPOGRAPHY
+       ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #111827;
+      background: #0f0e2a;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* =====================================================
+       APP SHELL — full-viewport grid
+       ===================================================== */
+    #app {
+      display: grid;
+      grid-template-rows: 52px 1fr;
+      height: 100vh;
+    }
+
+    header {
+      background: #1e1b4b;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+      border-bottom: 1px solid #312e81;
+      flex-shrink: 0;
+    }
+
+    header .logo { font-size: 22px; }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e0e7ff;
+      letter-spacing: 0.01em;
+    }
+
+    header .sep { color: #4338ca; margin: 0 2px; }
+
+    header .subtitle {
+      font-size: 12px;
+      color: #6366f1;
+      font-weight: 400;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 296px 1fr;
+      overflow: hidden;
+    }
+
+    /* =====================================================
+       CONFIG SIDEBAR
+       ===================================================== */
+    #config-panel {
+      background: #1a1840;
+      color: #e0e7ff;
+      padding: 16px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-right: 1px solid #2d2b6b;
+    }
+
+    .section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6366f1;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #2d2b6b;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .field-group input[type="text"],
+    .field-group input[type="number"] {
+      background: #252349;
+      border: 1px solid #3d3b7a;
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: #f1f5f9;
+      font-size: 13px;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field-group input:focus {
+      outline: none;
+      border-color: #818cf8;
+      box-shadow: 0 0 0 2px rgba(129,140,248,0.2);
+    }
+
+    /* File upload widget */
+    .file-upload-wrapper {
+      position: relative;
+      background: #252349;
+      border: 1.5px dashed #3d3b7a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+    }
+
+    .file-upload-wrapper:hover { border-color: #818cf8; background: #2d2a5a; }
+
+    .file-upload-wrapper.loaded {
+      border-color: #34d399;
+      border-style: solid;
+      background: #132d22;
+    }
+
+    .file-upload-wrapper .file-icon { font-size: 15px; flex-shrink: 0; }
+
+    .file-upload-wrapper input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-upload-wrapper .file-name {
+      font-size: 11px;
+      color: #94a3b8;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-upload-wrapper.loaded .file-name { color: #6ee7b7; }
+
+    /* Run button */
+    #run-btn {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: 0.03em;
+      width: 100%;
+    }
+
+    #run-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+    }
+
+    #run-btn:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+    #run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Data preview */
+    #data-preview {
+      background: #252349;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 11px;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #data-preview .preview-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6366f1;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1px 8px;
+    }
+
+    .preview-grid .pk { color: #94a3b8; padding: 1px 0; }
+    .preview-grid .pv { color: #a5f3fc; font-weight: 700; text-align: right; padding: 1px 0; }
+
+    .preview-grid .divider {
+      grid-column: 1 / -1;
+      border-top: 1px solid #3d3b7a;
+      margin: 4px 0;
+    }
+
+    /* Collapsible details */
+    #config-panel details {
+      background: #1e1c44;
+      border-radius: 6px;
+      border: 1px solid #2d2b6b;
+      overflow: hidden;
+    }
+
+    #config-panel summary {
+      cursor: pointer;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #config-panel summary::-webkit-details-marker { display: none; }
+
+    #config-panel summary::before {
+      content: '▶';
+      font-size: 8px;
+      transition: transform 0.15s;
+      color: #6366f1;
+    }
+
+    #config-panel details[open] summary::before { transform: rotate(90deg); }
+
+    #config-panel details .details-body { padding: 6px 10px 10px; }
+
+    .size-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .size-table th {
+      color: #6366f1;
+      font-weight: 600;
+      text-align: left;
+      padding: 3px 4px;
+      border-bottom: 1px solid #3d3b7a;
+    }
+
+    .size-table td { padding: 2px 4px; color: #c7d2fe; }
+    .size-table td:not(:first-child) { text-align: right; color: #94a3b8; }
+
+    pre.debug-pre {
+      font-size: 10px;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       RESULTS PANEL
+       ===================================================== */
+    #results-panel {
+      background: #f8fafc;
+      position: relative;
+      overflow-y: auto;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Spinner overlay */
+    #spinner-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(248,250,252,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+
+    #spinner-overlay p { color: #6b7280; font-size: 13px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Empty state */
+    #empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 14px;
+      color: #9ca3af;
+    }
+
+    #empty-state .empty-icon { font-size: 52px; opacity: 0.35; }
+
+    #empty-state p {
+      font-size: 14px;
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    #empty-state strong { color: #4f46e5; }
+
+    /* Results content */
+    #results-content {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    #results-content h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e1b4b;
+    }
+
+    #results-content h2 .sub {
+      font-size: 13px;
+      font-weight: 400;
+      color: #6b7280;
+      margin-left: 8px;
+    }
+
+    /* Chart container */
+    #chart-container {
+      position: relative;
+      height: 350px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 12px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Stats table */
+    .stats-section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    #stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    #stats-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: #6b7280;
+      border-bottom: 2px solid #f1f5f9;
+      background: #f9fafb;
+    }
+
+    #stats-table th.col-ms  { color: #4f46e5; }
+    #stats-table th.col-m   { color: #ea7c2c; }
+    #stats-table th.col-msc { color: #059669; } /* emerald green — Must+Should+Could */
+
+    #stats-table td {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f8fafc;
+      color: #374151;
+    }
+
+    #stats-table tr:last-child td { border-bottom: none; font-weight: 700; }
+    #stats-table td.val { font-variant-numeric: tabular-nums; text-align: right; }
+
+    .warn    { color: #ef4444 !important; }
+    .caution { color: #f97316 !important; }
+    .ok      { color: #10b981 !important; }
+
+    /* Error state */
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #b91c1c;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 260px 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      body { overflow: auto; }
+      #app { height: auto; }
+      main { grid-template-columns: 1fr; }
+      #results-panel { padding: 18px; }
+      #chart-container { height: 280px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================================================== HEADER -->
+  <header>
+    <span class="logo">📊</span>
+    <h1>Effort Simulator</h1>
+    <span class="sep">·</span>
+    <span class="subtitle">Bootstrap Monte Carlo</span>
+  </header>
+
+  <main>
+
+    <!-- ============================================== CONFIG PANEL -->
+    <aside id="config-panel">
+
+      <div class="section-label">Input Data</div>
+
+      <div class="field-group">
+        <label>Initiatives CSV</label>
+        <div class="file-upload-wrapper" id="init-upload">
+          <span class="file-icon">📄</span>
+          <span class="file-name" id="init-file-name">Click to upload…</span>
+          <input type="file" id="initiatives-file" accept=".csv">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Epics CSV</label>
+        <div class="file-upload-wrapper" id="epics-upload">
+          <span class="file-icon">📄</span>
+          <span class="file-name" id="epics-file-name">Click to upload…</span>
+          <input type="file" id="epics-file" accept=".csv">
+        </div>
+      </div>
+
+      <div class="section-label">Simulation Parameters</div>
+
+      <div class="field-group">
+        <label>Historical Quarter (λ source)</label>
+        <input type="text" id="hist-quarter" value="Q2 2026" placeholder="e.g. Q2 2026">
+      </div>
+
+      <div class="field-group">
+        <label>Target Quarter</label>
+        <input type="text" id="target-quarter" value="Q3 2026" placeholder="e.g. Q3 2026">
+      </div>
+
+      <div class="field-group">
+        <label>Quarterly Capacity (person-months)</label>
+        <input type="number" id="capacity" value="120" min="1" step="1">
+      </div>
+
+      <div class="field-group">
+        <label>Iterations</label>
+        <input type="number" id="iterations" value="10000" min="1000" max="100000" step="1000">
+      </div>
+
+      <button id="run-btn" disabled>▶&nbsp; Run Simulation</button>
+
+      <!-- Auto-populated after CSV load -->
+      <div id="data-preview" style="display:none">
+        <div class="preview-title">📋 &nbsp;Data Preview</div>
+        <div class="preview-grid" id="preview-grid"></div>
+      </div>
+
+      <!-- T-shirt size reference table -->
+      <details>
+        <summary>T-shirt size reference</summary>
+        <div class="details-body">
+          <table class="size-table">
+            <thead><tr><th>Size</th><th>Min PM</th><th>Max PM</th></tr></thead>
+            <tbody>
+              <tr><td>XS</td><td>0.25</td><td>0.75</td></tr>
+              <tr><td>S</td><td>0.75</td><td>1.5</td></tr>
+              <tr><td>M</td><td>1.5</td><td>3</td></tr>
+              <tr><td>L</td><td>3</td><td>6</td></tr>
+              <tr><td>XL</td><td>6</td><td>9</td></tr>
+              <tr><td>XL+</td><td>10</td><td>11</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:6px;font-size:10px;color:#6366f1">
+            Min ≈ P10, Max ≈ P90 of lognormal distribution
+          </p>
+        </div>
+      </details>
+
+      <!-- Column detection debug (shown after CSV load) -->
+      <details id="debug-details" style="display:none">
+        <summary>Column detection debug</summary>
+        <div class="details-body">
+          <pre class="debug-pre" id="debug-pre"></pre>
+        </div>
+      </details>
+
+    </aside>
+
+    <!-- ============================================== RESULTS PANEL -->
+    <section id="results-panel">
+
+      <!-- Spinner (shown while simulation runs) -->
+      <div id="spinner-overlay" style="display:none">
+        <div class="spinner"></div>
+        <p>Running simulation…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state">
+        <div class="empty-icon">🎲</div>
+        <p>Upload both CSV files and click <strong>Run Simulation</strong> to forecast delivery effort using Bootstrap Monte Carlo.</p>
+      </div>
+
+      <!-- Results (hidden until simulation completes) -->
+      <div id="results-content" style="display:none">
+        <h2>Simulation Results <span class="sub" id="results-subtitle"></span></h2>
+
+        <div id="chart-container">
+          <canvas id="results-chart"></canvas>
+        </div>
+
+        <div class="stats-section">
+          <h3>Summary Statistics (person-months)</h3>
+          <table id="stats-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th class="col-m">■ Must Only</th>
+                <th class="col-ms">■ Must + Should</th>
+                <th class="col-msc">■ Must + Should + Could</th>
+              </tr>
+            </thead>
+            <tbody id="stats-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div><!-- #app -->
+
+
+<!-- ============================================================
+     MODULE 1 · Xoshiro128** PRNG
+     High-quality 32-bit PRNG — no BigInt — period 2^128 − 1.
+     Passes PractRand and most BigCrush tests.
+     Reference: https://prng.di.unimi.it/xoshiro128starstar.c
+     ============================================================ -->
+<script>
+class Xoshiro128ss {
+  #s; // Uint32Array[4] internal state
+
+  /**
+   * @param {number} [seed] — 32-bit seed (defaults to Date.now() mixed with
+   *   a random offset to avoid identical seeds on fast successive calls)
+   */
+  constructor(seed) {
+    this.#s = new Uint32Array(4);
+    let h = ((seed !== undefined ? seed : Date.now()) & 0xFFFFFFFF) >>> 0;
+
+    // Expand single seed word into 4-word state via SplitMix32
+    for (let i = 0; i < 4; i++) {
+      h = (h + 0x9e3779b9) >>> 0;
+      let z = h;
+      z = Math.imul(z ^ (z >>> 16), 0x85ebca6b) >>> 0;
+      z = Math.imul(z ^ (z >>> 13), 0xc2b2ae35) >>> 0;
+      z = (z ^ (z >>> 16)) >>> 0;
+      this.#s[i] = z;
+    }
+
+    // Guard: state must not be all-zero
+    if (!(this.#s[0] | this.#s[1] | this.#s[2] | this.#s[3])) this.#s[0] = 1;
+  }
+
+  #rotl(x, k) { return ((x << k) | (x >>> (32 - k))) >>> 0; }
+
+  /** Advance state and return next uint32. */
+  nextUint32() {
+    const s = this.#s;
+    const result = Math.imul(this.#rotl(Math.imul(s[1], 5) >>> 0, 7), 9) >>> 0;
+    const t = (s[1] << 9) >>> 0;
+    s[2] = (s[2] ^ s[0]) >>> 0;
+    s[3] = (s[3] ^ s[1]) >>> 0;
+    s[1] = (s[1] ^ s[2]) >>> 0;
+    s[0] = (s[0] ^ s[3]) >>> 0;
+    s[2] = (s[2] ^ t)    >>> 0;
+    s[3] = this.#rotl(s[3], 11);
+    return result;
+  }
+
+  /** Uniform float in [0, 1) with 32 bits of precision. */
+  nextFloat() { return (this.nextUint32() >>> 0) / 4294967296; }
+
+  /** Uniform integer in [0, n).  n must be ≥ 1. */
+  nextInt(n) { return n <= 1 ? 0 : Math.floor(this.nextFloat() * n); }
+}
+
+// Global RNG — re-seeded before every simulation run
+let rng = new Xoshiro128ss();
+</script>
+
+
+<!-- ============================================================
+     MODULE 2 · Statistical Samplers
+     • Box-Muller  →  N(0,1)
+     • Lognormal   →  effort in person-months per t-shirt size
+     • Poisson     →  number of epics per initiative
+     • Bootstrap   →  resample from empirical distribution
+     ============================================================ -->
+<script>
+/**
+ * Lognormal parameters fitted so that:
+ *   P(X < min) ≈ 0.10  and  P(X < max) ≈ 0.90
+ *
+ * Formula:  μ = (ln min + ln max) / 2
+ *           σ = (ln max − ln min) / (2 × Φ⁻¹(0.9))
+ *   where Φ⁻¹(0.9) ≈ 1.28155
+ *
+ * This places the mode (= exp(μ − σ²)) below the median,
+ * naturally skewing the distribution toward the low end.
+ */
+const T_SHIRT_PARAMS = {
+  'XS':  { mu: -0.8370, sigma: 0.4286 }, // range [0.25, 0.75] PM
+  'S':   { mu:  0.0589, sigma: 0.2703 }, // range [0.75, 1.5]  PM
+  'M':   { mu:  0.7521, sigma: 0.2703 }, // range [1.5,  3]    PM
+  'L':   { mu:  1.4452, sigma: 0.2703 }, // range [3,    6]    PM
+  'XL':  { mu:  1.9945, sigma: 0.1582 }, // range [6,    9]    PM
+  'XL+': { mu:  2.3503, sigma: 0.0372 }, // range [10,  11]    PM
+};
+
+// ── Box-Muller transform ──────────────────────────────────────────
+// Generates two correlated N(0,1) samples per call; caches the spare.
+let _bmSpare = NaN;
+
+function resetBoxMuller() { _bmSpare = NaN; }
+
+function sampleStdNormal() {
+  if (!isNaN(_bmSpare)) {
+    const z = _bmSpare;
+    _bmSpare = NaN;
+    return z;
+  }
+  // Marsaglia polar method (avoids trigonometric functions)
+  let u, v, s;
+  do {
+    u = rng.nextFloat() * 2 - 1;
+    v = rng.nextFloat() * 2 - 1;
+    s = u * u + v * v;
+  } while (s >= 1 || s === 0);
+  const mul = Math.sqrt(-2 * Math.log(s) / s);
+  _bmSpare = v * mul;
+  return u * mul;
+}
+
+// ── Lognormal sampler ─────────────────────────────────────────────
+/**
+ * Sample effort (person-months) for a given t-shirt size label.
+ * Unknown labels return 0 and log a warning.
+ */
+function sampleLognormal(sizeLabel) {
+  const p = T_SHIRT_PARAMS[sizeLabel];
+  if (!p) { console.warn(`[sampler] Unknown size label: "${sizeLabel}"`); return 0; }
+  return Math.exp(p.mu + p.sigma * sampleStdNormal());
+}
+
+// ── Poisson sampler ───────────────────────────────────────────────
+/**
+ * Sample from Poisson(λ).
+ * • λ < 30 : Knuth's multiplicative method (exact)
+ * • λ ≥ 30 : Gaussian approximation (fast; bias < 0.1%)
+ */
+function samplePoisson(lambda) {
+  if (lambda <= 0) return 0;
+  if (lambda < 30) {
+    const L = Math.exp(-lambda);
+    let k = 0, p = 1;
+    do { k++; p *= rng.nextFloat(); } while (p > L);
+    return k - 1;
+  }
+  // Gaussian approximation for large λ
+  return Math.max(0, Math.round(lambda + Math.sqrt(lambda) * sampleStdNormal()));
+}
+
+// ── Bootstrap resampler ───────────────────────────────────────────
+/** Pick one element uniformly at random (with replacement). */
+function bootstrapChoice(arr) { return arr[rng.nextInt(arr.length)]; }
+</script>
+
+
+<!-- ============================================================
+     MODULE 3 · CSV Parsing & Column Auto-Detection
+     The initiatives CSV has a known column-shift quirk:
+       • column labelled "teams" actually holds INIT-xxx Jira keys
+       • column labelled "emoji" actually holds MoSCoW priority
+     Auto-detection scans values rather than trusting header names.
+     ============================================================ -->
+<script>
+/** Parse CSV text with PapaParse; return array of row objects. */
+function parseCSV(text) {
+  const result = Papa.parse(text, { header: true, skipEmptyLines: true, dynamicTyping: false });
+  if (result.errors.length) console.warn('[CSV] parse warnings:', result.errors.slice(0, 3));
+  return result.data;
+}
+
+/**
+ * Scan all columns; return the header whose values most closely
+ * resemble Jira-style keys (e.g. INIT-123, ABC-42).
+ * Falls back to 'teams' — the known actual column name.
+ */
+function detectInitKeyCol(rows) {
+  if (!rows.length) return 'teams';
+  const RE = /^[A-Z][A-Z0-9_]+-\d+$/;
+  for (const hdr of Object.keys(rows[0])) {
+    const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
+    if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.5) return hdr;
+  }
+  return 'teams'; // fallback
+}
+
+/**
+ * Scan all columns; return the header whose values most closely
+ * resemble MoSCoW priority strings (must / should / could / won't).
+ * Falls back to 'emoji' — the known actual column name.
+ */
+function detectMoscowCol(rows) {
+  if (!rows.length) return 'emoji';
+  const RE = /must|should|could|won.t/i;
+  for (const hdr of Object.keys(rows[0])) {
+    const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
+    if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.5) return hdr;
+  }
+  return 'emoji'; // fallback
+}
+
+/**
+ * In the epics CSV, find the column linking each epic to its parent
+ * initiative key.  Prefers a header containing "initiative" + "jira"/"key".
+ * Falls back to content-scanning, then to the literal name 'initiative jira_key'.
+ */
+function detectEpicLinkCol(rows) {
+  if (!rows.length) return 'initiative jira_key';
+  const hdrs = Object.keys(rows[0]);
+
+  // 1) Header-name heuristic
+  const byName = hdrs.find(h => {
+    const l = h.toLowerCase();
+    return l.includes('initiative') && (l.includes('jira') || l.includes('key'));
+  });
+  if (byName) return byName;
+
+  // 2) Content scan for Jira key pattern
+  const RE = /^[A-Z][A-Z0-9_]+-\d+$/;
+  for (const hdr of hdrs) {
+    const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
+    if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.4) return hdr;
+  }
+
+  return 'initiative jira_key'; // final fallback
+}
+
+/**
+ * Normalize a raw MoSCoW string (possibly emoji-prefixed) to a
+ * canonical lowercase token: 'must' | 'should' | 'could' | 'wont' | 'unknown'
+ */
+function normalizeMoscow(raw) {
+  // Strip non-ASCII characters (emoji) before keyword matching
+  const s = (raw || '').replace(/[^\x00-\x7F]/g, '').toLowerCase().trim();
+  if (s.includes('must'))                        return 'must';
+  if (s.includes('should'))                      return 'should';
+  if (s.includes('could'))                       return 'could';
+  if (s.includes("won't") || s.includes('wont')) return 'wont';
+  return 'unknown';
+}
+
+/** Normalize a raw t-shirt size string to a T_SHIRT_PARAMS key. */
+function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
+
+// ── Parsed row cache + detected column names ──────────────────────
+let parsedInitiatives = null;
+let parsedEpics       = null;
+let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
+
+function loadInitiativesCSV(text) {
+  parsedInitiatives = parseCSV(text);
+  const initKeyCol  = detectInitKeyCol(parsedInitiatives);
+  const moscowCol   = detectMoscowCol(parsedInitiatives);
+  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol };
+  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}"`);
+}
+
+function loadEpicsCSV(text) {
+  parsedEpics = parseCSV(text);
+  const epicLinkCol = detectEpicLinkCol(parsedEpics);
+  detectedCols = { ...(detectedCols || {}), epicLinkCol };
+  console.log(`[Epics] ${parsedEpics.length} rows | link="${epicLinkCol}"`);
+}
+</script>
+
+
+<!-- ============================================================
+     MODULE 4 · Data Preparation
+     Builds two empirical distributions from the historical quarter:
+       1) Initiative distribution  →  Poisson λ
+       2) Epic sizing distribution →  bootstrap pool of size labels
+     Then counts K for each MoSCoW scenario in the target quarter.
+     ============================================================ -->
+<script>
+/**
+ * Build all inputs needed for the Monte Carlo engine.
+ *
+ * @param {string} histQuarter    e.g. "Q2 2026"
+ * @param {string} targetQuarter  e.g. "Q3 2026"
+ * @returns {{ lambda, epicSizingDist, kMustShould, kMust, preview }}
+ */
+function prepareSimulationData(histQuarter, targetQuarter) {
+  const { initKeyCol, moscowCol, epicLinkCol } = detectedCols;
+
+  // ── STEP 1: Historical initiatives ───────────────────────────────
+  const histInits = parsedInitiatives.filter(r => (r.quarter || '').trim() === histQuarter);
+  const histKeys  = new Set(histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean));
+
+  // Count sized epics per historical initiative (initialise to 0 so
+  // initiatives with no epics still contribute to the distribution)
+  const epicCounts = new Map();
+  for (const key of histKeys) epicCounts.set(key, 0);
+
+  for (const epic of parsedEpics) {
+    const link = (epic[epicLinkCol] || '').trim();
+    if (!histKeys.has(link)) continue;
+    const size = normalizeSize(epic.t_shirt_size);
+    if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
+  }
+
+  const countArray = Array.from(epicCounts.values());
+  const lambda     = countArray.length
+    ? countArray.reduce((a, b) => a + b, 0) / countArray.length
+    : 0;
+
+  // ── STEP 2: Epic sizing distribution (all Q2 epics, committed or not) ──
+  const epicSizingDist = [];
+  for (const epic of parsedEpics) {
+    const link = (epic[epicLinkCol] || '').trim();
+    if (!histKeys.has(link)) continue;
+    const size = normalizeSize(epic.t_shirt_size);
+    if (T_SHIRT_PARAMS[size]) epicSizingDist.push(size);
+  }
+
+  // ── STEP 3: Target quarter initiative counts by MoSCoW ───────────
+  const targetInits = parsedInitiatives.filter(r => (r.quarter || '').trim() === targetQuarter);
+
+  const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
+  for (const r of targetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
+
+  const kMustShould      = moscowGroups.must + moscowGroups.should;
+  const kMust            = moscowGroups.must;
+  const kMustShouldCould = moscowGroups.must + moscowGroups.should + moscowGroups.could;
+
+  // Size breakdown for preview
+  const sizeDist = {};
+  for (const s of epicSizingDist) sizeDist[s] = (sizeDist[s] || 0) + 1;
+
+  const preview = {
+    histQuarter, histInitCount: histInits.length,
+    lambda, epicSizingCount: epicSizingDist.length, sizeDist,
+    epicCountMin: countArray.length ? Math.min(...countArray) : 0,
+    epicCountMax: countArray.length ? Math.max(...countArray) : 0,
+    targetQuarter, targetInitCount: targetInits.length,
+    moscowGroups, kMustShould, kMust, kMustShouldCould,
+  };
+
+  return { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview };
+}
+</script>
+
+
+<!-- ============================================================
+     MODULE 5 · Monte Carlo Engine
+     Core simulation loop: for each iteration, model K initiatives,
+     draw epic counts from Poisson(λ), and sum lognormal efforts.
+     ============================================================ -->
+<script>
+/**
+ * Run one simulation scenario and return a sorted Float64Array of
+ * total effort values (length = iterations).
+ *
+ * @param {number}   K               — number of initiatives
+ * @param {number}   lambda          — Poisson mean (epics per initiative)
+ * @param {string[]} epicSizingDist  — bootstrap pool of size labels
+ * @param {number}   iterations
+ */
+function runScenario(K, lambda, epicSizingDist, iterations) {
+  const results = new Float64Array(iterations);
+  for (let i = 0; i < iterations; i++) {
+    let total = 0;
+    for (let k = 0; k < K; k++) {
+      const numEpics = samplePoisson(lambda);
+      for (let j = 0; j < numEpics; j++) {
+        total += sampleLognormal(bootstrapChoice(epicSizingDist));
+      }
+    }
+    results[i] = total;
+  }
+  results.sort(); // Float64Array.sort() is numeric by default
+  return results;
+}
+
+/**
+ * Compute summary statistics from a sorted Float64Array.
+ * Uses binary search for the P(exceed capacity) calculation.
+ */
+function computeStats(sorted, capacity) {
+  const n   = sorted.length;
+  const pct = p => sorted[Math.min(n - 1, Math.floor(p * n))];
+  const mean = sorted.reduce((a, b) => a + b, 0) / n;
+
+  // Binary search: first index where sorted[idx] > capacity
+  let lo = 0, hi = n;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    sorted[mid] <= capacity ? (lo = mid + 1) : (hi = mid);
+  }
+
+  return {
+    p10: pct(0.10), p25: pct(0.25), p50: pct(0.50),
+    p75: pct(0.75), p90: pct(0.90), mean,
+    pExceed: (n - lo) / n,
+  };
+}
+
+/**
+ * Build a fixed-range histogram for overlay comparability.
+ * Both scenarios share the same globalMin / globalMax, so their
+ * bars are directly comparable on the x-axis.
+ */
+function buildHistogram(sorted, globalMin, globalMax, numBins) {
+  const binWidth = (globalMax - globalMin) / numBins || 1;
+  const counts   = new Array(numBins).fill(0);
+  for (const v of sorted) {
+    const idx = Math.min(numBins - 1, Math.max(0, Math.floor((v - globalMin) / binWidth)));
+    counts[idx]++;
+  }
+  const binCenters = counts.map((_, i) => globalMin + (i + 0.5) * binWidth);
+  return { counts, binCenters, binWidth };
+}
+
+/**
+ * Orchestrate both scenarios and return all data needed for rendering.
+ */
+function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations }) {
+  // Fresh RNG seed combining time and entropy
+  rng = new Xoshiro128ss((Date.now() ^ Math.imul(Date.now(), 0x9e3779b9)) >>> 0);
+  resetBoxMuller();
+
+  const sortedMS = kMustShould > 0
+    ? runScenario(kMustShould, lambda, epicSizingDist, iterations)
+    : new Float64Array(iterations); // K=0 → all zeros
+
+  const sortedM = kMust > 0
+    ? runScenario(kMust, lambda, epicSizingDist, iterations)
+    : new Float64Array(iterations);
+
+  const sortedMSC = kMustShouldCould > 0
+    ? runScenario(kMustShouldCould, lambda, epicSizingDist, iterations)
+    : new Float64Array(iterations);
+
+  // Clip chart range at P99.5 to prevent outliers from stretching the axis
+  const p995 = arr => arr[Math.min(arr.length - 1, Math.floor(0.995 * arr.length))];
+  const globalMin = 0;
+  const globalMax = Math.max(p995(sortedMS), p995(sortedM), p995(sortedMSC), 1);
+
+  const NUM_BINS = 60;
+
+  return {
+    mustShould: {
+      sorted: sortedMS,
+      stats:  computeStats(sortedMS, capacity),
+      hist:   buildHistogram(sortedMS, globalMin, globalMax, NUM_BINS),
+    },
+    mustOnly: {
+      sorted: sortedM,
+      stats:  computeStats(sortedM, capacity),
+      hist:   buildHistogram(sortedM, globalMin, globalMax, NUM_BINS),
+    },
+    mustShouldCould: {
+      sorted: sortedMSC,
+      stats:  computeStats(sortedMSC, capacity),
+      hist:   buildHistogram(sortedMSC, globalMin, globalMax, NUM_BINS),
+    },
+    globalMin, globalMax,
+  };
+}
+</script>
+
+
+<!-- ============================================================
+     MODULE 6 · Chart & Stats Rendering
+     • Overlapping bar histograms via Chart.js 4 (grouped: false)
+     • Red dashed capacity line via custom afterDraw plugin
+     • Stats table with colour-coded P(exceed) cells
+     ============================================================ -->
+<script>
+let chartInstance = null;
+
+/**
+ * Render the overlapping histogram.
+ * Both datasets share the same label array so Chart.js places them
+ * at identical x positions; grouped:false makes them overlay instead
+ * of render side-by-side.
+ */
+function renderChart(results, capacity) {
+  const { mustShould, mustOnly, mustShouldCould, globalMin, globalMax } = results;
+  const ctx = document.getElementById('results-chart').getContext('2d');
+
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  // Shared x-axis labels = bin centers formatted to 2 dp
+  const labels = mustShould.hist.binCenters.map(v => v.toFixed(2));
+
+  // ── Custom plugin: capacity reference line ──────────────────────
+  const capacityPlugin = {
+    id: 'capacityLine',
+    afterDraw(chart) {
+      const { ctx: c, chartArea: ca } = chart;
+      const range    = globalMax - globalMin || 1;
+      const fraction = Math.max(0, Math.min(1, (capacity - globalMin) / range));
+      const xPx      = ca.left + fraction * (ca.right - ca.left);
+
+      c.save();
+
+      // Vertical dashed line
+      c.beginPath();
+      c.moveTo(xPx, ca.top + 16); // leave room for label
+      c.lineTo(xPx, ca.bottom);
+      c.strokeStyle = '#ef4444';
+      c.lineWidth   = 2;
+      c.setLineDash([7, 4]);
+      c.stroke();
+      c.setLineDash([]);
+
+      // Label pill above the line
+      const label = `Capacity: ${capacity} PM`;
+      c.font = 'bold 11px system-ui';
+      const tw = c.measureText(label).width;
+      const px = Math.min(Math.max(xPx, ca.left + tw / 2 + 4), ca.right - tw / 2 - 4);
+
+      c.fillStyle    = '#ef4444';
+      c.globalAlpha  = 0.9;
+      c.beginPath();
+      c.roundRect(px - tw / 2 - 5, ca.top, tw + 10, 17, 4);
+      c.fill();
+      c.globalAlpha  = 1;
+      c.fillStyle    = 'white';
+      c.textAlign    = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(label, px, ca.top + 8.5);
+
+      c.restore();
+    },
+  };
+
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    plugins: [capacityPlugin],
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Must + Should + Could',
+          data: mustShouldCould.hist.counts,
+          backgroundColor: 'rgba(5, 150, 105, 0.42)',
+          borderColor:     'rgba(5, 150, 105, 0)',
+          barPercentage:      1.0,
+          categoryPercentage: 1.0,
+          order: 3, // drawn first → furthest behind (largest scope)
+        },
+        {
+          label: 'Must + Should',
+          data: mustShould.hist.counts,
+          backgroundColor: 'rgba(79, 70, 229, 0.52)',
+          borderColor:     'rgba(79, 70, 229, 0)',
+          barPercentage:      1.0,
+          categoryPercentage: 1.0,
+          order: 2, // drawn second → middle layer
+        },
+        {
+          label: 'Must Only',
+          data: mustOnly.hist.counts,
+          backgroundColor: 'rgba(234, 124, 44, 0.58)',
+          borderColor:     'rgba(234, 124, 44, 0)',
+          barPercentage:      1.0,
+          categoryPercentage: 1.0,
+          order: 1, // drawn last → in front (smallest scope)
+        },
+      ],
+    },
+    options: {
+      grouped: false,            // ← overlay mode (Chart.js 4.x)
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 350 },
+      layout: { padding: { top: 22 } }, // space for capacity label
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { usePointStyle: true, pointStyle: 'rect', padding: 20, font: { size: 12 } },
+        },
+        tooltip: {
+          callbacks: {
+            title: items => `Effort ≈ ${parseFloat(items[0].label).toFixed(1)} PM`,
+            label: item  => `${item.dataset.label}: ${item.raw.toLocaleString()} runs`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Total Effort (person-months)', color: '#9ca3af', font: { size: 11 } },
+          ticks: {
+            maxTicksLimit: 10,
+            color: '#9ca3af',
+            font: { size: 11 },
+            callback: function(value) {
+              return parseFloat(this.getLabelForValue(value)).toFixed(0);
+            },
+          },
+          grid: { display: false },
+        },
+        y: {
+          title: { display: true, text: 'Simulation count', color: '#9ca3af', font: { size: 11 } },
+          beginAtZero: true,
+          ticks: { color: '#9ca3af', font: { size: 11 } },
+          grid: { color: '#f3f4f6' },
+        },
+      },
+    },
+  });
+}
+
+/** Render the summary statistics table. */
+function renderStatsTable(results, capacity) {
+  const { mustShould, mustOnly, mustShouldCould } = results;
+  const fmt = n => n.toFixed(1);
+  const pct = p => (p * 100).toFixed(1) + '%';
+  const cls = p => p > 0.5 ? 'warn' : p > 0.25 ? 'caution' : 'ok';
+
+  const rows = [
+    ['P10',          fmt(mustOnly.stats.p10),  fmt(mustShould.stats.p10),  fmt(mustShouldCould.stats.p10)],
+    ['P25',          fmt(mustOnly.stats.p25),  fmt(mustShould.stats.p25),  fmt(mustShouldCould.stats.p25)],
+    ['Median (P50)', fmt(mustOnly.stats.p50),  fmt(mustShould.stats.p50),  fmt(mustShouldCould.stats.p50)],
+    ['P75',          fmt(mustOnly.stats.p75),  fmt(mustShould.stats.p75),  fmt(mustShouldCould.stats.p75)],
+    ['P90',          fmt(mustOnly.stats.p90),  fmt(mustShould.stats.p90),  fmt(mustShouldCould.stats.p90)],
+    ['Mean',         fmt(mustOnly.stats.mean), fmt(mustShould.stats.mean), fmt(mustShouldCould.stats.mean)],
+  ];
+
+  const mX   = mustOnly.stats.pExceed;
+  const msX  = mustShould.stats.pExceed;
+  const mscX = mustShouldCould.stats.pExceed;
+
+  document.getElementById('stats-tbody').innerHTML = [
+    ...rows.map(([lbl, m, ms, msc]) =>
+      `<tr><td>${lbl}</td><td class="val">${m}</td><td class="val">${ms}</td><td class="val">${msc}</td></tr>`),
+    `<tr>
+      <td>P(effort &gt; ${capacity} PM)</td>
+      <td class="val"><span class="${cls(mX)}">${pct(mX)}</span></td>
+      <td class="val"><span class="${cls(msX)}">${pct(msX)}</span></td>
+      <td class="val"><span class="${cls(mscX)}">${pct(mscX)}</span></td>
+    </tr>`,
+  ].join('');
+}
+
+/** Render the sidebar data-preview block. */
+function renderPreview(preview) {
+  const sizeStr = Object.entries(preview.sizeDist)
+    .sort((a, b) => {
+      const order = ['XS','S','M','L','XL','XL+'];
+      return order.indexOf(a[0]) - order.indexOf(b[0]);
+    })
+    .map(([k, v]) => `${k}×${v}`)
+    .join('  ');
+
+  document.getElementById('preview-grid').innerHTML = `
+    <span class="pk">Hist. quarter</span><span class="pv">${preview.histQuarter}</span>
+    <span class="pk">Initiatives (hist.)</span><span class="pv">${preview.histInitCount}</span>
+    <span class="pk">Poisson λ</span><span class="pv">${preview.lambda.toFixed(2)}</span>
+    <span class="pk">Epic samples</span><span class="pv">${preview.epicSizingCount}</span>
+    <span class="pk" style="grid-column:1/-1;color:#6366f1;font-size:10px;padding-top:2px">${sizeStr || '—'}</span>
+    <div class="divider"></div>
+    <span class="pk">Target quarter</span><span class="pv">${preview.targetQuarter}</span>
+    <span class="pk">Must + Should (K)</span><span class="pv">${preview.kMustShould}</span>
+    <span class="pk">Must only (K)</span><span class="pv">${preview.kMust}</span>
+    <span class="pk">Must+Should+Could (K)</span><span class="pv">${preview.kMustShouldCould}</span>
+  `;
+  document.getElementById('data-preview').style.display = 'flex';
+
+  // Update debug panel
+  document.getElementById('debug-details').style.display = 'block';
+  document.getElementById('debug-pre').textContent =
+    'Detected columns:\n' + JSON.stringify(detectedCols, null, 2) +
+    '\n\nTarget MoSCoW breakdown:\n' + JSON.stringify(preview.moscowGroups, null, 2);
+}
+</script>
+
+
+<!-- ============================================================
+     MODULE 7 · UI Controller
+     File-input wiring, live preview updates, run-button handler.
+     ============================================================ -->
+<script>
+let initiativesLoaded = false;
+let epicsLoaded       = false;
+
+// ── Helper: read a File object as UTF-8 text ──────────────────────
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload  = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error(`Cannot read file: ${file.name}`));
+    r.readAsText(file);
+  });
+}
+
+function checkRunButton() {
+  document.getElementById('run-btn').disabled = !(initiativesLoaded && epicsLoaded);
+}
+
+/** Attempt to refresh the sidebar preview. Silently ignores errors. */
+function tryUpdatePreview() {
+  if (!parsedInitiatives || !parsedEpics) return;
+  const hist   = document.getElementById('hist-quarter').value.trim();
+  const target = document.getElementById('target-quarter').value.trim();
+  try {
+    const { preview } = prepareSimulationData(hist, target);
+    renderPreview(preview);
+  } catch (err) {
+    console.warn('[preview]', err.message);
+  }
+}
+
+// ── File inputs ───────────────────────────────────────────────────
+document.getElementById('initiatives-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    loadInitiativesCSV(await readFile(file));
+    initiativesLoaded = true;
+    document.getElementById('init-file-name').textContent = file.name;
+    const wrap = document.getElementById('init-upload');
+    wrap.classList.add('loaded');
+    wrap.querySelector('.file-icon').textContent = '✅';
+    checkRunButton();
+    tryUpdatePreview();
+  } catch (err) { alert('Error loading initiatives CSV:\n' + err.message); }
+});
+
+document.getElementById('epics-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    loadEpicsCSV(await readFile(file));
+    epicsLoaded = true;
+    document.getElementById('epics-file-name').textContent = file.name;
+    const wrap = document.getElementById('epics-upload');
+    wrap.classList.add('loaded');
+    wrap.querySelector('.file-icon').textContent = '✅';
+    checkRunButton();
+    tryUpdatePreview();
+  } catch (err) { alert('Error loading epics CSV:\n' + err.message); }
+});
+
+// Live preview refresh when quarter fields change
+['hist-quarter', 'target-quarter'].forEach(id => {
+  document.getElementById(id).addEventListener('input',  tryUpdatePreview);
+  document.getElementById(id).addEventListener('change', tryUpdatePreview);
+});
+
+// ── Run button ────────────────────────────────────────────────────
+document.getElementById('run-btn').addEventListener('click', () => {
+  if (!parsedInitiatives || !parsedEpics) { alert('Upload both CSV files first.'); return; }
+
+  const histQ    = document.getElementById('hist-quarter').value.trim();
+  const targetQ  = document.getElementById('target-quarter').value.trim();
+  const capacity = parseFloat(document.getElementById('capacity').value)   || 120;
+  const iters    = Math.min(100000, Math.max(1000,
+                    parseInt(document.getElementById('iterations').value)  || 10000));
+
+  // ── Show spinner ──────────────────────────────────────────────
+  document.getElementById('spinner-overlay').style.display  = 'flex';
+  document.getElementById('results-content').style.display  = 'none';
+  document.getElementById('empty-state').style.display      = 'none';
+
+  // Defer heavy computation so the browser can paint the spinner first
+  setTimeout(() => {
+    try {
+      const { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview } =
+        prepareSimulationData(histQ, targetQ);
+
+      // ── Validate inputs ───────────────────────────────────────
+      if (epicSizingDist.length === 0) {
+        throw new Error(
+          `No sized epics found for historical quarter "${histQ}".\n\n` +
+          `Detected columns → init key: "${detectedCols.initKeyCol}", ` +
+          `epic link: "${detectedCols.epicLinkCol}".\n\n` +
+          `Verify that epics link to initiatives in "${histQ}" and have a recognised ` +
+          `t_shirt_size (XS, S, M, L, XL, XL+).`
+        );
+      }
+      if (lambda === 0) {
+        console.warn('[run] λ = 0 — all historical initiatives had 0 sized epics');
+      }
+      if (kMustShould === 0 && kMust === 0) {
+        console.warn(`[run] No Must/Should initiatives found for "${targetQ}"`);
+      }
+
+      // ── Run simulation ────────────────────────────────────────
+      const results = runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations: iters });
+
+      // ── Render ────────────────────────────────────────────────
+      renderPreview(preview);
+      renderChart(results, capacity);
+      renderStatsTable(results, capacity);
+
+      document.getElementById('results-subtitle').textContent =
+        `— ${targetQ} · ${iters.toLocaleString()} iterations`;
+      document.getElementById('results-content').style.display = 'flex';
+
+    } catch (err) {
+      // Show error in the results area
+      const es = document.getElementById('empty-state');
+      es.style.display = 'flex';
+      es.innerHTML = `
+        <div class="error-box">
+          <strong>⚠️ Simulation error</strong><br><br>
+          ${err.message.replace(/\n/g, '<br>')}
+        </div>`;
+      console.error('[simulation]', err);
+    } finally {
+      document.getElementById('spinner-overlay').style.display = 'none';
+    }
+  }, 30); // 30 ms — enough time for the browser to paint the spinner
+});
+</script>
+
+</body>
+</html>
