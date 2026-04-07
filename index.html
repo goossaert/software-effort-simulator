@@ -395,7 +395,7 @@
     /* Chart container */
     #chart-container {
       position: relative;
-      height: 350px;
+      height: 438px;
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
@@ -542,7 +542,7 @@
 
     .team-chart-wrapper {
       position: relative;
-      height: 280px;
+      height: 350px;
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
@@ -592,6 +592,66 @@
     .mb-wont     { background:#f9fafb; color:#9ca3af; }
     .mb-constant { background:#f0fdf4; color:#16a34a; font-size:13px; padding:1px 3px; }
     .mb-unknown { background:#f9fafb; color:#9ca3af; }
+    /* ── Marker dialog ───────────────────────────────────────────── */
+    .marker-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .marker-dialog {
+      background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      width: 360px; max-width: 96vw; padding: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .marker-dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px; border-bottom: 1px solid #f1f5f9;
+    }
+    .marker-dialog-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+    .marker-close-btn {
+      background: none; border: none; font-size: 20px; color: #94a3b8;
+      cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;
+    }
+    .marker-close-btn:hover { background: #f1f5f9; color: #475569; }
+    .marker-dialog-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .marker-field-label {
+      font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .marker-text-input {
+      width: 100%; padding: 7px 10px; border: 1.5px solid #e5e7eb; border-radius: 6px;
+      font-size: 13px; color: #1e293b; box-sizing: border-box; outline: none;
+    }
+    .marker-text-input:focus { border-color: #6366f1; }
+    .marker-text-input:disabled { background: #f9fafb; color: #9ca3af; cursor: not-allowed; }
+    .color-palette-grid {
+      display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;
+    }
+    .color-swatch {
+      width: 100%; aspect-ratio: 1; border-radius: 4px; border: 2px solid transparent;
+      cursor: pointer; transition: transform 0.1s, border-color 0.1s;
+    }
+    .color-swatch:hover { transform: scale(1.2); border-color: rgba(0,0,0,0.3); }
+    .color-swatch.selected { border-color: #1e293b; transform: scale(1.15); outline: 2px solid #6366f1; outline-offset: 1px; }
+    .marker-dialog-footer {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px 16px; border-top: 1px solid #f1f5f9;
+    }
+    .marker-btn { padding: 7px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .marker-btn-save  { background: #6366f1; color: #fff; }
+    .marker-btn-save:hover  { background: #4f46e5; }
+    .marker-btn-cancel { background: #f1f5f9; color: #475569; }
+    .marker-btn-cancel:hover { background: #e2e8f0; }
+    .marker-btn-delete { background: #fef2f2; color: #ef4444; margin-right: auto; }
+    .marker-btn-delete:hover { background: #fee2e2; }
+    .add-marker-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 20px; border: 1.5px dashed #c7d2fe;
+      background: #eef2ff; color: #6366f1; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .add-marker-btn:hover { background: #e0e7ff; }
+    .marker-stats-row td:first-child { font-size: 12px; }
 
     /* Count chips used in the summary table cells */
     .mc-chip { display:inline-flex; align-items:center; gap:3px;
@@ -694,7 +754,7 @@
       #app { height: auto; }
       main { grid-template-columns: 1fr; }
       #results-panel { padding: 18px; }
-      #chart-container { height: 280px; }
+      #chart-container { height: 350px; }
     }
   </style>
 </head>
@@ -847,6 +907,11 @@
         <!-- Organization Level tab panel -->
         <div id="tab-org" class="tab-panel">
           <div id="chart-container">
+            <div style="position:absolute;top:8px;right:10px;z-index:10;display:flex;gap:6px">
+              <button class="add-marker-btn" onclick="saveMarkersToCSV('org')" title="Save markers to CSV">↓ Save</button>
+              <button class="add-marker-btn" onclick="triggerLoadMarkers('org')" title="Load markers from CSV">↑ Load</button>
+              <button class="add-marker-btn" onclick="openMarkerDialog('org')">＋ Add marker</button>
+            </div>
             <canvas id="results-chart"></canvas>
           </div>
           <div class="stats-section">
@@ -880,6 +945,37 @@
     </section>
 
   </main>
+<!-- ── Marker load input (hidden) ─────────────────────────────── -->
+<input type="file" id="marker-load-input" accept=".csv" style="display:none">
+
+<!-- ── Marker edit/add dialog ──────────────────────────────────── -->
+<div id="marker-overlay" class="marker-overlay">
+  <div class="marker-dialog">
+    <div class="marker-dialog-header">
+      <span class="marker-dialog-title" id="marker-dialog-title">Add Marker</span>
+      <button class="marker-close-btn" onclick="closeMarkerDialog()">×</button>
+    </div>
+    <div class="marker-dialog-body">
+      <div>
+        <div class="marker-field-label">Name</div>
+        <input type="text" class="marker-text-input" id="marker-name-input" placeholder="e.g. Team capacity">
+      </div>
+      <div id="marker-value-row">
+        <div class="marker-field-label">Value (person-months)</div>
+        <input type="number" class="marker-text-input" id="marker-value-input" min="0" step="0.5" placeholder="e.g. 120">
+      </div>
+      <div>
+        <div class="marker-field-label">Color</div>
+        <div class="color-palette-grid" id="color-palette-grid"></div>
+      </div>
+    </div>
+    <div class="marker-dialog-footer">
+      <button class="marker-btn marker-btn-delete" id="marker-delete-btn" onclick="handleMarkerDelete()">Delete</button>
+      <button class="marker-btn marker-btn-cancel" onclick="closeMarkerDialog()">Cancel</button>
+      <button class="marker-btn marker-btn-save" onclick="handleMarkerSave()">Save</button>
+    </div>
+  </div>
+</div>
 </div><!-- #app -->
 
 
@@ -1778,60 +1874,98 @@ let chartInstance = null;
 
 /**
  * Core chart renderer. Draws an overlapping histogram on the given canvas.
+ * Accepts an optional contextKey to drive per-context marker lines.
  * Returns the Chart instance so callers can track and destroy it later.
  */
-function renderChartOnCanvas(canvasId, results, capacity) {
+function renderChartOnCanvas(canvasId, results, capacity, contextKey) {
   const { mustShould, mustOnly, mustShouldCould, globalMin, globalMax } = results;
-  const ctx = document.getElementById(canvasId).getContext('2d');
+  const canvas = document.getElementById(canvasId);
+  const ctx    = canvas.getContext('2d');
+
+  // Save render state so re-renders after marker edit work
+  if (contextKey) {
+    const tbodyId = contextKey === 'org' ? 'stats-tbody' : `team-stats-tbody-${contextKey.slice(5)}`;
+    lastRenderState[contextKey] = { canvasId, results, capacity, tbodyId };
+  }
 
   // Shared x-axis labels = bin centers formatted to 2 dp
   const labels = mustShould.hist.binCenters.map(v => v.toFixed(2));
 
-  // ── Custom plugin: capacity reference line ──────────────────────
-  const capacityPlugin = {
-    id: 'capacityLine',
+  // ── Custom plugin: all marker lines (incl. capacity) ────────────
+  const markersPlugin = {
+    id: 'markersPlugin',
     afterDraw(chart) {
       const { ctx: c, chartArea: ca } = chart;
-      const range    = globalMax - globalMin || 1;
-      const fraction = Math.max(0, Math.min(1, (capacity - globalMin) / range));
-      const xPx      = ca.left + fraction * (ca.right - ca.left);
+      const markers = contextKey ? getMarkers(contextKey) : [];
+      if (!markers.length) return;
+      const range = globalMax - globalMin || 1;
 
-      c.save();
+      // Sort by value so label-stagger processes left → right
+      const sorted = [...markers].sort((a, b) => a.value - b.value);
 
-      // Vertical dashed line
-      c.beginPath();
-      c.moveTo(xPx, ca.top + 16); // leave room for label
-      c.lineTo(xPx, ca.bottom);
-      c.strokeStyle = '#ef4444';
-      c.lineWidth   = 2;
-      c.setLineDash([7, 4]);
-      c.stroke();
-      c.setLineDash([]);
-
-      // Label pill above the line
-      const label = `Capacity: ${capacity} PM`;
+      // ── Pass 1: compute pixel positions and measure label widths ──
       c.font = 'bold 11px system-ui';
-      const tw = c.measureText(label).width;
-      const px = Math.min(Math.max(xPx, ca.left + tw / 2 + 4), ca.right - tw / 2 - 4);
+      const entries = sorted.map(m => {
+        const fraction = Math.max(0, Math.min(1, (m.value - globalMin) / range));
+        const xPx  = ca.left + fraction * (ca.right - ca.left);
+        const text = `${m.label}: ${m.value} PM`;
+        const tw   = c.measureText(text).width;
+        // Clamp pill centre so it never overflows the chart area
+        const px   = Math.min(Math.max(xPx, ca.left + tw / 2 + 4), ca.right - tw / 2 - 4);
+        return { m, xPx, text, tw, px };
+      });
 
-      c.fillStyle    = '#ef4444';
-      c.globalAlpha  = 0.9;
-      c.beginPath();
-      c.roundRect(px - tw / 2 - 5, ca.top, tw + 10, 17, 4);
-      c.fill();
-      c.globalAlpha  = 1;
-      c.fillStyle    = 'white';
-      c.textAlign    = 'center';
-      c.textBaseline = 'middle';
-      c.fillText(label, px, ca.top + 8.5);
+      // ── Pass 2: assign rows using actual pill bounds ──────────────
+      // Each placed entry records the horizontal span of its pill.
+      const placed = []; // { leftPx, rightPx, row }
+      const rows   = entries.map(({ px, tw }) => {
+        const leftPx  = px - tw / 2 - 6;
+        const rightPx = px + tw / 2 + 6;
+        let row = 0;
+        while (placed.some(p => p.row === row && leftPx < p.rightPx && rightPx > p.leftPx)) row++;
+        placed.push({ leftPx, rightPx, row });
+        return row;
+      });
+      const maxRow  = rows.reduce((m, r) => Math.max(m, r), 0);
+      const lineTop = ca.top + (maxRow + 1) * 19 + 4; // line starts below all labels
 
-      c.restore();
+      // ── Pass 3: draw lines then label pills ───────────────────────
+      entries.forEach(({ m, xPx, text, tw, px }, i) => {
+        const row = rows[i];
+        const top = ca.top + row * 19;
+
+        c.save();
+
+        // Dashed vertical line — starts below the tallest label row
+        c.beginPath();
+        c.moveTo(xPx, lineTop);
+        c.lineTo(xPx, ca.bottom);
+        c.strokeStyle = m.color;
+        c.lineWidth   = 2;
+        c.setLineDash([7, 4]);
+        c.stroke();
+        c.setLineDash([]);
+
+        // Label pill
+        c.fillStyle   = m.color;
+        c.globalAlpha = 0.92;
+        c.beginPath();
+        c.roundRect(px - tw / 2 - 5, top, tw + 10, 17, 4);
+        c.fill();
+        c.globalAlpha = 1;
+        c.fillStyle    = '#fff';
+        c.textAlign    = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(text, px, top + 8.5);
+
+        c.restore();
+      });
     },
   };
 
   const instance = new Chart(ctx, {
     type: 'bar',
-    plugins: [capacityPlugin],
+    plugins: [markersPlugin],
     data: {
       labels,
       datasets: [
@@ -1842,7 +1976,7 @@ function renderChartOnCanvas(canvasId, results, capacity) {
           borderColor:     'rgba(5, 150, 105, 0)',
           barPercentage:      1.0,
           categoryPercentage: 1.0,
-          order: 3, // drawn first → furthest behind (largest scope)
+          order: 3,
         },
         {
           label: 'Must + Should',
@@ -1851,7 +1985,7 @@ function renderChartOnCanvas(canvasId, results, capacity) {
           borderColor:     'rgba(79, 70, 229, 0)',
           barPercentage:      1.0,
           categoryPercentage: 1.0,
-          order: 2, // drawn second → middle layer
+          order: 2,
         },
         {
           label: 'Must Only',
@@ -1860,16 +1994,16 @@ function renderChartOnCanvas(canvasId, results, capacity) {
           borderColor:     'rgba(234, 124, 44, 0)',
           barPercentage:      1.0,
           categoryPercentage: 1.0,
-          order: 1, // drawn last → in front (smallest scope)
+          order: 1,
         },
       ],
     },
     options: {
-      grouped: false,            // ← overlay mode (Chart.js 4.x)
+      grouped: false,
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 350 },
-      layout: { padding: { top: 22 } }, // space for capacity label
+      layout: { padding: { top: Math.max(22, ((contextKey ? getMarkers(contextKey).length : 1) * 19) + 4) } },
       plugins: {
         legend: {
           position: 'top',
@@ -1889,9 +2023,7 @@ function renderChartOnCanvas(canvasId, results, capacity) {
             maxTicksLimit: 10,
             color: '#9ca3af',
             font: { size: 11 },
-            callback: function(value) {
-              return parseFloat(this.getLabelForValue(value)).toFixed(0);
-            },
+            callback: function(value) { return parseFloat(this.getLabelForValue(value)).toFixed(0); },
           },
           grid: { display: false },
         },
@@ -1904,20 +2036,46 @@ function renderChartOnCanvas(canvasId, results, capacity) {
       },
     },
   });
+
+  // ── Click-to-edit markers ───────────────────────────────────────
+  if (contextKey) {
+    canvas.addEventListener('click', e => {
+      const ca = instance.chartArea;
+      if (!ca) return;
+      // chartArea coordinates are in CSS logical pixels — use raw offset directly
+      const rect   = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      // Only react to clicks within the chart plot area
+      if (clickX < ca.left || clickX > ca.right || clickY < ca.top || clickY > ca.bottom) return;
+      const range = globalMax - globalMin || 1;
+      const markers = getMarkers(contextKey);
+      let closest = null, closestDist = 10; // 10 CSS px hit-target
+      for (const m of markers) {
+        const fraction = Math.max(0, Math.min(1, (m.value - globalMin) / range));
+        const mx   = ca.left + fraction * (ca.right - ca.left);
+        const dist = Math.abs(clickX - mx);
+        if (dist < closestDist) { closestDist = dist; closest = m; }
+      }
+      if (closest) openMarkerDialog(contextKey, closest.id);
+    });
+  }
+
   return instance;
 }
 
 /** Org-level chart wrapper — renders onto #results-chart and tracks the instance. */
 function renderChart(results, capacity) {
+  ensureCapacityMarker('org', capacity);
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-  chartInstance = renderChartOnCanvas('results-chart', results, capacity);
+  chartInstance = renderChartOnCanvas('results-chart', results, capacity, 'org');
 }
 
 /**
  * Render summary statistics into the given <tbody> element.
  * Reusable for both org-level and per-team tables.
  */
-function renderStatsTableInto(tbodyId, results, capacity) {
+function renderStatsTableInto(tbodyId, results, capacity, contextKey) {
   const { mustShould, mustOnly, mustShouldCould } = results;
   const fmt = n => n.toFixed(1);
   const pct = p => (p * 100).toFixed(1) + '%';
@@ -1936,6 +2094,22 @@ function renderStatsTableInto(tbodyId, results, capacity) {
   const msX  = mustShould.stats.pExceed;
   const mscX = mustShouldCould.stats.pExceed;
 
+  // Extra marker rows (non-capacity markers, sorted by value ascending)
+  const extraMarkers = contextKey
+    ? getMarkers(contextKey).filter(m => !m.isCapacity).sort((a, b) => a.value - b.value)
+    : [];
+  const markerRows = extraMarkers.map(m => {
+    const mXm   = computePExceed(mustOnly.sorted,       m.value);
+    const msXm  = computePExceed(mustShould.sorted,     m.value);
+    const mscXm = computePExceed(mustShouldCould.sorted, m.value);
+    return `<tr class="marker-stats-row">
+      <td><span style="display:inline-block;width:9px;height:9px;background:${m.color};border-radius:2px;vertical-align:middle;margin-right:5px"></span>P(effort &gt; ${m.value} PM) <span style="color:#9ca3af">${m.label}</span></td>
+      <td class="val"><span class="${cls(mXm)}">${pct(mXm)}</span></td>
+      <td class="val"><span class="${cls(msXm)}">${pct(msXm)}</span></td>
+      <td class="val"><span class="${cls(mscXm)}">${pct(mscXm)}</span></td>
+    </tr>`;
+  });
+
   document.getElementById(tbodyId).innerHTML = [
     ...rows.map(([lbl, m, ms, msc]) =>
       `<tr><td>${lbl}</td><td class="val">${m}</td><td class="val">${ms}</td><td class="val">${msc}</td></tr>`),
@@ -1945,12 +2119,13 @@ function renderStatsTableInto(tbodyId, results, capacity) {
       <td class="val"><span class="${cls(msX)}">${pct(msX)}</span></td>
       <td class="val"><span class="${cls(mscX)}">${pct(mscX)}</span></td>
     </tr>`,
+    ...markerRows,
   ].join('');
 }
 
 /** Org-level stats table wrapper — renders into #stats-tbody. */
 function renderStatsTable(results, capacity) {
-  renderStatsTableInto('stats-tbody', results, capacity);
+  renderStatsTableInto('stats-tbody', results, capacity, 'org');
 }
 
 // ── Team-level chart tracking ─────────────────────────────────────
@@ -1977,9 +2152,11 @@ function renderTeamSection(idx, useOrg) {
     fixedEffort: td.fixedEffort || 0,
   });
 
+  const teamCtxKey = `team-${idx}`;
+  ensureCapacityMarker(teamCtxKey, lastCapacity);
   if (teamChartInstances[idx]) { teamChartInstances[idx].destroy(); }
-  teamChartInstances[idx] = renderChartOnCanvas(`team-chart-${idx}`, results, lastCapacity);
-  renderStatsTableInto(`team-stats-tbody-${idx}`, results, lastCapacity);
+  teamChartInstances[idx] = renderChartOnCanvas(`team-chart-${idx}`, results, lastCapacity, teamCtxKey);
+  renderStatsTableInto(`team-stats-tbody-${idx}`, results, lastCapacity, teamCtxKey);
 }
 
 /**
@@ -2029,6 +2206,11 @@ function renderTeamCharts(teamDataArray, capacity, iterations) {
         ${recNote}
       </div>
       <div class="team-chart-wrapper">
+        <div style="position:absolute;top:8px;right:10px;z-index:10;display:flex;gap:6px">
+          <button class="add-marker-btn" onclick="saveMarkersToCSV('team-${idx}')" title="Save markers to CSV">↓ Save</button>
+          <button class="add-marker-btn" onclick="triggerLoadMarkers('team-${idx}')" title="Load markers from CSV">↑ Load</button>
+          <button class="add-marker-btn" onclick="openMarkerDialog('team-${idx}')">＋ Add marker</button>
+        </div>
         <canvas id="team-chart-${idx}"></canvas>
       </div>
       <div class="stats-section">
@@ -2464,7 +2646,240 @@ document.getElementById('constant-work-file').addEventListener('change', async e
     wrap.querySelector('.file-icon').textContent = '✅';
   } catch (err) { alert('Error loading constant work CSV:\n' + err.message); }
 });
+</script>
 
+<!-- ============================================================
+     MODULE 7 · Marker System
+     • Google-Docs-style 80-colour palette
+     • Per-context marker store (org / team-{idx})
+     • Modal dialog for add / edit / delete
+     • Re-renders chart + stats after any change
+     ============================================================ -->
+<script>
+
+// ── 80-colour palette (Google Docs-inspired) ──────────────────────
+const COLOR_PALETTE = [
+  // Grays
+  '#1a1a1a','#333333','#555555','#777777','#999999','#b3b3b3','#cccccc','#e0e0e0','#efefef','#ffffff',
+  // Reds
+  '#7f0000','#a30000','#cc0000','#e60000','#ff1a1a','#ff4d4d','#ff8080','#ffb3b3','#ffcccc','#fff5f5',
+  // Oranges
+  '#7f2800','#a33200','#cc4a00','#e66200','#ff8000','#ffa033','#ffba66','#ffd099','#ffe8cc','#fff6ee',
+  // Yellows
+  '#665000','#997800','#cca300','#e6b800','#ffd700','#ffdf33','#ffe766','#ffef99','#fff7cc','#fffce6',
+  // Greens
+  '#1a4d00','#286300','#387800','#479300','#56ac00','#74c41a','#96d94d','#b8e880','#d4f4b3','#edfade',
+  // Teals
+  '#003333','#004a47','#00605b','#00776f','#009089','#00aaa2','#33bdb8','#66d0cc','#99e3df','#ccf1ef',
+  // Blues
+  '#00174d','#002080','#002db3','#003de6','#1a56ff','#4d7aff','#809eff','#b3c2ff','#d6deff','#eef0ff',
+  // Purples/Pinks
+  '#33004d','#4d0073','#660099','#8000c0','#a020e0','#bb4df0','#cc77f5','#dda0fa','#eebbfc','#f8e0ff',
+];
+
+// ── State ─────────────────────────────────────────────────────────
+const markerStore      = {};  // contextKey → [{ id, label, value, color, isCapacity }]
+const lastRenderState  = {};  // contextKey → { canvasId, results, capacity, tbodyId }
+let   _dialogState     = null; // { contextKey, markerId } — null while closed
+let   _dialogColor     = COLOR_PALETTE[4]; // currently-selected colour in the dialog
+
+// ── Helpers ───────────────────────────────────────────────────────
+function getMarkers(key) {
+  if (!markerStore[key]) markerStore[key] = [];
+  return markerStore[key];
+}
+
+function ensureCapacityMarker(contextKey, capacityValue) {
+  const markers = getMarkers(contextKey);
+  const cap = markers.find(m => m.isCapacity);
+  if (cap) {
+    cap.value = capacityValue; // keep in sync
+  } else {
+    markers.push({ id: 'cap-' + contextKey, label: 'Capacity', value: capacityValue, color: '#ef4444', isCapacity: true });
+  }
+}
+
+function computePExceed(sorted, threshold) {
+  if (!sorted || !sorted.length) return 0;
+  const n = sorted.length;
+  let lo = 0, hi = n;
+  while (lo < hi) { const mid = (lo + hi) >> 1; sorted[mid] <= threshold ? (lo = mid + 1) : (hi = mid); }
+  return (n - lo) / n;
+}
+
+// ── Dialog ────────────────────────────────────────────────────────
+function buildColorPalette(selectedColor) {
+  document.getElementById('color-palette-grid').innerHTML =
+    COLOR_PALETTE.map(c =>
+      `<button class="color-swatch${c === selectedColor ? ' selected' : ''}"
+               style="background:${c}" data-color="${c}" title="${c}"></button>`
+    ).join('');
+}
+
+document.addEventListener('click', e => {
+  const swatch = e.target.closest('.color-swatch');
+  if (!swatch) return;
+  _dialogColor = swatch.dataset.color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s === swatch));
+});
+
+function openMarkerDialog(contextKey, markerId = null) {
+  const isNew    = markerId === null;
+  const markers  = getMarkers(contextKey);
+  const marker   = isNew ? null : markers.find(m => m.id === markerId);
+  const isCap    = marker?.isCapacity || false;
+
+  _dialogState = { contextKey, markerId };
+  _dialogColor = marker?.color || COLOR_PALETTE[4];
+
+  document.getElementById('marker-dialog-title').textContent = isNew ? 'Add Marker' : 'Edit Marker';
+  document.getElementById('marker-name-input').value  = marker?.label || '';
+  document.getElementById('marker-value-input').value = isNew ? '' : marker.value;
+  document.getElementById('marker-value-input').disabled = isCap;
+  document.getElementById('marker-value-row').style.opacity = isCap ? '0.5' : '1';
+  document.getElementById('marker-delete-btn').style.display = isNew ? 'none' : 'inline-flex';
+  buildColorPalette(_dialogColor);
+
+  document.getElementById('marker-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('marker-name-input').focus(), 50);
+}
+
+function closeMarkerDialog() {
+  document.getElementById('marker-overlay').style.display = 'none';
+  _dialogState = null;
+}
+
+// Close on overlay backdrop click
+document.getElementById('marker-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('marker-overlay')) closeMarkerDialog();
+});
+
+function handleMarkerSave() {
+  if (!_dialogState) return;
+  const { contextKey, markerId } = _dialogState;
+  const label = document.getElementById('marker-name-input').value.trim() || 'Marker';
+  const valueRaw = document.getElementById('marker-value-input').value;
+  const color = _dialogColor;
+
+  if (markerId === null) {
+    // New marker
+    const value = parseFloat(valueRaw);
+    if (isNaN(value) || value < 0) { alert('Please enter a valid PM value.'); return; }
+    getMarkers(contextKey).push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      label, value, color, isCapacity: false,
+    });
+  } else {
+    // Edit existing
+    const markers  = getMarkers(contextKey);
+    const m = markers.find(m => m.id === markerId);
+    if (!m) return;
+    m.label = label;
+    m.color = color;
+    if (!m.isCapacity) {
+      const value = parseFloat(valueRaw);
+      if (isNaN(value) || value < 0) { alert('Please enter a valid PM value.'); return; }
+      m.value = value;
+    }
+  }
+  closeMarkerDialog();
+  rerenderContext(contextKey);
+}
+
+function handleMarkerDelete() {
+  if (!_dialogState || _dialogState.markerId === null) return;
+  const { contextKey, markerId } = _dialogState;
+  const markers = getMarkers(contextKey);
+  const idx = markers.findIndex(m => m.id === markerId);
+  if (idx !== -1) markers.splice(idx, 1);
+  closeMarkerDialog();
+  rerenderContext(contextKey);
+}
+
+// ── Re-render helper ──────────────────────────────────────────────
+function rerenderContext(contextKey) {
+  const s = lastRenderState[contextKey];
+  if (!s) return;
+  const { canvasId, results, capacity, tbodyId } = s;
+
+  if (contextKey === 'org') {
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    chartInstance = renderChartOnCanvas(canvasId, results, capacity, contextKey);
+  } else if (contextKey.startsWith('team-')) {
+    const idx = parseInt(contextKey.slice(5), 10);
+    if (teamChartInstances[idx]) { teamChartInstances[idx].destroy(); teamChartInstances[idx] = null; }
+    teamChartInstances[idx] = renderChartOnCanvas(canvasId, results, capacity, contextKey);
+  }
+  renderStatsTableInto(tbodyId, results, capacity, contextKey);
+}
+
+// ── Save markers to CSV ───────────────────────────────────────────
+function saveMarkersToCSV(contextKey) {
+  const markers = getMarkers(contextKey);
+  if (!markers.length) { alert('No markers to save.'); return; }
+  const header = 'label,value,color,is_capacity';
+  const rows = markers.map(m =>
+    `${JSON.stringify(m.label)},${m.value},${m.color},${m.isCapacity}`
+  );
+  const csv  = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `markers-${contextKey}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Load markers from CSV ─────────────────────────────────────────
+let _loadMarkersContext = null;
+
+function triggerLoadMarkers(contextKey) {
+  _loadMarkersContext = contextKey;
+  const input = document.getElementById('marker-load-input');
+  input.value = '';   // reset so same file can be re-loaded
+  input.click();
+}
+
+document.getElementById('marker-load-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file || !_loadMarkersContext) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const parsed = parseCSV(ev.target.result);
+    if (!parsed.length) return;
+    const contextKey = _loadMarkersContext;
+    markerStore[contextKey] = parsed
+      .filter(r => r.label && r.value !== undefined)
+      .map(r => ({
+        id:         r.is_capacity === 'true' ? `cap-${contextKey}`
+                    : (Date.now().toString(36) + Math.random().toString(36).slice(2)),
+        label:      r.label,
+        value:      parseFloat(r.value) || 0,
+        color:      r.color || '#6366f1',
+        isCapacity: r.is_capacity === 'true',
+      }));
+
+    // If a capacity marker was loaded, sync the capacity input and re-run
+    const capRow = parsed.find(r => r.is_capacity === 'true');
+    if (capRow) {
+      const newCapacity = parseFloat(capRow.value);
+      if (!isNaN(newCapacity) && newCapacity > 0) {
+        document.getElementById('capacity').value = newCapacity;
+        const runBtn = document.getElementById('run-btn');
+        if (!runBtn.disabled) runBtn.click();
+        return; // re-run will call rerenderContext via renderChart/renderTeamSection
+      }
+    }
+
+    rerenderContext(contextKey);
+  };
+  reader.readAsText(file);
+});
+
+</script>
+
+<script>
 // Live preview refresh when quarter selections change
 document.getElementById('hist-ms').addEventListener('ms-change', tryUpdatePreview);
 document.getElementById('target-ms').addEventListener('ms-change', tryUpdatePreview);
