@@ -462,6 +462,124 @@
     }
 
     /* =====================================================
+       TABS
+       ===================================================== */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 4px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #4f46e5; }
+    .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+
+    /* Tab panels */
+    .tab-panel { display: flex; flex-direction: column; gap: 22px; }
+
+    /* Team sections */
+    #teams-container { display: flex; flex-direction: column; gap: 36px; }
+
+    .team-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .team-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e1b4b;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .team-hist-selector {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #374151;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+    }
+    .team-hist-selector .selector-label {
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      margin-right: 4px;
+    }
+    .team-hist-selector label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .team-hist-selector input[type=radio] { accent-color: #4f46e5; cursor: pointer; }
+    .team-hist-rec {
+      font-size: 11px;
+      color: #d97706;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 5px;
+      padding: 3px 8px;
+    }
+
+    .team-chart-wrapper {
+      position: relative;
+      height: 280px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 12px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .team-stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .team-stats-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: #6b7280;
+      border-bottom: 2px solid #f1f5f9;
+      background: #f9fafb;
+    }
+    .team-stats-table th.col-ms  { color: #4f46e5; }
+    .team-stats-table th.col-m   { color: #ea7c2c; }
+    .team-stats-table th.col-msc { color: #059669; }
+    .team-stats-table td {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f8fafc;
+      color: #374151;
+    }
+    .team-stats-table tr:last-child td { border-bottom: none; font-weight: 700; }
+    .team-stats-table td.val { font-variant-numeric: tabular-nums; text-align: right; }
+
+    /* =====================================================
        RESPONSIVE
        ===================================================== */
     @media (max-width: 900px) {
@@ -544,7 +662,7 @@
 
       <div class="field-group">
         <label>Iterations</label>
-        <input type="number" id="iterations" value="10000" min="1000" max="100000" step="1000">
+        <input type="number" id="iterations" value="10000" min="1000" max="10000000" step="1000">
       </div>
 
       <button id="run-btn" disabled>▶&nbsp; Run Simulation</button>
@@ -603,25 +721,39 @@
 
       <!-- Results (hidden until simulation completes) -->
       <div id="results-content" style="display:none">
-        <h2>Simulation Results <span class="sub" id="results-subtitle"></span></h2>
-
-        <div id="chart-container">
-          <canvas id="results-chart"></canvas>
+        <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:4px">
+          <h2>Simulation Results <span class="sub" id="results-subtitle"></span></h2>
         </div>
 
-        <div class="stats-section">
-          <h3>Summary Statistics (person-months)</h3>
-          <table id="stats-table">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th class="col-m">■ Must Only</th>
-                <th class="col-ms">■ Must + Should</th>
-                <th class="col-msc">■ Must + Should + Could</th>
-              </tr>
-            </thead>
-            <tbody id="stats-tbody"></tbody>
-          </table>
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="org">Organization Level</button>
+          <button class="tab-btn" data-tab="teams">Team Level</button>
+        </div>
+
+        <!-- Organization Level tab panel -->
+        <div id="tab-org" class="tab-panel">
+          <div id="chart-container">
+            <canvas id="results-chart"></canvas>
+          </div>
+          <div class="stats-section">
+            <h3>Summary Statistics (person-months)</h3>
+            <table id="stats-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th class="col-m">■ Must Only</th>
+                  <th class="col-ms">■ Must + Should</th>
+                  <th class="col-msc">■ Must + Should + Could</th>
+                </tr>
+              </thead>
+              <tbody id="stats-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Team Level tab panel -->
+        <div id="tab-teams" class="tab-panel" style="display:none">
+          <div id="teams-container"></div>
         </div>
       </div>
 
@@ -905,6 +1037,23 @@ function detectMoscowCol(rows) {
 }
 
 /**
+ * Find the team/owner column — the column immediately before the
+ * detected MoSCoW column in header order (due to the known column-shift
+ * quirk where the header named "moscow" actually holds team names).
+ * Falls back to 'moscow' — the known actual column name.
+ */
+function detectTeamCol(rows, initKeyColHeader, moscowColHeader) {
+  if (!rows.length) return 'moscow';
+  const headers = Object.keys(rows[0]);
+  const moscowIdx = headers.indexOf(moscowColHeader);
+  if (moscowIdx > 0) {
+    const candidate = headers[moscowIdx - 1];
+    if (candidate !== initKeyColHeader) return candidate;
+  }
+  return 'moscow'; // fallback
+}
+
+/**
  * In the epics CSV, find the column linking each epic to its parent
  * initiative key.  Prefers a header containing "initiative" + "jira"/"key".
  * Falls back to content-scanning, then to the literal name 'initiative jira_key'.
@@ -956,8 +1105,9 @@ function loadInitiativesCSV(text) {
   parsedInitiatives = parseCSV(text);
   const initKeyCol  = detectInitKeyCol(parsedInitiatives);
   const moscowCol   = detectMoscowCol(parsedInitiatives);
-  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol };
-  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}"`);
+  const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, moscowCol);
+  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol };
+  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}"`);
 
   const quarters  = extractQuarters(parsedInitiatives);
   const histDef   = quarters.includes('Q2 2026') ? ['Q2 2026'] : quarters.slice(0, 1);
@@ -1047,6 +1197,96 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   };
 
   return { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview };
+}
+
+/**
+ * Build per-team simulation inputs.
+ * Each team entry includes team-scoped λ/epicSizingDist AND org-wide equivalents,
+ * plus K values counted only from that team's target-quarter initiatives.
+ *
+ * @param {string[]} histQuarters
+ * @param {string[]} targetQuarters
+ * @param {number}   orgLambda         — pre-computed org-wide λ (reuse to avoid re-scan)
+ * @param {string[]} orgEpicSizingDist — pre-computed org-wide sizing pool
+ * @returns {Array} one entry per team
+ */
+function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgEpicSizingDist) {
+  const { initKeyCol, moscowCol, epicLinkCol, teamCol } = detectedCols;
+
+  // Collect all teams present in the target quarters (case-insensitive dedup)
+  const targetInits = parsedInitiatives.filter(r =>
+    targetQuarters.includes((r.quarter || '').trim())
+  );
+  const teamMap = new Map(); // normalised key → first-seen canonical name
+  for (const r of targetInits) {
+    const raw = (r[teamCol] || '').trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (!teamMap.has(key)) teamMap.set(key, raw);
+  }
+  const teams = [...teamMap.values()].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+
+  return teams.map(teamName => {
+    const teamKey = teamName.toLowerCase();
+    const isTeam  = r => (r[teamCol] || '').trim().toLowerCase() === teamKey;
+
+    // ── Historical data for this team ────────────────────────────
+    const histInits = parsedInitiatives.filter(r =>
+      histQuarters.includes((r.quarter || '').trim()) && isTeam(r)
+    );
+    const histKeys = new Set(
+      histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean)
+    );
+
+    // Poisson λ (team-scoped)
+    const epicCounts = new Map();
+    for (const key of histKeys) epicCounts.set(key, 0);
+    for (const epic of parsedEpics) {
+      const link = (epic[epicLinkCol] || '').trim();
+      if (!histKeys.has(link)) continue;
+      const size = normalizeSize(epic.t_shirt_size);
+      if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
+    }
+    const countArray = Array.from(epicCounts.values());
+    const teamLambda = countArray.length
+      ? countArray.reduce((a, b) => a + b, 0) / countArray.length
+      : 0;
+
+    // Epic sizing distribution (team-scoped)
+    const teamEpicSizingDist = [];
+    for (const epic of parsedEpics) {
+      const link = (epic[epicLinkCol] || '').trim();
+      if (!histKeys.has(link)) continue;
+      const size = normalizeSize(epic.t_shirt_size);
+      if (T_SHIRT_PARAMS[size]) teamEpicSizingDist.push(size);
+    }
+
+    // ── Target-quarter MoSCoW counts (always team-filtered) ──────
+    const teamTargetInits = targetInits.filter(isTeam);
+    const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
+    for (const r of teamTargetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
+
+    const histInitCount = histInits.length;
+    const useOrgByDefault = histInitCount <= 4;
+
+    return {
+      teamName,
+      histInitCount,
+      useOrgByDefault,
+      // Team-scoped historical parameters
+      teamLambda,
+      teamEpicSizingDist,
+      // Org-wide historical parameters (passed in)
+      orgLambda,
+      orgEpicSizingDist,
+      // Target K values (always team-scoped)
+      kMust:            moscowGroups.must,
+      kMustShould:      moscowGroups.must + moscowGroups.should,
+      kMustShouldCould: moscowGroups.must + moscowGroups.should + moscowGroups.could,
+    };
+  });
 }
 </script>
 
@@ -1180,16 +1420,12 @@ function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShould
 let chartInstance = null;
 
 /**
- * Render the overlapping histogram.
- * Both datasets share the same label array so Chart.js places them
- * at identical x positions; grouped:false makes them overlay instead
- * of render side-by-side.
+ * Core chart renderer. Draws an overlapping histogram on the given canvas.
+ * Returns the Chart instance so callers can track and destroy it later.
  */
-function renderChart(results, capacity) {
+function renderChartOnCanvas(canvasId, results, capacity) {
   const { mustShould, mustOnly, mustShouldCould, globalMin, globalMax } = results;
-  const ctx = document.getElementById('results-chart').getContext('2d');
-
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  const ctx = document.getElementById(canvasId).getContext('2d');
 
   // Shared x-axis labels = bin centers formatted to 2 dp
   const labels = mustShould.hist.binCenters.map(v => v.toFixed(2));
@@ -1236,7 +1472,7 @@ function renderChart(results, capacity) {
     },
   };
 
-  chartInstance = new Chart(ctx, {
+  const instance = new Chart(ctx, {
     type: 'bar',
     plugins: [capacityPlugin],
     data: {
@@ -1311,10 +1547,20 @@ function renderChart(results, capacity) {
       },
     },
   });
+  return instance;
 }
 
-/** Render the summary statistics table. */
-function renderStatsTable(results, capacity) {
+/** Org-level chart wrapper — renders onto #results-chart and tracks the instance. */
+function renderChart(results, capacity) {
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  chartInstance = renderChartOnCanvas('results-chart', results, capacity);
+}
+
+/**
+ * Render summary statistics into the given <tbody> element.
+ * Reusable for both org-level and per-team tables.
+ */
+function renderStatsTableInto(tbodyId, results, capacity) {
   const { mustShould, mustOnly, mustShouldCould } = results;
   const fmt = n => n.toFixed(1);
   const pct = p => (p * 100).toFixed(1) + '%';
@@ -1333,7 +1579,7 @@ function renderStatsTable(results, capacity) {
   const msX  = mustShould.stats.pExceed;
   const mscX = mustShouldCould.stats.pExceed;
 
-  document.getElementById('stats-tbody').innerHTML = [
+  document.getElementById(tbodyId).innerHTML = [
     ...rows.map(([lbl, m, ms, msc]) =>
       `<tr><td>${lbl}</td><td class="val">${m}</td><td class="val">${ms}</td><td class="val">${msc}</td></tr>`),
     `<tr>
@@ -1343,6 +1589,119 @@ function renderStatsTable(results, capacity) {
       <td class="val"><span class="${cls(mscX)}">${pct(mscX)}</span></td>
     </tr>`,
   ].join('');
+}
+
+/** Org-level stats table wrapper — renders into #stats-tbody. */
+function renderStatsTable(results, capacity) {
+  renderStatsTableInto('stats-tbody', results, capacity);
+}
+
+// ── Team-level chart tracking ─────────────────────────────────────
+let teamChartInstances = [];
+// Cached per-team data and simulation params (set by run button handler)
+let lastTeamData      = [];
+let lastCapacity      = 120;
+let lastIterations    = 10000;
+
+/**
+ * (Re-)render chart + stats for a single team section.
+ * Called on initial render and when the user toggles the radio button.
+ */
+function renderTeamSection(idx, useOrg) {
+  const td = lastTeamData[idx];
+  const lambda        = useOrg ? td.orgLambda        : td.teamLambda;
+  const epicSizingDist = useOrg ? td.orgEpicSizingDist : td.teamEpicSizingDist;
+
+  const results = runSimulation({
+    lambda, epicSizingDist,
+    kMust: td.kMust, kMustShould: td.kMustShould, kMustShouldCould: td.kMustShouldCould,
+    capacity: lastCapacity, iterations: lastIterations,
+  });
+
+  if (teamChartInstances[idx]) { teamChartInstances[idx].destroy(); }
+  teamChartInstances[idx] = renderChartOnCanvas(`team-chart-${idx}`, results, lastCapacity);
+  renderStatsTableInto(`team-stats-tbody-${idx}`, results, lastCapacity);
+}
+
+/**
+ * Build the Team Level tab: one section per team with radio selector,
+ * chart, and stats table.
+ */
+function renderTeamCharts(teamDataArray, capacity, iterations) {
+  // Persist for re-render on radio toggle
+  lastTeamData   = teamDataArray;
+  lastCapacity   = capacity;
+  lastIterations = iterations;
+
+  // Destroy previous instances
+  teamChartInstances.forEach(c => { if (c) c.destroy(); });
+  teamChartInstances = new Array(teamDataArray.length).fill(null);
+
+  const container = document.getElementById('teams-container');
+  container.innerHTML = '';
+
+  teamDataArray.forEach((td, idx) => {
+    const useOrg    = td.useOrgByDefault;
+    const orgCount  = td.orgEpicSizingDist.length; // proxy for org hist init count (epic samples)
+    const recNote   = td.useOrgByDefault
+      ? `<span class="team-hist-rec">⚠️ Recommended: only ${td.histInitCount} historical initiative${td.histInitCount !== 1 ? 's' : ''} found for this team</span>`
+      : '';
+
+    const section = document.createElement('div');
+    section.className = 'team-section';
+    section.dataset.teamIdx = idx;
+    section.innerHTML = `
+      <div class="team-section-title">
+        ${td.teamName}
+        <span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:10px">
+          Must: ${td.kMust} &nbsp;·&nbsp; Must+Should: ${td.kMustShould} &nbsp;·&nbsp; All: ${td.kMustShouldCould}
+        </span>
+      </div>
+      <div class="team-hist-selector">
+        <span class="selector-label">Historical data</span>
+        <label>
+          <input type="radio" name="hist-src-${idx}" value="team" ${!useOrg ? 'checked' : ''}>
+          This team only&nbsp;<span style="color:#9ca3af">(${td.histInitCount} initiative${td.histInitCount !== 1 ? 's' : ''})</span>
+        </label>
+        <label>
+          <input type="radio" name="hist-src-${idx}" value="org" ${useOrg ? 'checked' : ''}>
+          All teams — org-wide&nbsp;<span style="color:#9ca3af">(${td.orgEpicSizingDist.length} epic samples)</span>
+        </label>
+        ${recNote}
+      </div>
+      <div class="team-chart-wrapper">
+        <canvas id="team-chart-${idx}"></canvas>
+      </div>
+      <div class="stats-section">
+        <h3>Summary Statistics (person-months)</h3>
+        <table class="team-stats-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th class="col-m">■ Must Only</th>
+              <th class="col-ms">■ Must + Should</th>
+              <th class="col-msc">■ Must + Should + Could</th>
+            </tr>
+          </thead>
+          <tbody id="team-stats-tbody-${idx}"></tbody>
+        </table>
+      </div>
+    `;
+    container.appendChild(section);
+
+    // Render chart + stats for initial selection
+    renderTeamSection(idx, useOrg);
+  });
+
+  // Radio toggle handler (event delegation on container)
+  container.addEventListener('change', e => {
+    if (!e.target.matches('input[type=radio]')) return;
+    const sectionEl = e.target.closest('.team-section');
+    if (!sectionEl) return;
+    const i      = parseInt(sectionEl.dataset.teamIdx, 10);
+    const useOrgNow = e.target.value === 'org';
+    renderTeamSection(i, useOrgNow);
+  });
 }
 
 /** Render the sidebar data-preview block. */
@@ -1449,6 +1808,22 @@ document.getElementById('epics-file').addEventListener('change', async e => {
 document.getElementById('hist-ms').addEventListener('ms-change', tryUpdatePreview);
 document.getElementById('target-ms').addEventListener('ms-change', tryUpdatePreview);
 
+// ── Tab switching ─────────────────────────────────────────────────
+document.getElementById('results-content').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.style.display = p.id === `tab-${tab}` ? 'flex' : 'none';
+  });
+  // Chart.js can't compute canvas dimensions while the container is hidden;
+  // resize all team charts once the team tab becomes visible.
+  if (tab === 'teams') {
+    teamChartInstances.forEach(c => { if (c) c.resize(); });
+  }
+});
+
 // ── Run button ────────────────────────────────────────────────────
 document.getElementById('run-btn').addEventListener('click', () => {
   if (!parsedInitiatives || !parsedEpics) { alert('Upload both CSV files first.'); return; }
@@ -1458,8 +1833,8 @@ document.getElementById('run-btn').addEventListener('click', () => {
   if (!histQs.length)   { alert('Select at least one historical quarter.'); return; }
   if (!targetQs.length) { alert('Select at least one target quarter.'); return; }
   const capacity = parseFloat(document.getElementById('capacity').value)   || 120;
-  const iters    = Math.min(100000, Math.max(1000,
-                    parseInt(document.getElementById('iterations').value)  || 10000));
+  const iters    = Math.min(10000000, Math.max(1000,
+                    parseInt(document.getElementById('iterations').value)  || 1000000));
 
   // ── Show spinner ──────────────────────────────────────────────
   document.getElementById('spinner-overlay').style.display  = 'flex';
@@ -1492,13 +1867,24 @@ document.getElementById('run-btn').addEventListener('click', () => {
       // ── Run simulation ────────────────────────────────────────
       const results = runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations: iters });
 
-      // ── Render ────────────────────────────────────────────────
+      // ── Render org level ──────────────────────────────────────
       renderPreview(preview);
       renderChart(results, capacity);
       renderStatsTable(results, capacity);
 
+      // ── Run & render team level ───────────────────────────────
+      const teamData = prepareTeamSimulationData(histQs, targetQs, lambda, epicSizingDist);
+      renderTeamCharts(teamData, capacity, iters);
+
+      // ── Show results, reset to org tab ────────────────────────
       document.getElementById('results-subtitle').textContent =
         `— ${targetQs.join(', ')} · ${iters.toLocaleString()} iterations`;
+      // Reset active tab to Organisation Level on each new run
+      document.querySelectorAll('.tab-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === 'org')
+      );
+      document.getElementById('tab-org').style.display   = 'flex';
+      document.getElementById('tab-teams').style.display = 'none';
       document.getElementById('results-content').style.display = 'flex';
 
     } catch (err) {
