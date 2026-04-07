@@ -586,10 +586,11 @@
     /* MoSCoW badges — shared across projections tab */
     .mb { display:inline-block; padding:1px 7px; border-radius:4px;
           font-size:11px; font-weight:600; white-space:nowrap; }
-    .mb-must    { background:#fef2f2; color:#ef4444; }
-    .mb-should  { background:#fffbeb; color:#d97706; }
-    .mb-could   { background:#eff6ff; color:#3b82f6; }
-    .mb-wont    { background:#f9fafb; color:#9ca3af; }
+    .mb-must     { background:#fef2f2; color:#ef4444; }
+    .mb-should   { background:#fffbeb; color:#d97706; }
+    .mb-could    { background:#eff6ff; color:#3b82f6; }
+    .mb-wont     { background:#f9fafb; color:#9ca3af; }
+    .mb-constant { background:#f0fdf4; color:#16a34a; font-size:13px; padding:1px 3px; }
     .mb-unknown { background:#f9fafb; color:#9ca3af; }
 
     /* Count chips used in the summary table cells */
@@ -730,6 +731,15 @@
           <span class="file-icon">📄</span>
           <span class="file-name" id="epics-file-name">Click to upload…</span>
           <input type="file" id="epics-file" accept=".csv">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Constant Work CSV <span style="font-size:10px;color:#9ca3af;font-weight:400">(optional)</span></label>
+        <div class="file-upload-wrapper" id="constant-work-upload">
+          <span class="file-icon">📄</span>
+          <span class="file-name" id="constant-work-file-name">Click to upload…</span>
+          <input type="file" id="constant-work-file" accept=".csv">
         </div>
       </div>
 
@@ -1041,6 +1051,18 @@ const T_SHIRT_PARAMS = {
   'XL+': { mu:  2.3503, sigma: 0.0372 }, // range [10,  11]    PM
 };
 
+/**
+ * Convert a t-shirt size label to a deterministic person-months value
+ * using the lognormal mean = e^(μ + σ²/2).
+ * This is the true expected value of the effort distribution and properly
+ * accounts for right-skew — the right choice for adding known, fixed work.
+ */
+function tshirtToPersonMonths(size) {
+  const p = T_SHIRT_PARAMS[normalizeSize(size)];
+  if (!p) return 0;
+  return Math.exp(p.mu + (p.sigma * p.sigma) / 2);
+}
+
 // ── Box-Muller transform ──────────────────────────────────────────
 // Generates two correlated N(0,1) samples per call; caches the spare.
 let _bmSpare = NaN;
@@ -1261,6 +1283,7 @@ function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
 // ── Parsed row cache + detected column names ──────────────────────
 let parsedInitiatives = null;
 let parsedEpics       = null;
+let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
 let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
 
 function loadInitiativesCSV(text) {
@@ -1286,6 +1309,53 @@ function loadEpicsCSV(text) {
   const epicLinkCol = detectEpicLinkCol(parsedEpics);
   detectedCols = { ...(detectedCols || {}), epicLinkCol };
   console.log(`[Epics] ${parsedEpics.length} rows | link="${epicLinkCol}"`);
+}
+
+function loadConstantWorkCSV(text) {
+  parsedConstantWork = parseCSV(text);
+  console.log(`[ConstantWork] ${parsedConstantWork.length} rows`);
+}
+
+/**
+ * Sum the deterministic person-months for constant-work epics that match
+ * the given quarters and (optionally) a specific team name.
+ */
+function getConstantWorkEffort(quarters, teamName = null) {
+  if (!parsedConstantWork || !parsedConstantWork.length) return 0;
+  const qSet = new Set(quarters.map(q => q.trim()));
+  let total = 0;
+  for (const r of parsedConstantWork) {
+    const rowQ    = (r.quarter || '').trim();
+    const rowTeam = (r.team    || '').trim().toLowerCase();
+    if (!qSet.has(rowQ)) continue;
+    if (teamName !== null && rowTeam !== teamName.toLowerCase()) continue;
+    total += tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || '');
+  }
+  return total;
+}
+
+/**
+ * Return constant-work epics for a specific team and quarter,
+ * formatted for display in the Team Projections initiative table.
+ */
+function getConstantWorkEpics(quarter, teamName) {
+  if (!parsedConstantWork || !parsedConstantWork.length) return [];
+  const q   = quarter.trim();
+  const key = teamName.toLowerCase();
+  return parsedConstantWork
+    .filter(r =>
+      (r.quarter || '').trim() === q &&
+      (r.team    || '').trim().toLowerCase() === key
+    )
+    .map(r => ({
+      key:        (r.jira_key || r.epic_key || '').trim(),
+      name:       (r.epic_name || r.building_block || '').trim(),
+      kr:         (r.key_result || r.KR || r.kr || '').trim(),
+      moscow:     normalizeMoscow(r.moscow || ''),
+      effort:     tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || ''),
+      tshirt:     normalizeSize(r.tshirt_size || r.t_shirt_size || ''),
+      isConstant: true,
+    }));
 }
 </script>
 
@@ -1450,6 +1520,8 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       kMust:            moscowGroups.must,
       kMustShould:      moscowGroups.must + moscowGroups.should,
       kMustShouldCould: moscowGroups.must + moscowGroups.should + moscowGroups.could,
+      // Deterministic constant-work effort for this team's target quarters
+      fixedEffort: getConstantWorkEffort(targetQuarters, teamName),
     };
   });
 }
@@ -1487,11 +1559,22 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
 
     const byQuarter = {};
 
-    for (const q of allQuarters) {
-      const qInits = teamAll.filter(r => (r.quarter || '').trim() === q);
-      if (!qInits.length) continue;
+    // Collect all quarters that have either initiatives or constant work for this team
+    const cwQuarters = parsedConstantWork
+      ? [...new Set(parsedConstantWork
+          .filter(r => (r.team || '').trim().toLowerCase() === teamKey)
+          .map(r => (r.quarter || '').trim())
+          .filter(Boolean))]
+      : [];
+    const activeQuartersForTeam = [...new Set([...allQuarters, ...cwQuarters])];
 
-      // MoSCoW counts
+    for (const q of activeQuartersForTeam) {
+      const qInits = teamAll.filter(r => (r.quarter || '').trim() === q);
+      const cwEpics = getConstantWorkEpics(q, teamName);
+
+      if (!qInits.length && !cwEpics.length) continue;
+
+      // MoSCoW counts (initiatives only — constant work is separate)
       const mg = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
       const initiatives = [];
       for (const r of qInits) {
@@ -1510,18 +1593,25 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
         (mOrder.indexOf(a.moscow) - mOrder.indexOf(b.moscow)) ||
         a.key.localeCompare(b.key)
       );
+      // Append constant-work epics at the end (already labelled isConstant)
+      for (const cw of cwEpics) initiatives.push(cw);
 
       const kMust            = mg.must;
       const kMustShould      = mg.must + mg.should;
       const kMustShouldCould = mg.must + mg.should + mg.could;
 
-      // Run quick Monte Carlo for P25/P50/P75 on the "all" (MSC) scenario
-      let p25 = 0, p50 = 0, p75 = 0;
+      // Total deterministic constant-work effort for this team/quarter
+      const cwEffort = cwEpics.reduce((s, e) => s + e.effort, 0);
+
+      // Run quick Monte Carlo for P25/P50/P75 on the "all" (MSC) scenario,
+      // then shift by the constant-work effort so projections include it.
+      let p25 = cwEffort, p50 = cwEffort, p75 = cwEffort;
       if (kMustShouldCould > 0 && orgEpicSizingDist.length > 0 && orgLambda > 0) {
         const sim = runSimulation({
           lambda: orgLambda, epicSizingDist: orgEpicSizingDist,
           kMust, kMustShould, kMustShouldCould,
           capacity: 0, iterations: projIterations,
+          fixedEffort: cwEffort,
         });
         p25 = sim.mustShouldCould.stats.p25;
         p50 = sim.mustShouldCould.stats.p50;
@@ -1532,6 +1622,7 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
         kMust, kShould: mg.should, kCould: mg.could,
         kMustShould, kMustShouldCould,
         p25, p50, p75,
+        cwEffort,
         initiatives,
       };
     }
@@ -1615,7 +1706,7 @@ function buildHistogram(sorted, globalMin, globalMax, numBins) {
 /**
  * Orchestrate both scenarios and return all data needed for rendering.
  */
-function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations }) {
+function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations, fixedEffort = 0 }) {
   // Fresh RNG seed combining time and entropy
   rng = new Xoshiro128ss((Date.now() ^ Math.imul(Date.now(), 0x9e3779b9)) >>> 0);
   resetBoxMuller();
@@ -1632,30 +1723,43 @@ function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShould
     ? runScenario(kMustShouldCould, lambda, epicSizingDist, iterations)
     : new Float64Array(iterations);
 
+  // Shift all samples by the deterministic constant-work effort.
+  // Adding a constant to a sorted array preserves sort order.
+  const shift = arr => {
+    if (!fixedEffort) return arr;
+    const out = new Float64Array(arr.length);
+    for (let i = 0; i < arr.length; i++) out[i] = arr[i] + fixedEffort;
+    return out;
+  };
+  const shiftedMS  = shift(sortedMS);
+  const shiftedM   = shift(sortedM);
+  const shiftedMSC = shift(sortedMSC);
+
   // Clip chart range at P99.5 to prevent outliers from stretching the axis
   const p995 = arr => arr[Math.min(arr.length - 1, Math.floor(0.995 * arr.length))];
-  const globalMin = 0;
-  const globalMax = Math.max(p995(sortedMS), p995(sortedM), p995(sortedMSC), 1);
+  const globalMin = fixedEffort; // distribution now starts at fixedEffort, not 0
+  const globalMax = Math.max(p995(shiftedMS), p995(shiftedM), p995(shiftedMSC), fixedEffort + 1);
 
   const NUM_BINS = 60;
 
   return {
     mustShould: {
-      sorted: sortedMS,
-      stats:  computeStats(sortedMS, capacity),
-      hist:   buildHistogram(sortedMS, globalMin, globalMax, NUM_BINS),
+      sorted: shiftedMS,
+      stats:  computeStats(shiftedMS, capacity),
+      hist:   buildHistogram(shiftedMS, globalMin, globalMax, NUM_BINS),
     },
     mustOnly: {
-      sorted: sortedM,
-      stats:  computeStats(sortedM, capacity),
-      hist:   buildHistogram(sortedM, globalMin, globalMax, NUM_BINS),
+      sorted: shiftedM,
+      stats:  computeStats(shiftedM, capacity),
+      hist:   buildHistogram(shiftedM, globalMin, globalMax, NUM_BINS),
     },
     mustShouldCould: {
-      sorted: sortedMSC,
-      stats:  computeStats(sortedMSC, capacity),
-      hist:   buildHistogram(sortedMSC, globalMin, globalMax, NUM_BINS),
+      sorted: shiftedMSC,
+      stats:  computeStats(shiftedMSC, capacity),
+      hist:   buildHistogram(shiftedMSC, globalMin, globalMax, NUM_BINS),
     },
     globalMin, globalMax,
+    fixedEffort,
   };
 }
 </script>
@@ -1868,6 +1972,7 @@ function renderTeamSection(idx, useOrg) {
     lambda, epicSizingDist,
     kMust: td.kMust, kMustShould: td.kMustShould, kMustShouldCould: td.kMustShouldCould,
     capacity: lastCapacity, iterations: lastIterations,
+    fixedEffort: td.fixedEffort || 0,
   });
 
   if (teamChartInstances[idx]) { teamChartInstances[idx].destroy(); }
@@ -2055,10 +2160,15 @@ function renderTeamProjections(projData, allQuarters) {
       const krCell = hasKr
         ? `<td class="kr-col" style="white-space:nowrap;font-size:11px;color:#6366f1;font-weight:600">${i.kr || '—'}</td>`
         : '';
-      return `<tr>
+      // For constant-work epics, show the t-shirt size and effort in the name cell
+      const nameDisplay = i.isConstant
+        ? `${i.name || '—'} <span style="font-size:10px;color:#16a34a;font-weight:600;white-space:nowrap">[${i.tshirt} · ~${i.effort.toFixed(2)} PM]</span>`
+        : (i.name || '—');
+      const rowStyle = i.isConstant ? ' style="background:#f0fdf4"' : '';
+      return `<tr${rowStyle}>
         <td class="jira-key">${i.key || '—'}</td>
         ${krCell}
-        <td class="init-name" title="${i.name.replace(/"/g, '&quot;')}">${i.name || '—'}</td>
+        <td class="init-name" title="${(i.name || '').replace(/"/g, '&quot;')}">${nameDisplay}</td>
         ${qCols}
       </tr>`;
     }).join('');
@@ -2341,6 +2451,18 @@ document.getElementById('epics-file').addEventListener('change', async e => {
   } catch (err) { alert('Error loading epics CSV:\n' + err.message); }
 });
 
+document.getElementById('constant-work-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    loadConstantWorkCSV(await readFile(file));
+    document.getElementById('constant-work-file-name').textContent = file.name;
+    const wrap = document.getElementById('constant-work-upload');
+    wrap.classList.add('loaded');
+    wrap.querySelector('.file-icon').textContent = '✅';
+  } catch (err) { alert('Error loading constant work CSV:\n' + err.message); }
+});
+
 // Live preview refresh when quarter selections change
 document.getElementById('hist-ms').addEventListener('ms-change', tryUpdatePreview);
 document.getElementById('target-ms').addEventListener('ms-change', tryUpdatePreview);
@@ -2405,7 +2527,8 @@ document.getElementById('run-btn').addEventListener('click', () => {
       }
 
       // ── Run simulation ────────────────────────────────────────
-      const results = runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations: iters });
+      const orgFixedEffort = getConstantWorkEffort(targetQs); // sum across ALL teams for org level
+      const results = runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations: iters, fixedEffort: orgFixedEffort });
 
       // ── Render org level ──────────────────────────────────────
       renderPreview(preview);
