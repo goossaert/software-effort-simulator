@@ -792,6 +792,7 @@
           <table class="size-table">
             <thead><tr><th>Size</th><th>Min PM</th><th>Max PM</th></tr></thead>
             <tbody>
+              <tr><td>2XS</td><td>0.10</td><td>0.25</td></tr>
               <tr><td>XS</td><td>0.25</td><td>0.75</td></tr>
               <tr><td>S</td><td>0.75</td><td>1.5</td></tr>
               <tr><td>M</td><td>1.5</td><td>3</td></tr>
@@ -1043,6 +1044,7 @@ let rng = new Xoshiro128ss();
  * naturally skewing the distribution toward the low end.
  */
 const T_SHIRT_PARAMS = {
+  '2XS': { mu: -1.8444, sigma: 0.3575 }, // range [0.1,  0.25] PM
   'XS':  { mu: -0.8370, sigma: 0.4286 }, // range [0.25, 0.75] PM
   'S':   { mu:  0.0589, sigma: 0.2703 }, // range [0.75, 1.5]  PM
   'M':   { mu:  0.7521, sigma: 0.2703 }, // range [1.5,  3]    PM
@@ -2355,7 +2357,7 @@ function renderTeamProjections(projData, allQuarters) {
 function renderPreview(preview) {
   const sizeStr = Object.entries(preview.sizeDist)
     .sort((a, b) => {
-      const order = ['XS','S','M','L','XL','XL+'];
+      const order = ['2XS','XS','S','M','L','XL','XL+'];
       return order.indexOf(a[0]) - order.indexOf(b[0]);
     })
     .map(([k, v]) => `${k}×${v}`)
@@ -2516,7 +2518,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
           `Detected columns → init key: "${detectedCols.initKeyCol}", ` +
           `epic link: "${detectedCols.epicLinkCol}".\n\n` +
           `Verify that epics link to initiatives in the selected quarter(s) and have a recognised ` +
-          `t_shirt_size (XS, S, M, L, XL, XL+).`
+          `t_shirt_size (2XS, XS, S, M, L, XL, XL+).`
         );
       }
       if (lambda === 0) {
