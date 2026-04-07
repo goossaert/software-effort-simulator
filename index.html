@@ -580,6 +580,108 @@
     .team-stats-table td.val { font-variant-numeric: tabular-nums; text-align: right; }
 
     /* =====================================================
+       TEAM PROJECTIONS TAB
+       ===================================================== */
+
+    /* MoSCoW badges — shared across projections tab */
+    .mb { display:inline-block; padding:1px 7px; border-radius:4px;
+          font-size:11px; font-weight:600; white-space:nowrap; }
+    .mb-must    { background:#fef2f2; color:#ef4444; }
+    .mb-should  { background:#fffbeb; color:#d97706; }
+    .mb-could   { background:#eff6ff; color:#3b82f6; }
+    .mb-wont    { background:#f9fafb; color:#9ca3af; }
+    .mb-unknown { background:#f9fafb; color:#9ca3af; }
+
+    /* Count chips used in the summary table cells */
+    .mc-chip { display:inline-flex; align-items:center; gap:3px;
+               padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; }
+    .mc-must   { background:#fef2f2; color:#ef4444; }
+    .mc-should { background:#fffbeb; color:#d97706; }
+    .mc-could  { background:#eff6ff; color:#3b82f6; }
+
+    /* Summary table (teams × quarters) */
+    #proj-summary-wrap { overflow-x: auto; }
+    .proj-summary-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); min-width: 600px;
+    }
+    .proj-summary-table th {
+      padding: 8px 12px; text-align: center;
+      font-weight: 600; color: #6b7280;
+      border-bottom: 2px solid #f1f5f9; background: #f9fafb;
+      font-size: 11px; white-space: nowrap;
+    }
+    .proj-summary-table th:first-child { text-align: left; min-width: 90px; }
+    .proj-summary-table td {
+      padding: 8px 12px; border-bottom: 1px solid #f8fafc;
+      text-align: center; vertical-align: middle;
+    }
+    .proj-summary-table td:first-child { text-align:left; font-weight:600; color:#1e1b4b; }
+    .proj-summary-table tr:last-child td { border-bottom: none; }
+    .proj-cell-chips { display:flex; flex-direction:column; gap:2px; align-items:center; }
+
+    /* Per-team projection sections */
+    #proj-teams-container { display: flex; flex-direction: column; gap: 36px; }
+
+    .proj-team-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .proj-team-title {
+      font-size: 15px; font-weight: 700; color: #1e1b4b;
+      padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;
+    }
+
+    .proj-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .proj-chart-card {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .proj-chart-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6b7280;
+    }
+    .proj-chart-wrapper {
+      position: relative; height: 210px;
+      background: white; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: 12px 10px 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Initiative matrix table */
+    .proj-init-wrap { overflow-x: auto; }
+    .proj-init-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .proj-init-table th {
+      padding: 7px 10px; text-align: left;
+      font-weight: 600; font-size: 11px; color: #6b7280;
+      border-bottom: 2px solid #f1f5f9; background: #f9fafb;
+      white-space: nowrap;
+    }
+    .proj-init-table th.qcol { text-align: center; min-width: 76px; }
+    .proj-init-table td {
+      padding: 5px 10px; border-bottom: 1px solid #f8fafc;
+      color: #374151; white-space: nowrap;
+    }
+    .proj-init-table td.jira-key {
+      font-family: ui-monospace, monospace; font-size: 11px;
+      color: #6366f1; min-width: 92px;
+    }
+    .proj-init-table td.init-name {
+      color: #1e1b4b; max-width: 260px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .proj-init-table td.moscow-td { min-width: 86px; }
+    .proj-init-table td.qcol { text-align: center; }
+    .proj-init-table tr:last-child td { border-bottom: none; }
+
+    @media (max-width: 760px) {
+      .proj-charts-row { grid-template-columns: 1fr; }
+    }
+
+    /* =====================================================
        RESPONSIVE
        ===================================================== */
     @media (max-width: 900px) {
@@ -728,6 +830,7 @@
         <div class="tab-bar">
           <button class="tab-btn active" data-tab="org">Organization Level</button>
           <button class="tab-btn" data-tab="teams">Team Level</button>
+          <button class="tab-btn" data-tab="projections">Team Projections</button>
         </div>
 
         <!-- Organization Level tab panel -->
@@ -754,6 +857,12 @@
         <!-- Team Level tab panel -->
         <div id="tab-teams" class="tab-panel" style="display:none">
           <div id="teams-container"></div>
+        </div>
+
+        <!-- Team Projections tab panel -->
+        <div id="tab-projections" class="tab-panel" style="display:none">
+          <div id="proj-summary-wrap"></div>
+          <div id="proj-teams-container"></div>
         </div>
       </div>
 
@@ -1009,48 +1118,81 @@ function parseCSV(text) {
 /**
  * Scan all columns; return the header whose values most closely
  * resemble Jira-style keys (e.g. INIT-123, ABC-42).
- * Falls back to 'teams' — the known actual column name.
+ * Falls back to column named 'jira_key' (new sensible format) or 'teams' (old quirky format).
  */
 function detectInitKeyCol(rows) {
-  if (!rows.length) return 'teams';
+  if (!rows.length) return 'jira_key';
   const RE = /^[A-Z][A-Z0-9_]+-\d+$/;
+  // 1) Content-based scan (catches both old and new CSV formats)
   for (const hdr of Object.keys(rows[0])) {
     const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
     if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.5) return hdr;
   }
-  return 'teams'; // fallback
+  // 2) Header-name fallback
+  const headers = Object.keys(rows[0]);
+  if (headers.includes('jira_key')) return 'jira_key';
+  return 'teams'; // old fallback
 }
 
 /**
  * Scan all columns; return the header whose values most closely
  * resemble MoSCoW priority strings (must / should / could / won't).
- * Falls back to 'emoji' — the known actual column name.
+ * Falls back to column named 'moscow' (new sensible format) or 'emoji' (old quirky format).
  */
 function detectMoscowCol(rows) {
-  if (!rows.length) return 'emoji';
+  if (!rows.length) return 'moscow';
   const RE = /must|should|could|won.t/i;
+  // 1) Content-based scan
   for (const hdr of Object.keys(rows[0])) {
     const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
     if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.5) return hdr;
   }
-  return 'emoji'; // fallback
+  // 2) Header-name fallback
+  const headers = Object.keys(rows[0]);
+  if (headers.includes('moscow')) return 'moscow';
+  return 'emoji'; // old fallback
 }
 
 /**
- * Find the team/owner column — the column immediately before the
- * detected MoSCoW column in header order (due to the known column-shift
- * quirk where the header named "moscow" actually holds team names).
- * Falls back to 'moscow' — the known actual column name.
+ * Find the initiative name/description column.
+ * For the new sensible format, this is 'building_block'.
+ * For the old quirky format, it's the column before jira_key.
+ * Falls back to 'building_block'.
+ */
+function detectNameCol(rows, initKeyColHeader) {
+  if (!rows.length) return 'building_block';
+  const headers = Object.keys(rows[0]);
+
+  // 1) Direct header match (new sensible format)
+  if (headers.includes('building_block')) return 'building_block';
+
+  // 2) Position-based fallback (old quirky format: column before jira_key)
+  const idx = headers.indexOf(initKeyColHeader);
+  if (idx > 0) return headers[idx - 1];
+
+  return 'building_block';
+}
+
+/**
+ * Find the team/owner column.
+ * For the new sensible format, this is simply the 'teams' column.
+ * For the old quirky format, it's the column before moscow (which held team names).
+ * Falls back to 'teams'.
  */
 function detectTeamCol(rows, initKeyColHeader, moscowColHeader) {
-  if (!rows.length) return 'moscow';
+  if (!rows.length) return 'teams';
   const headers = Object.keys(rows[0]);
+
+  // 1) Direct header match (new sensible format)
+  if (headers.includes('teams')) return 'teams';
+
+  // 2) Position-based fallback (old quirky format: column before moscow)
   const moscowIdx = headers.indexOf(moscowColHeader);
   if (moscowIdx > 0) {
     const candidate = headers[moscowIdx - 1];
     if (candidate !== initKeyColHeader) return candidate;
   }
-  return 'moscow'; // fallback
+  return 'teams';
 }
 
 /**
@@ -1106,8 +1248,9 @@ function loadInitiativesCSV(text) {
   const initKeyCol  = detectInitKeyCol(parsedInitiatives);
   const moscowCol   = detectMoscowCol(parsedInitiatives);
   const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, moscowCol);
-  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol };
-  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}"`);
+  const nameCol     = detectNameCol(parsedInitiatives, initKeyCol);
+  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol, nameCol };
+  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}" | name="${nameCol}"`);
 
   const quarters  = extractQuarters(parsedInitiatives);
   const histDef   = quarters.includes('Q2 2026') ? ['Q2 2026'] : quarters.slice(0, 1);
@@ -1286,6 +1429,91 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       kMustShould:      moscowGroups.must + moscowGroups.should,
       kMustShouldCould: moscowGroups.must + moscowGroups.should + moscowGroups.could,
     };
+  });
+}
+
+/**
+ * Build per-team, per-quarter projection data for the Team Projections tab.
+ * Uses org-wide historical parameters (lambda + epic pool) for all effort
+ * estimates so results are comparable across teams.
+ *
+ * @param {string[]} allQuarters     — all quarters in the CSV, sorted chronologically
+ * @param {number}   orgLambda       — org-wide Poisson λ
+ * @param {string[]} orgEpicSizingDist — org-wide epic sizing bootstrap pool
+ * @param {number}   projIterations  — Monte Carlo iterations for projections (capped for speed)
+ * @returns {Array}  one entry per team
+ */
+function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIterations) {
+  const { initKeyCol, moscowCol, teamCol, nameCol } = detectedCols;
+
+  // Collect all teams appearing anywhere in the CSV (not just target quarter)
+  const teamMap = new Map();
+  for (const r of parsedInitiatives) {
+    const raw = (r[teamCol] || '').trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (!teamMap.has(key)) teamMap.set(key, raw);
+  }
+  const teams = [...teamMap.values()].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+
+  return teams.map(teamName => {
+    const teamKey = teamName.toLowerCase();
+    const isTeam  = r => (r[teamCol] || '').trim().toLowerCase() === teamKey;
+    const teamAll = parsedInitiatives.filter(isTeam);
+
+    const byQuarter = {};
+
+    for (const q of allQuarters) {
+      const qInits = teamAll.filter(r => (r.quarter || '').trim() === q);
+      if (!qInits.length) continue;
+
+      // MoSCoW counts
+      const mg = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
+      const initiatives = [];
+      for (const r of qInits) {
+        const m = normalizeMoscow(r[moscowCol]);
+        mg[m]++;
+        initiatives.push({
+          key:    (r[initKeyCol] || '').trim(),
+          name:   (r[nameCol]    || '').trim(),
+          moscow: m,
+        });
+      }
+      // Sort initiatives: Must → Should → Could → Won't → Unknown, then alpha by key
+      const mOrder = ['must','should','could','wont','unknown'];
+      initiatives.sort((a, b) =>
+        (mOrder.indexOf(a.moscow) - mOrder.indexOf(b.moscow)) ||
+        a.key.localeCompare(b.key)
+      );
+
+      const kMust            = mg.must;
+      const kMustShould      = mg.must + mg.should;
+      const kMustShouldCould = mg.must + mg.should + mg.could;
+
+      // Run quick Monte Carlo for P25/P50/P75 on the "all" (MSC) scenario
+      let p25 = 0, p50 = 0, p75 = 0;
+      if (kMustShouldCould > 0 && orgEpicSizingDist.length > 0 && orgLambda > 0) {
+        const sim = runSimulation({
+          lambda: orgLambda, epicSizingDist: orgEpicSizingDist,
+          kMust, kMustShould, kMustShouldCould,
+          capacity: 0, iterations: projIterations,
+        });
+        p25 = sim.mustShouldCould.stats.p25;
+        p50 = sim.mustShouldCould.stats.p50;
+        p75 = sim.mustShouldCould.stats.p75;
+      }
+
+      byQuarter[q] = {
+        kMust, kShould: mg.should, kCould: mg.could,
+        kMustShould, kMustShouldCould,
+        p25, p50, p75,
+        initiatives,
+      };
+    }
+
+    return { teamName, byQuarter };
   });
 }
 </script>
@@ -1597,7 +1825,8 @@ function renderStatsTable(results, capacity) {
 }
 
 // ── Team-level chart tracking ─────────────────────────────────────
-let teamChartInstances = [];
+let teamChartInstances      = [];
+let projectionChartInstances = [];
 // Cached per-team data and simulation params (set by run button handler)
 let lastTeamData      = [];
 let lastCapacity      = 120;
@@ -1701,6 +1930,284 @@ function renderTeamCharts(teamDataArray, capacity, iterations) {
     const i      = parseInt(sectionEl.dataset.teamIdx, 10);
     const useOrgNow = e.target.value === 'org';
     renderTeamSection(i, useOrgNow);
+  });
+}
+
+// ── Helpers for Team Projections rendering ────────────────────────
+
+/** Return an HTML badge for a normalised MoSCoW value. */
+function moscowBadge(m) {
+  const labels = { must:'Must', should:'Should', could:'Could', wont:"Won't", unknown:'?' };
+  return `<span class="mb mb-${m}">${labels[m] || m}</span>`;
+}
+
+/** Return compact count-chips HTML (omits categories with 0 count). */
+function countChips(kMust, kShould, kCould) {
+  let s = '';
+  if (kMust)   s += `<span class="mc-chip mc-must">M:${kMust}</span>`;
+  if (kShould) s += `<span class="mc-chip mc-should">S:${kShould}</span>`;
+  if (kCould)  s += `<span class="mc-chip mc-could">C:${kCould}</span>`;
+  return s || '<span style="color:#d1d5db">—</span>';
+}
+
+/**
+ * Render the Team Projections tab.
+ *
+ * @param {Array}    projData   — output of buildTeamProjections()
+ * @param {string[]} allQuarters — sorted list of all quarters
+ */
+function renderTeamProjections(projData, allQuarters) {
+  // Destroy previous projection charts
+  projectionChartInstances.forEach(c => { if (c) c.destroy(); });
+  projectionChartInstances = [];
+
+  // ── 1. Summary table ─────────────────────────────────────────────
+  const summaryWrap = document.getElementById('proj-summary-wrap');
+
+  const headerCols = allQuarters.map(q =>
+    `<th>${q.replace(' ', '&nbsp;')}</th>`).join('');
+
+  const bodyRows = projData.map(({ teamName, byQuarter }) => {
+    const cells = allQuarters.map(q => {
+      const d = byQuarter[q];
+      if (!d) return '<td>—</td>';
+      const total = d.kMust + d.kShould + d.kCould;
+      return `<td>
+        <div class="proj-cell-chips">
+          <span style="font-size:11px;font-weight:700;color:#1e1b4b">${total}</span>
+          <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center">
+            ${countChips(d.kMust, d.kShould, d.kCould)}
+          </div>
+        </div>
+      </td>`;
+    }).join('');
+    return `<tr><td>${teamName}</td>${cells}</tr>`;
+  }).join('');
+
+  summaryWrap.innerHTML = `
+    <div class="stats-section" style="margin-bottom:0">
+      <h3>Initiatives per Team per Quarter</h3>
+      <table class="proj-summary-table">
+        <thead><tr><th>Team</th>${headerCols}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>
+  `;
+
+  // ── 2. Per-team sections ──────────────────────────────────────────
+  const teamsContainer = document.getElementById('proj-teams-container');
+  teamsContainer.innerHTML = '';
+
+  const CHART_COLORS = {
+    must:   { bg: 'rgba(239,68,68,0.75)',   border: 'rgba(239,68,68,0)' },
+    should: { bg: 'rgba(245,158,11,0.75)',  border: 'rgba(245,158,11,0)' },
+    could:  { bg: 'rgba(59,130,246,0.75)',  border: 'rgba(59,130,246,0)' },
+  };
+
+  projData.forEach(({ teamName, byQuarter }, teamIdx) => {
+    // Include all quarters (even if empty for this team) for visual alignment across all teams
+    const displayQuarters = allQuarters;
+
+    const section = document.createElement('div');
+    section.className = 'proj-team-section';
+
+    // ── Build quarter column headers for the initiative matrix table ─
+    const qHeaderCols = displayQuarters.map(q =>
+      `<th class="qcol">${q.replace(' ', '&nbsp;')}</th>`).join('');
+
+    // ── Build initiative rows ─────────────────────────────────────────
+    // Collect all initiatives for this team across all display quarters
+    const allInits = displayQuarters.flatMap(q =>
+      (byQuarter[q]?.initiatives || []).map(i => ({ ...i, quarter: q }))
+    );
+
+    const initRows = allInits.map(i => {
+      const qCols = displayQuarters.map(q =>
+        q === i.quarter
+          ? `<td class="qcol">${moscowBadge(i.moscow)}</td>`
+          : '<td class="qcol"></td>'
+      ).join('');
+      return `<tr>
+        <td class="jira-key">${i.key || '—'}</td>
+        <td class="init-name" title="${i.name.replace(/"/g, '&quot;')}">${i.name || '—'}</td>
+        ${qCols}
+      </tr>`;
+    }).join('');
+
+    // ── Effort projection totals row ──────────────────────────────────
+    const effortFooterCols = displayQuarters.map(q => {
+      const d = byQuarter[q];
+      if (!d || d.p50 === 0) return '<td class="qcol" style="font-size:10px;color:#9ca3af">—</td>';
+      return `<td class="qcol" style="font-size:10px;color:#6366f1;font-weight:700">
+        ~${d.p50.toFixed(0)}&nbsp;PM
+        <div style="color:#9ca3af;font-weight:400">${d.p25.toFixed(0)}–${d.p75.toFixed(0)}</div>
+      </td>`;
+    }).join('');
+
+    const countFooterCols = displayQuarters.map(q => {
+      const d = byQuarter[q];
+      if (!d) return '<td class="qcol"></td>';
+      return `<td class="qcol" style="font-size:10px">
+        <div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap">
+          ${countChips(d.kMust, d.kShould, d.kCould)}
+        </div>
+      </td>`;
+    }).join('');
+
+    section.innerHTML = `
+      <div class="proj-team-title">${teamName}</div>
+
+      <div class="proj-charts-row">
+        <div class="proj-chart-card">
+          <div class="proj-chart-label">Initiatives by Quarter</div>
+          <div class="proj-chart-wrapper">
+            <canvas id="proj-count-${teamIdx}"></canvas>
+          </div>
+        </div>
+        <div class="proj-chart-card">
+          <div class="proj-chart-label">Effort Projection by Quarter (P25 – P50 – P75, person-months)</div>
+          <div class="proj-chart-wrapper">
+            <canvas id="proj-effort-${teamIdx}"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section" style="margin-bottom:0">
+        <h3>Initiative Details</h3>
+        <div class="proj-init-wrap">
+          <table class="proj-init-table">
+            <thead>
+              <tr>
+                <th style="width:96px">Jira Key</th>
+                <th>Initiative Name</th>
+                ${qHeaderCols}
+              </tr>
+            </thead>
+            <tbody>${initRows}</tbody>
+            <tfoot>
+              <tr style="background:#f9fafb;border-top:2px solid #f1f5f9">
+                <td colspan="2" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
+                  Initiatives count
+                </td>
+                ${countFooterCols}
+              </tr>
+              <tr style="background:#f9fafb">
+                <td colspan="2" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
+                  Effort P50 (P25–P75)
+                </td>
+                ${effortFooterCols}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+    teamsContainer.appendChild(section);
+
+    // ── Render count chart ────────────────────────────────────────────
+    const countCtx = document.getElementById(`proj-count-${teamIdx}`).getContext('2d');
+    projectionChartInstances.push(new Chart(countCtx, {
+      type: 'bar',
+      data: {
+        labels: displayQuarters,
+        datasets: [
+          {
+            label: 'Must',
+            data: displayQuarters.map(q => byQuarter[q]?.kMust   || 0),
+            backgroundColor: CHART_COLORS.must.bg,
+            stack: 'stack',
+          },
+          {
+            label: 'Should',
+            data: displayQuarters.map(q => byQuarter[q]?.kShould || 0),
+            backgroundColor: CHART_COLORS.should.bg,
+            stack: 'stack',
+          },
+          {
+            label: 'Could',
+            data: displayQuarters.map(q => byQuarter[q]?.kCould  || 0),
+            backgroundColor: CHART_COLORS.could.bg,
+            stack: 'stack',
+          },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 300 },
+        layout: { padding: { top: 4 } },
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'rect', padding: 14, font: { size: 11 } } },
+          tooltip: { callbacks: { label: item => `${item.dataset.label}: ${item.raw}` } },
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10 } } },
+          y: { stacked: true, beginAtZero: true, ticks: { color: '#9ca3af', font: { size: 10 }, stepSize: 1 }, grid: { color: '#f3f4f6' } },
+        },
+      },
+    }));
+
+    // ── Render effort chart ───────────────────────────────────────────
+    const effortCtx = document.getElementById(`proj-effort-${teamIdx}`).getContext('2d');
+    const hasEffort = displayQuarters.some(q => (byQuarter[q]?.p50 || 0) > 0);
+    projectionChartInstances.push(new Chart(effortCtx, {
+      type: 'bar',
+      data: {
+        labels: displayQuarters,
+        datasets: hasEffort ? [
+          {
+            label: 'P25–P75 range',
+            data: displayQuarters.map(q => {
+              const d = byQuarter[q];
+              return d && d.p50 > 0 ? [d.p25, d.p75] : [0, 0];
+            }),
+            backgroundColor: 'rgba(99,102,241,0.18)',
+            borderColor:     'rgba(99,102,241,0)',
+            barPercentage: 0.6, categoryPercentage: 0.7,
+            order: 2,
+          },
+          {
+            label: 'P50 median',
+            data: displayQuarters.map(q => byQuarter[q]?.p50 || 0),
+            backgroundColor: 'rgba(99,102,241,0.70)',
+            borderColor:     'rgba(99,102,241,0)',
+            barPercentage: 0.4, categoryPercentage: 0.7,
+            order: 1,
+          },
+        ] : [{
+          label: 'No historical data',
+          data: displayQuarters.map(() => 0),
+          backgroundColor: 'rgba(209,213,219,0.4)',
+        }],
+      },
+      options: {
+        grouped: false,
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 300 },
+        layout: { padding: { top: 4 } },
+        plugins: {
+          legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'rect', padding: 14, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: item => {
+                const q = displayQuarters[item.dataIndex];
+                const d = byQuarter[q];
+                if (!d || d.p50 === 0) return 'No effort data';
+                return `P25: ${d.p25.toFixed(1)} · P50: ${d.p50.toFixed(1)} · P75: ${d.p75.toFixed(1)} PM`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10 } } },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'person-months', color: '#9ca3af', font: { size: 10 } },
+            ticks: { color: '#9ca3af', font: { size: 10 } },
+            grid: { color: '#f3f4f6' },
+          },
+        },
+      },
+    }));
   });
 }
 
@@ -1818,9 +2325,12 @@ document.getElementById('results-content').addEventListener('click', e => {
     p.style.display = p.id === `tab-${tab}` ? 'flex' : 'none';
   });
   // Chart.js can't compute canvas dimensions while the container is hidden;
-  // resize all team charts once the team tab becomes visible.
+  // resize charts once their tab becomes visible.
   if (tab === 'teams') {
     teamChartInstances.forEach(c => { if (c) c.resize(); });
+  }
+  if (tab === 'projections') {
+    projectionChartInstances.forEach(c => { if (c) c.resize(); });
   }
 });
 
@@ -1876,6 +2386,12 @@ document.getElementById('run-btn').addEventListener('click', () => {
       const teamData = prepareTeamSimulationData(histQs, targetQs, lambda, epicSizingDist);
       renderTeamCharts(teamData, capacity, iters);
 
+      // ── Build & render team projections (all quarters, all teams) ─
+      const allQuarters    = extractQuarters(parsedInitiatives);
+      const projIterations = Math.min(iters, 3000);
+      const projData       = buildTeamProjections(allQuarters, lambda, epicSizingDist, projIterations);
+      renderTeamProjections(projData, allQuarters);
+
       // ── Show results, reset to org tab ────────────────────────
       document.getElementById('results-subtitle').textContent =
         `— ${targetQs.join(', ')} · ${iters.toLocaleString()} iterations`;
@@ -1883,8 +2399,9 @@ document.getElementById('run-btn').addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.tab === 'org')
       );
-      document.getElementById('tab-org').style.display   = 'flex';
-      document.getElementById('tab-teams').style.display = 'none';
+      document.getElementById('tab-org').style.display         = 'flex';
+      document.getElementById('tab-teams').style.display       = 'none';
+      document.getElementById('tab-projections').style.display = 'none';
       document.getElementById('results-content').style.display = 'flex';
 
     } catch (err) {
