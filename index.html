@@ -1196,6 +1196,26 @@ function detectTeamCol(rows, initKeyColHeader, moscowColHeader) {
 }
 
 /**
+ * Detect the Key Result column in the initiatives CSV.
+ * Looks for headers like 'key_result', 'kr', 'key result', etc.
+ */
+function detectKrCol(rows) {
+  if (!rows.length) return null;
+  const headers = Object.keys(rows[0]);
+  const candidates = ['key_result', 'kr', 'key result', 'keyresult', 'key_results'];
+  for (const c of candidates) {
+    if (headers.includes(c)) return c;
+  }
+  // Case-insensitive fallback
+  const lower = headers.map(h => h.toLowerCase());
+  for (const c of candidates) {
+    const idx = lower.indexOf(c);
+    if (idx !== -1) return headers[idx];
+  }
+  return null;
+}
+
+/**
  * In the epics CSV, find the column linking each epic to its parent
  * initiative key.  Prefers a header containing "initiative" + "jira"/"key".
  * Falls back to content-scanning, then to the literal name 'initiative jira_key'.
@@ -1249,8 +1269,10 @@ function loadInitiativesCSV(text) {
   const moscowCol   = detectMoscowCol(parsedInitiatives);
   const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, moscowCol);
   const nameCol     = detectNameCol(parsedInitiatives, initKeyCol);
-  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol, nameCol };
-  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}" | name="${nameCol}"`);
+  // Detect key_result column (e.g. "key_result", "kr", "key result")
+  const krCol       = detectKrCol(parsedInitiatives);
+  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol, nameCol, krCol };
+  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}" | name="${nameCol}" | kr="${krCol}"`);
 
   const quarters  = extractQuarters(parsedInitiatives);
   const histDef   = quarters.includes('Q2 2026') ? ['Q2 2026'] : quarters.slice(0, 1);
@@ -1444,7 +1466,7 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
  * @returns {Array}  one entry per team
  */
 function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIterations) {
-  const { initKeyCol, moscowCol, teamCol, nameCol } = detectedCols;
+  const { initKeyCol, moscowCol, teamCol, nameCol, krCol } = detectedCols;
 
   // Collect all teams appearing anywhere in the CSV (not just target quarter)
   const teamMap = new Map();
@@ -1479,6 +1501,7 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
           key:    (r[initKeyCol] || '').trim(),
           name:   (r[nameCol]    || '').trim(),
           moscow: m,
+          kr:     krCol ? (r[krCol] || '').trim() : '',
         });
       }
       // Sort initiatives: Must → Should → Could → Won't → Unknown, then alpha by key
@@ -2021,14 +2044,20 @@ function renderTeamProjections(projData, allQuarters) {
       (byQuarter[q]?.initiatives || []).map(i => ({ ...i, quarter: q }))
     );
 
+    const hasKr = allInits.some(i => i.kr);
+
     const initRows = allInits.map(i => {
       const qCols = displayQuarters.map(q =>
         q === i.quarter
           ? `<td class="qcol">${moscowBadge(i.moscow)}</td>`
           : '<td class="qcol"></td>'
       ).join('');
+      const krCell = hasKr
+        ? `<td class="kr-col" style="white-space:nowrap;font-size:11px;color:#6366f1;font-weight:600">${i.kr || '—'}</td>`
+        : '';
       return `<tr>
         <td class="jira-key">${i.key || '—'}</td>
+        ${krCell}
         <td class="init-name" title="${i.name.replace(/"/g, '&quot;')}">${i.name || '—'}</td>
         ${qCols}
       </tr>`;
@@ -2079,6 +2108,7 @@ function renderTeamProjections(projData, allQuarters) {
             <thead>
               <tr>
                 <th style="width:96px">Jira Key</th>
+                ${hasKr ? '<th style="width:60px">KR</th>' : ''}
                 <th>Initiative Name</th>
                 ${qHeaderCols}
               </tr>
@@ -2086,13 +2116,13 @@ function renderTeamProjections(projData, allQuarters) {
             <tbody>${initRows}</tbody>
             <tfoot>
               <tr style="background:#f9fafb;border-top:2px solid #f1f5f9">
-                <td colspan="2" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
+                <td colspan="${hasKr ? 3 : 2}" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
                   Initiatives count
                 </td>
                 ${countFooterCols}
               </tr>
               <tr style="background:#f9fafb">
-                <td colspan="2" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
+                <td colspan="${hasKr ? 3 : 2}" style="font-size:10px;font-weight:700;color:#6b7280;padding:6px 10px">
                   Effort P50 (P25–P75)
                 </td>
                 ${effortFooterCols}
