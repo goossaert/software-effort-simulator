@@ -1592,26 +1592,62 @@ async function loadEpicsFiles(files) {
     const text = await readFile(file);
     const rows = parseCSV(text);
     const linkCol = detectEpicLinkCol(rows);
+    // Detect the epic's own Jira key column for cross-file deduplication.
+    // Both common formats use a column literally named "key".
+    const hdrs = rows.length ? Object.keys(rows[0]) : [];
+    const epicKeyCol = hdrs.find(h => h.toLowerCase() === 'key' ||
+                                      h.toLowerCase() === 'jira_key' ||
+                                      h.toLowerCase() === 'epic_key') || null;
     for (const row of rows) {
       row._initiative_key = (row[linkCol] || '').trim();
       row._tshirt_size    = (
         row.t_shirt_size   || row['T-shirt size'] ||
         row['t-shirt size']|| row.tshirt_size     || ''
       ).trim();
-      row._quarter = (row.quarter || row.Quarter || '').trim();
+      // Recognise common quarter column name variants, including "target_quarter"
+      // used by capacity-planning exports.
+      row._quarter = (
+        row.quarter || row.Quarter || row.target_quarter || ''
+      ).trim();
+      row._epic_key = epicKeyCol ? (row[epicKeyCol] || '').trim() : '';
     }
     epicFileStore.push({ name: file.name, rows });
-    console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}"`);
+    console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}" | key="${epicKeyCol}"`);
   }
   rebuildParsedEpics();
 }
 
-/** Flatten epicFileStore into parsedEpics and sync epicsLoaded flag. */
+/**
+ * Flatten epicFileStore into parsedEpics, deduplicating rows that share the
+ * same epic Jira key across files.  When a key appears in more than one file,
+ * the row with a valid T-shirt size is preferred; otherwise the first occurrence
+ * is kept.  Rows without a detectable epic key are always included as-is.
+ */
 function rebuildParsedEpics() {
-  parsedEpics = epicFileStore.flatMap(f => f.rows);
+  const allRows = epicFileStore.flatMap(f => f.rows);
+
+  // Deduplicate keyed rows, preferring those with a valid T-shirt size.
+  const byKey = new Map(); // _epic_key → best row so far
+  const unkeyedRows = [];
+
+  for (const row of allRows) {
+    if (!row._epic_key) { unkeyedRows.push(row); continue; }
+    const existing = byKey.get(row._epic_key);
+    if (!existing) {
+      byKey.set(row._epic_key, row);
+    } else if (
+      !T_SHIRT_PARAMS[normalizeSize(existing._tshirt_size)] &&
+       T_SHIRT_PARAMS[normalizeSize(row._tshirt_size)]
+    ) {
+      byKey.set(row._epic_key, row); // upgrade to the version that has a valid size
+    }
+  }
+
+  parsedEpics = [...byKey.values(), ...unkeyedRows];
   epicsLoaded = epicFileStore.length > 0;
   detectedCols = { ...(detectedCols || {}), epicLinkCol: '(normalised→_initiative_key)' };
-  console.log(`[Epics] store: ${epicFileStore.length} file(s), ${parsedEpics.length} total rows`);
+  const dupeCount = allRows.length - parsedEpics.length;
+  console.log(`[Epics] store: ${epicFileStore.length} file(s), ${allRows.length} total rows → ${parsedEpics.length} after dedup (${dupeCount} duplicates removed)`);
 }
 
 /** Render per-file chips inside #epic-chips-area and sync the upload wrapper state. */
