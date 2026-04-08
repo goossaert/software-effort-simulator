@@ -1812,14 +1812,42 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   const histKeys  = new Set(histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean));
   const histQSet  = new Set(histQuarters);
 
-  // Count sized epics per historical initiative (initialise to 0 so
-  // initiatives with no epics still contribute to the distribution).
+  // Build a lookup so we can map an initiative key back to its quarter.
+  const initQuarterMap = new Map();
+  for (const r of histInits) {
+    const key = (r[initKeyCol] || '').trim();
+    if (key) initQuarterMap.set(key, (r.quarter || '').trim());
+  }
+
+  // Identify which historical quarters actually have epic data loaded.
+  // Only quarters with coverage contribute their initiatives to the λ denominator;
+  // this prevents quarters with no loaded epics from diluting the average.
+  const quartersWithEpicData = new Set();
+  for (const epic of parsedEpics) {
+    const link  = epic._initiative_key;
+    const epicQ = epic._quarter;
+    if (epicQ && histQSet.has(epicQ)) {
+      quartersWithEpicData.add(epicQ);
+    } else if (!epicQ && histKeys.has(link)) {
+      const initQ = initQuarterMap.get(link);
+      if (initQ) quartersWithEpicData.add(initQ);
+    }
+  }
+
+  // Initialise epicCounts to 0 only for initiatives whose quarter has epic coverage,
+  // so that initiatives with genuinely 0 epics still contribute to the distribution
+  // while quarters with no loaded epic data at all are excluded from the denominator.
+  const epicCounts = new Map();
+  for (const r of histInits) {
+    const initQ = (r.quarter || '').trim();
+    if (!quartersWithEpicData.has(initQ)) continue;
+    const key = (r[initKeyCol] || '').trim();
+    if (key) epicCounts.set(key, 0);
+  }
+
   // Epics are in scope when:
   //   • they carry their own _quarter that matches histQuarters, OR
   //   • they link to an initiative already in histKeys (classic path)
-  const epicCounts = new Map();
-  for (const key of histKeys) epicCounts.set(key, 0);
-
   for (const epic of parsedEpics) {
     const link   = epic._initiative_key;
     const epicQ  = epic._quarter;
@@ -1914,8 +1942,26 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
     );
 
     // Poisson λ (team-scoped)
+    // Build initiative→quarter map to detect which quarters have epic coverage.
+    const initQuarterMap = new Map();
+    for (const r of histInits) {
+      const key = (r[initKeyCol] || '').trim();
+      if (key) initQuarterMap.set(key, (r.quarter || '').trim());
+    }
+    const quartersWithEpicData = new Set();
+    for (const epic of parsedEpics) {
+      const link = epic._initiative_key;
+      if (!histKeys.has(link)) continue;
+      const initQ = initQuarterMap.get(link);
+      if (initQ) quartersWithEpicData.add(initQ);
+    }
     const epicCounts = new Map();
-    for (const key of histKeys) epicCounts.set(key, 0);
+    for (const r of histInits) {
+      const initQ = (r.quarter || '').trim();
+      if (!quartersWithEpicData.has(initQ)) continue;
+      const key = (r[initKeyCol] || '').trim();
+      if (key) epicCounts.set(key, 0);
+    }
     for (const epic of parsedEpics) {
       const link = epic._initiative_key;
       if (!histKeys.has(link)) continue;
