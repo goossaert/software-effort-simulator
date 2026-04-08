@@ -151,6 +151,35 @@
     .ms-option:hover { background: #3d3b62; }
     .ms-option input[type=checkbox] { accent-color: #7c78c0; }
 
+    /* Lognormal parameter mode selector */
+    .param-mode-options {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .param-mode-options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 11px;
+      color: #c8c6f0;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .param-mode-options label input[type=radio] { margin-top: 1px; }
+    .param-mode-options label:hover { background: #252349; border-color: #3d3b7a; }
+    .param-mode-options label.active { background: #1e1b4b; border-color: #6366f1; }
+    .param-mode-options input[type=radio] { accent-color: #6366f1; cursor: pointer; flex-shrink: 0; }
+    .param-mode-note {
+      font-size: 9.5px;
+      color: #818cf8;
+      margin-top: 1px;
+      line-height: 1.3;
+    }
+
     /* File upload widget */
     .file-upload-wrapper {
       position: relative;
@@ -489,6 +518,17 @@
     /* Tab panels */
     .tab-panel { display: flex; flex-direction: column; gap: 22px; }
 
+    /* Initiatives table */
+    #initiatives-table-wrap { overflow-x: auto; }
+    #initiatives-table-wrap table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    #initiatives-table-wrap th { background: #f1f5f9; padding: 7px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; font-weight: 600; color: #374151; }
+    #initiatives-table-wrap td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    #initiatives-table-wrap tr:hover td { background: #f8fafc; }
+    #initiatives-table-wrap select { font-size: 12px; border: 1px solid #d1d5db; border-radius: 4px; padding: 2px 20px 2px 6px; background: #fff; cursor: pointer; max-width: 180px; }
+    #initiatives-table-wrap select:focus { outline: 2px solid #4f46e5; outline-offset: 1px; }
+    .init-readonly-cell { color: #374151; font-size: 12px; }
+    .initiatives-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
     /* Team sections */
     #teams-container { display: flex; flex-direction: column; gap: 36px; }
 
@@ -790,7 +830,7 @@
         <div class="file-upload-wrapper" id="epics-upload">
           <span class="file-icon">📄</span>
           <span class="file-name" id="epics-file-name">Click to upload…</span>
-          <input type="file" id="epics-file" accept=".csv">
+          <input type="file" id="epics-file" accept=".csv" multiple>
         </div>
       </div>
 
@@ -835,6 +875,20 @@
       <div class="field-group">
         <label>Iterations</label>
         <input type="number" id="iterations" value="10000" min="1000" max="10000000" step="1000">
+      </div>
+
+      <div class="field-group">
+        <label>Lognormal Parameters</label>
+        <div class="param-mode-options" id="param-mode-options">
+          <label id="param-label-synthetic" class="active">
+            <input type="radio" name="param-mode" value="synthetic" checked>
+            Synthetic lognormal parameters
+          </label>
+          <label id="param-label-empirical">
+            <input type="radio" name="param-mode" value="empirical">
+            <span>Empirical lognormal parameters<br><span class="param-mode-note">Bias-corrected from Q1 2026 actuals</span></span>
+          </label>
+        </div>
       </div>
 
       <button id="run-btn" disabled>▶&nbsp; Run Simulation</button>
@@ -902,6 +956,7 @@
           <button class="tab-btn active" data-tab="org">Organization Level</button>
           <button class="tab-btn" data-tab="teams">Team Level</button>
           <button class="tab-btn" data-tab="projections">Team Projections</button>
+          <button class="tab-btn" data-tab="initiatives">Initiatives</button>
         </div>
 
         <!-- Organization Level tab panel -->
@@ -939,6 +994,11 @@
         <div id="tab-projections" class="tab-panel" style="display:none">
           <div id="proj-summary-wrap"></div>
           <div id="proj-teams-container"></div>
+        </div>
+
+        <!-- Initiatives tab panel -->
+        <div id="tab-initiatives" class="tab-panel" style="display:none">
+          <div id="initiatives-table-wrap"></div>
         </div>
       </div>
 
@@ -1150,13 +1210,40 @@ const T_SHIRT_PARAMS = {
 };
 
 /**
+ * Empirical lognormal parameters derived from Q1 2026 actuals (36 epics).
+ *
+ * Method: for each size, compute avg_ratio = mean(actual / synthetic_mean),
+ * then shift μ by ln(avg_ratio), keeping σ identical.
+ * This corrects the per-size bias while preserving the shape of the distribution.
+ *
+ * Calibration summary (n = sample count, ratio = avg actual / synthetic mean):
+ *   XS : n=10, ratio=4.23  → μ shifted +1.44  (one 15 PM outlier dominates)
+ *   S  : n=14, ratio=1.51  → μ shifted +0.41
+ *   M  : n=8,  ratio=1.24  → μ shifted +0.21
+ *   L  : n=3,  ratio=1.36  → μ shifted +0.31
+ *   2XS/XL/XL+ : no Q1 data → identical to synthetic params
+ */
+const T_SHIRT_PARAMS_EMPIRICAL = {
+  '2XS': { mu: -1.8444, sigma: 0.3575 }, // no Q1 data; same as synthetic
+  'XS':  { mu: -0.5093, sigma: 0.4286 }, // n=10, avg ratio 1.39
+  'S':   { mu:  0.4704, sigma: 0.2703 }, // n=14, avg ratio 1.51
+  'M':   { mu:  0.9636, sigma: 0.2703 }, // n=8,  avg ratio 1.24
+  'L':   { mu:  1.7550, sigma: 0.2703 }, // n=3,  avg ratio 1.36
+  'XL':  { mu:  1.9945, sigma: 0.1582 }, // no Q1 data; same as synthetic
+  'XL+': { mu:  2.3503, sigma: 0.0372 }, // no Q1 data; same as synthetic
+};
+
+// Active parameter set — toggled by the UI selector; default: synthetic
+let activeParams = T_SHIRT_PARAMS;
+
+/**
  * Convert a t-shirt size label to a deterministic person-months value
  * using the lognormal mean = e^(μ + σ²/2).
  * This is the true expected value of the effort distribution and properly
  * accounts for right-skew — the right choice for adding known, fixed work.
  */
 function tshirtToPersonMonths(size) {
-  const p = T_SHIRT_PARAMS[normalizeSize(size)];
+  const p = activeParams[normalizeSize(size)];
   if (!p) return 0;
   return Math.exp(p.mu + (p.sigma * p.sigma) / 2);
 }
@@ -1191,7 +1278,7 @@ function sampleStdNormal() {
  * Unknown labels return 0 and log a warning.
  */
 function sampleLognormal(sizeLabel) {
-  const p = T_SHIRT_PARAMS[sizeLabel];
+  const p = activeParams[sizeLabel];
   if (!p) { console.warn(`[sampler] Unknown size label: "${sizeLabel}"`); return 0; }
   return Math.exp(p.mu + p.sigma * sampleStdNormal());
 }
@@ -1380,12 +1467,14 @@ function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
 
 // ── Parsed row cache + detected column names ──────────────────────
 let parsedInitiatives = null;
+let editedInitiatives = null; // user-editable copy of parsedInitiatives
 let parsedEpics       = null;
 let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
 let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
 
 function loadInitiativesCSV(text) {
   parsedInitiatives = parseCSV(text);
+  editedInitiatives = parsedInitiatives.map(r => ({ ...r }));
   const initKeyCol  = detectInitKeyCol(parsedInitiatives);
   const moscowCol   = detectMoscowCol(parsedInitiatives);
   const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, moscowCol);
@@ -1395,18 +1484,64 @@ function loadInitiativesCSV(text) {
   detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol, nameCol, krCol };
   console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}" | name="${nameCol}" | kr="${krCol}"`);
 
-  const quarters  = extractQuarters(parsedInitiatives);
-  const histDef   = quarters.includes('Q2 2026') ? ['Q2 2026'] : quarters.slice(0, 1);
-  const targetDef = quarters.includes('Q3 2026') ? ['Q3 2026'] : quarters.slice(1, 2);
-  histMS.populate(quarters, histDef);
-  targetMS.populate(quarters, targetDef);
+  refreshQuarters();
 }
 
-function loadEpicsCSV(text) {
-  parsedEpics = parseCSV(text);
-  const epicLinkCol = detectEpicLinkCol(parsedEpics);
-  detectedCols = { ...(detectedCols || {}), epicLinkCol };
-  console.log(`[Epics] ${parsedEpics.length} rows | link="${epicLinkCol}"`);
+/**
+ * Merge quarters from all loaded sources (initiatives + epics) and
+ * re-populate both multiselects, preserving the user's current selections
+ * whenever they are still valid in the new combined list.
+ */
+function refreshQuarters() {
+  const fromInits = parsedInitiatives ? extractQuarters(parsedInitiatives) : [];
+  const fromEpics = parsedEpics
+    ? [...new Set(parsedEpics.map(r => r._quarter || '').filter(Boolean))]
+    : [];
+  const all = [...new Set([...fromInits, ...fromEpics])].sort((a, b) => {
+    const pa = a.match(/^Q(\d)\s+(\d{4})$/), pb = b.match(/^Q(\d)\s+(\d{4})$/);
+    if (pa && pb) return (+pa[2] - +pb[2]) || (+pa[1] - +pb[1]);
+    return a.localeCompare(b);
+  });
+
+  // Preserve current selections if still valid; otherwise fall back to sensible defaults
+  const curHist   = histMS.getSelected().filter(q => all.includes(q));
+  const curTarget = targetMS.getSelected().filter(q => all.includes(q));
+  const histDef   = curHist.length   ? curHist   : (all.includes('Q2 2026') ? ['Q2 2026'] : all.slice(0, 1));
+  const targetDef = curTarget.length ? curTarget : (all.includes('Q3 2026') ? ['Q3 2026'] : all.slice(1, 2));
+
+  histMS.populate(all, histDef);
+  targetMS.populate(all, targetDef);
+}
+
+/**
+ * Load one or more epics File objects. Rows from all files are merged into
+ * parsedEpics. Each row is normalised with three synthetic fields:
+ *   _initiative_key  — the initiative this epic belongs to
+ *   _tshirt_size     — t-shirt size (column name varies across file formats)
+ *   _quarter         — the explicit quarter on the row, if present (e.g. "Q1 2026")
+ * When _quarter is present the epic can be filtered by quarter directly;
+ * otherwise the model falls back to matching via the initiative link.
+ */
+async function loadEpicsFiles(files) {
+  const allRows = [];
+  for (const file of files) {
+    const text = await readFile(file);
+    const rows = parseCSV(text);
+    const linkCol = detectEpicLinkCol(rows);
+    for (const row of rows) {
+      row._initiative_key = (row[linkCol] || '').trim();
+      row._tshirt_size    = (
+        row.t_shirt_size   || row['T-shirt size'] ||
+        row['t-shirt size']|| row.tshirt_size     || ''
+      ).trim();
+      row._quarter = (row.quarter || row.Quarter || '').trim();
+    }
+    allRows.push(...rows);
+    console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}"`);
+  }
+  parsedEpics = allRows;
+  detectedCols = { ...(detectedCols || {}), epicLinkCol: '(normalised→_initiative_key)' };
+  console.log(`[Epics] total ${parsedEpics.length} rows from ${files.length} file(s)`);
 }
 
 function loadConstantWorkCSV(text) {
@@ -1474,22 +1609,29 @@ function getConstantWorkEpics(quarter, teamName) {
  * @returns {{ lambda, epicSizingDist, kMustShould, kMust, preview }}
  */
 function prepareSimulationData(histQuarters, targetQuarters) {
-  const { initKeyCol, moscowCol, epicLinkCol } = detectedCols;
+  const { initKeyCol, moscowCol } = detectedCols;
 
   // ── STEP 1: Historical initiatives ───────────────────────────────
-  const histInits = parsedInitiatives.filter(r => histQuarters.includes((r.quarter || '').trim()));
+  const histInits = editedInitiatives.filter(r => histQuarters.includes((r.quarter || '').trim()));
   const histKeys  = new Set(histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean));
+  const histQSet  = new Set(histQuarters);
 
   // Count sized epics per historical initiative (initialise to 0 so
-  // initiatives with no epics still contribute to the distribution)
+  // initiatives with no epics still contribute to the distribution).
+  // Epics are in scope when:
+  //   • they carry their own _quarter that matches histQuarters, OR
+  //   • they link to an initiative already in histKeys (classic path)
   const epicCounts = new Map();
   for (const key of histKeys) epicCounts.set(key, 0);
 
   for (const epic of parsedEpics) {
-    const link = (epic[epicLinkCol] || '').trim();
-    if (!histKeys.has(link)) continue;
-    const size = normalizeSize(epic.t_shirt_size);
-    if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
+    const link   = epic._initiative_key;
+    const epicQ  = epic._quarter;
+    const inScope = epicQ ? histQSet.has(epicQ) : histKeys.has(link);
+    if (!inScope || !link) continue;
+    if (!epicCounts.has(link)) epicCounts.set(link, 0); // initiative from standalone epics file
+    const size = normalizeSize(epic._tshirt_size);
+    if (T_SHIRT_PARAMS[size]) epicCounts.set(link, epicCounts.get(link) + 1);
   }
 
   const countArray = Array.from(epicCounts.values());
@@ -1497,17 +1639,19 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     ? countArray.reduce((a, b) => a + b, 0) / countArray.length
     : 0;
 
-  // ── STEP 2: Epic sizing distribution (all Q2 epics, committed or not) ──
+  // ── STEP 2: Epic sizing distribution ─────────────────────────────
   const epicSizingDist = [];
   for (const epic of parsedEpics) {
-    const link = (epic[epicLinkCol] || '').trim();
-    if (!histKeys.has(link)) continue;
-    const size = normalizeSize(epic.t_shirt_size);
+    const link   = epic._initiative_key;
+    const epicQ  = epic._quarter;
+    const inScope = epicQ ? histQSet.has(epicQ) : histKeys.has(link);
+    if (!inScope) continue;
+    const size = normalizeSize(epic._tshirt_size);
     if (T_SHIRT_PARAMS[size]) epicSizingDist.push(size);
   }
 
   // ── STEP 3: Target quarter initiative counts by MoSCoW ───────────
-  const targetInits = parsedInitiatives.filter(r => targetQuarters.includes((r.quarter || '').trim()));
+  const targetInits = editedInitiatives.filter(r => targetQuarters.includes((r.quarter || '').trim()));
 
   const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
   for (const r of targetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
@@ -1544,10 +1688,10 @@ function prepareSimulationData(histQuarters, targetQuarters) {
  * @returns {Array} one entry per team
  */
 function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgEpicSizingDist) {
-  const { initKeyCol, moscowCol, epicLinkCol, teamCol } = detectedCols;
+  const { initKeyCol, moscowCol, teamCol } = detectedCols;
 
   // Collect all teams present in the target quarters (case-insensitive dedup)
-  const targetInits = parsedInitiatives.filter(r =>
+  const targetInits = editedInitiatives.filter(r =>
     targetQuarters.includes((r.quarter || '').trim())
   );
   const teamMap = new Map(); // normalised key → first-seen canonical name
@@ -1566,7 +1710,7 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
     const isTeam  = r => (r[teamCol] || '').trim().toLowerCase() === teamKey;
 
     // ── Historical data for this team ────────────────────────────
-    const histInits = parsedInitiatives.filter(r =>
+    const histInits = editedInitiatives.filter(r =>
       histQuarters.includes((r.quarter || '').trim()) && isTeam(r)
     );
     const histKeys = new Set(
@@ -1577,9 +1721,9 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
     const epicCounts = new Map();
     for (const key of histKeys) epicCounts.set(key, 0);
     for (const epic of parsedEpics) {
-      const link = (epic[epicLinkCol] || '').trim();
+      const link = epic._initiative_key;
       if (!histKeys.has(link)) continue;
-      const size = normalizeSize(epic.t_shirt_size);
+      const size = normalizeSize(epic._tshirt_size);
       if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
     }
     const countArray = Array.from(epicCounts.values());
@@ -1590,9 +1734,9 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
     // Epic sizing distribution (team-scoped)
     const teamEpicSizingDist = [];
     for (const epic of parsedEpics) {
-      const link = (epic[epicLinkCol] || '').trim();
+      const link = epic._initiative_key;
       if (!histKeys.has(link)) continue;
-      const size = normalizeSize(epic.t_shirt_size);
+      const size = normalizeSize(epic._tshirt_size);
       if (T_SHIRT_PARAMS[size]) teamEpicSizingDist.push(size);
     }
 
@@ -1640,7 +1784,7 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
 
   // Collect all teams appearing anywhere in the CSV (not just target quarter)
   const teamMap = new Map();
-  for (const r of parsedInitiatives) {
+  for (const r of editedInitiatives) {
     const raw = (r[teamCol] || '').trim();
     if (!raw) continue;
     const key = raw.toLowerCase();
@@ -1653,7 +1797,7 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
   return teams.map(teamName => {
     const teamKey = teamName.toLowerCase();
     const isTeam  = r => (r[teamCol] || '').trim().toLowerCase() === teamKey;
-    const teamAll = parsedInitiatives.filter(isTeam);
+    const teamAll = editedInitiatives.filter(isTeam);
 
     const byQuarter = {};
 
@@ -2621,16 +2765,18 @@ document.getElementById('initiatives-file').addEventListener('change', async e =
 });
 
 document.getElementById('epics-file').addEventListener('change', async e => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const files = [...e.target.files];
+  if (!files.length) return;
   try {
-    loadEpicsCSV(await readFile(file));
+    await loadEpicsFiles(files);
     epicsLoaded = true;
-    document.getElementById('epics-file-name').textContent = file.name;
+    document.getElementById('epics-file-name').textContent =
+      files.length === 1 ? files[0].name : `${files.length} files`;
     const wrap = document.getElementById('epics-upload');
     wrap.classList.add('loaded');
     wrap.querySelector('.file-icon').textContent = '✅';
     checkRunButton();
+    refreshQuarters();
     tryUpdatePreview();
   } catch (err) { alert('Error loading epics CSV:\n' + err.message); }
 });
@@ -2813,6 +2959,99 @@ function rerenderContext(contextKey) {
   renderStatsTableInto(tbodyId, results, capacity, contextKey);
 }
 
+// ── Initiatives table ─────────────────────────────────────────────
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function getUniqueColumnValues(rows) {
+  if (!rows || !rows.length) return {};
+  const cols = Object.keys(rows[0]);
+  const result = {};
+  cols.forEach(col => {
+    result[col] = [...new Set(
+      rows.map(r => r[col]).filter(v => v !== undefined && v !== null && v !== '')
+    )].sort();
+  });
+  return result;
+}
+
+function renderInitiativesTable() {
+  const container = document.getElementById('initiatives-table-wrap');
+  if (!editedInitiatives || !editedInitiatives.length) {
+    container.innerHTML = '<p style="color:#6b7280;padding:16px">No initiatives loaded.</p>';
+    return;
+  }
+
+  const uniqueVals  = getUniqueColumnValues(parsedInitiatives);
+  const nonEditable = new Set([detectedCols.initKeyCol, detectedCols.nameCol].filter(Boolean));
+  // Columns hidden in the table view but still included in CSV export
+  const hiddenCols  = new Set(['jira_link', 'emoji']);
+  // Columns that should be free-form numeric text inputs instead of dropdowns
+  const numericCols = new Set(['added_value_impact', 'added_value_cost_saving']);
+  const allCols     = Object.keys(parsedInitiatives[0]);
+  const visibleCols = allCols.filter(c => !hiddenCols.has(c));
+
+  let html = `
+    <div class="initiatives-toolbar">
+      <button class="add-marker-btn" onclick="exportInitiativesCSV()">↓ Export CSV</button>
+    </div>
+    <table>
+      <thead><tr>${visibleCols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+      <tbody>`;
+
+  editedInitiatives.forEach((row, rowIdx) => {
+    html += '<tr>';
+    visibleCols.forEach(col => {
+      const val     = row[col] != null ? row[col] : '';
+      const safeCol = escapeAttr(col);
+      if (nonEditable.has(col)) {
+        html += `<td class="init-readonly-cell">${escapeHtml(val)}</td>`;
+      } else if (numericCols.has(col)) {
+        html += `<td><input type="number" step="any" value="${escapeAttr(String(val))}"
+          style="width:90px;font-size:12px;border:1px solid #d1d5db;border-radius:4px;padding:2px 6px"
+          onchange="editedInitiatives[${rowIdx}]['${safeCol}'] = this.value"
+          oninput="editedInitiatives[${rowIdx}]['${safeCol}'] = this.value"></td>`;
+      } else {
+        const opts    = uniqueVals[col] || [];
+        const current = String(val);
+        const allOpts = opts.includes(current) ? opts : (current ? [current, ...opts] : opts);
+        html += `<td><select onchange="editedInitiatives[${rowIdx}]['${safeCol}'] = this.value">`;
+        allOpts.forEach(v => {
+          html += `<option value="${escapeAttr(v)}"${v === current ? ' selected' : ''}>${escapeHtml(v)}</option>`;
+        });
+        if (!allOpts.length) html += `<option value="">${escapeHtml(current)}</option>`;
+        html += '</select></td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function exportInitiativesCSV() {
+  if (!editedInitiatives || !editedInitiatives.length) return;
+  const csv  = Papa.unparse(editedInitiatives);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'initiatives-edited.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ── Save markers to CSV ───────────────────────────────────────────
 function saveMarkersToCSV(contextKey) {
   const markers = getMarkers(contextKey);
@@ -2903,6 +3142,15 @@ document.getElementById('results-content').addEventListener('click', e => {
   }
 });
 
+// ── Parameter mode selector ───────────────────────────────────────
+document.querySelectorAll('input[name="param-mode"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    activeParams = radio.value === 'empirical' ? T_SHIRT_PARAMS_EMPIRICAL : T_SHIRT_PARAMS;
+    document.getElementById('param-label-synthetic').classList.toggle('active', radio.value === 'synthetic');
+    document.getElementById('param-label-empirical').classList.toggle('active', radio.value === 'empirical');
+  });
+});
+
 // ── Run button ────────────────────────────────────────────────────
 document.getElementById('run-btn').addEventListener('click', () => {
   if (!parsedInitiatives || !parsedEpics) { alert('Upload both CSV files first.'); return; }
@@ -2930,10 +3178,10 @@ document.getElementById('run-btn').addEventListener('click', () => {
       if (epicSizingDist.length === 0) {
         throw new Error(
           `No sized epics found for historical quarter(s) "${histQs.join(', ')}".\n\n` +
-          `Detected columns → init key: "${detectedCols.initKeyCol}", ` +
-          `epic link: "${detectedCols.epicLinkCol}".\n\n` +
-          `Verify that epics link to initiatives in the selected quarter(s) and have a recognised ` +
-          `t_shirt_size (2XS, XS, S, M, L, XL, XL+).`
+          `Detected columns → init key: "${detectedCols.initKeyCol}".\n\n` +
+          `Verify that epics either carry a Quarter column matching the selected quarter(s), ` +
+          `or link to initiatives in those quarters, and have a recognised ` +
+          `t-shirt size (2XS, XS, S, M, L, XL, XL+).`
         );
       }
       if (lambda === 0) {
@@ -2957,10 +3205,13 @@ document.getElementById('run-btn').addEventListener('click', () => {
       renderTeamCharts(teamData, capacity, iters);
 
       // ── Build & render team projections (all quarters, all teams) ─
-      const allQuarters    = extractQuarters(parsedInitiatives);
+      const allQuarters    = extractQuarters(editedInitiatives);
       const projIterations = Math.min(iters, 3000);
       const projData       = buildTeamProjections(allQuarters, lambda, epicSizingDist, projIterations);
       renderTeamProjections(projData, allQuarters);
+
+      // ── Render initiatives table ──────────────────────────────
+      renderInitiativesTable();
 
       // ── Show results, reset to org tab ────────────────────────
       document.getElementById('results-subtitle').textContent =
@@ -2969,10 +3220,11 @@ document.getElementById('run-btn').addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.tab === 'org')
       );
-      document.getElementById('tab-org').style.display         = 'flex';
-      document.getElementById('tab-teams').style.display       = 'none';
-      document.getElementById('tab-projections').style.display = 'none';
-      document.getElementById('results-content').style.display = 'flex';
+      document.getElementById('tab-org').style.display          = 'flex';
+      document.getElementById('tab-teams').style.display        = 'none';
+      document.getElementById('tab-projections').style.display  = 'none';
+      document.getElementById('tab-initiatives').style.display  = 'none';
+      document.getElementById('results-content').style.display  = 'flex';
 
     } catch (err) {
       // Show error in the results area
