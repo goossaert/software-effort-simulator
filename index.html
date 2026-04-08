@@ -151,6 +151,64 @@
     .ms-option:hover { background: #3d3b62; }
     .ms-option input[type=checkbox] { accent-color: #7c78c0; }
 
+    /* File reset row (shown below wrapper when a file is loaded) */
+    .file-reset-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2px;
+    }
+    .file-reset-btn {
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.01em;
+    }
+    .file-reset-btn:hover { color: #f87171; }
+
+    /* Epic file chips */
+    .epic-chips-area {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 5px;
+    }
+    .epic-chip {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 5px;
+      background: #132d22;
+      border: 1px solid #166534;
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 11px;
+      color: #86efac;
+    }
+    .epic-chip-name {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 500;
+    }
+    .epic-chip-meta {
+      font-size: 9.5px; color: #818cf8; white-space: nowrap; text-align: right;
+    }
+    .epic-chip-remove {
+      background: none; border: none; color: #86efac;
+      cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 0 0 0 3px; opacity: 0.5; flex-shrink: 0;
+    }
+    .epic-chip-remove:hover { opacity: 1; color: #f87171; }
+    .epic-chips-footer {
+      display: flex; justify-content: flex-end; margin-top: 1px;
+    }
+    .epic-clear-all-btn {
+      background: none; border: none; color: #f87171;
+      font-size: 10px; cursor: pointer; padding: 0; text-decoration: underline; opacity: 0.8;
+    }
+    .epic-clear-all-btn:hover { opacity: 1; }
+
     /* Lognormal parameter mode selector */
     .param-mode-options {
       display: flex;
@@ -823,15 +881,19 @@
           <span class="file-name" id="init-file-name">Click to upload…</span>
           <input type="file" id="initiatives-file" accept=".csv">
         </div>
+        <div class="file-reset-row" id="init-reset-row" style="display:none">
+          <button class="file-reset-btn" id="init-reset-btn">✕ Remove file</button>
+        </div>
       </div>
 
       <div class="field-group">
-        <label>Epics CSV</label>
+        <label>Epics CSV <span style="font-size:10px;color:#9ca3af;font-weight:400">(one or more)</span></label>
         <div class="file-upload-wrapper" id="epics-upload">
           <span class="file-icon">📄</span>
-          <span class="file-name" id="epics-file-name">Click to upload…</span>
+          <span class="file-name" id="epics-file-name">Click to add file(s)…</span>
           <input type="file" id="epics-file" accept=".csv" multiple>
         </div>
+        <div id="epic-chips-area" class="epic-chips-area"></div>
       </div>
 
       <div class="field-group">
@@ -840,6 +902,9 @@
           <span class="file-icon">📄</span>
           <span class="file-name" id="constant-work-file-name">Click to upload…</span>
           <input type="file" id="constant-work-file" accept=".csv">
+        </div>
+        <div class="file-reset-row" id="cw-reset-row" style="display:none">
+          <button class="file-reset-btn" id="cw-reset-btn">✕ Remove file</button>
         </div>
       </div>
 
@@ -1469,6 +1534,7 @@ function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
 let parsedInitiatives = null;
 let editedInitiatives = null; // user-editable copy of parsedInitiatives
 let parsedEpics       = null;
+let epicFileStore     = []; // [{ name, rows }] — accumulates across multiple loads
 let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
 let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
 
@@ -1514,17 +1580,15 @@ function refreshQuarters() {
 }
 
 /**
- * Load one or more epics File objects. Rows from all files are merged into
- * parsedEpics. Each row is normalised with three synthetic fields:
- *   _initiative_key  — the initiative this epic belongs to
- *   _tshirt_size     — t-shirt size (column name varies across file formats)
- *   _quarter         — the explicit quarter on the row, if present (e.g. "Q1 2026")
- * When _quarter is present the epic can be filtered by quarter directly;
- * otherwise the model falls back to matching via the initiative link.
+ * Parse and normalise one or more File objects, appending them to epicFileStore
+ * (duplicate filenames are silently skipped). Each row gets three synthetic fields:
+ *   _initiative_key  — resolved from whatever link column was detected in that file
+ *   _tshirt_size     — normalised across column name variants
+ *   _quarter         — from an explicit Quarter/quarter column, if present
  */
 async function loadEpicsFiles(files) {
-  const allRows = [];
   for (const file of files) {
+    if (epicFileStore.some(ef => ef.name === file.name)) continue; // skip duplicates
     const text = await readFile(file);
     const rows = parseCSV(text);
     const linkCol = detectEpicLinkCol(rows);
@@ -1536,12 +1600,108 @@ async function loadEpicsFiles(files) {
       ).trim();
       row._quarter = (row.quarter || row.Quarter || '').trim();
     }
-    allRows.push(...rows);
+    epicFileStore.push({ name: file.name, rows });
     console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}"`);
   }
-  parsedEpics = allRows;
+  rebuildParsedEpics();
+}
+
+/** Flatten epicFileStore into parsedEpics and sync epicsLoaded flag. */
+function rebuildParsedEpics() {
+  parsedEpics = epicFileStore.flatMap(f => f.rows);
+  epicsLoaded = epicFileStore.length > 0;
   detectedCols = { ...(detectedCols || {}), epicLinkCol: '(normalised→_initiative_key)' };
-  console.log(`[Epics] total ${parsedEpics.length} rows from ${files.length} file(s)`);
+  console.log(`[Epics] store: ${epicFileStore.length} file(s), ${parsedEpics.length} total rows`);
+}
+
+/** Render per-file chips inside #epic-chips-area and sync the upload wrapper state. */
+function renderEpicChips() {
+  const area = document.getElementById('epic-chips-area');
+  const wrap = document.getElementById('epics-upload');
+
+  if (!epicFileStore.length) {
+    area.innerHTML = '';
+    wrap.classList.remove('loaded');
+    wrap.querySelector('.file-icon').textContent = '📄';
+    document.getElementById('epics-file-name').textContent = 'Click to add file(s)…';
+    return;
+  }
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+  const chips = epicFileStore.map(f => {
+    const quarters = [...new Set(f.rows.map(r => r._quarter).filter(Boolean))].sort((a,b) => {
+      const pa = a.match(/^Q(\d)\s+(\d{4})$/), pb = b.match(/^Q(\d)\s+(\d{4})$/);
+      return (pa && pb) ? ((+pa[2]-+pb[2]) || (+pa[1]-+pb[1])) : a.localeCompare(b);
+    });
+    const meta = `${f.rows.length} rows${quarters.length ? ' · ' + quarters.join(', ') : ''}`;
+    return `<div class="epic-chip">
+      <span>📄</span>
+      <span class="epic-chip-name" title="${esc(f.name)}">${esc(f.name)}</span>
+      <span class="epic-chip-meta">${esc(meta)}</span>
+      <button class="epic-chip-remove" data-name="${esc(f.name)}" title="Remove this file">×</button>
+    </div>`;
+  }).join('');
+
+  const footer = epicFileStore.length > 1
+    ? `<div class="epic-chips-footer"><button class="epic-clear-all-btn" id="epic-clear-all">Clear all</button></div>`
+    : '';
+
+  area.innerHTML = chips + footer;
+
+  // Wire up remove buttons via delegation (avoids inline onclick)
+  area.querySelectorAll('.epic-chip-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeEpicFile(btn.dataset.name));
+  });
+  const clearAllBtn = area.querySelector('#epic-clear-all');
+  if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllEpicFiles);
+
+  // Upload wrapper: green "add more" state
+  wrap.classList.add('loaded');
+  wrap.querySelector('.file-icon').textContent = '➕';
+  document.getElementById('epics-file-name').textContent =
+    epicFileStore.length === 1 ? 'Click to add more files…' : `${epicFileStore.length} files loaded — click to add more`;
+}
+
+function removeEpicFile(name) {
+  epicFileStore = epicFileStore.filter(f => f.name !== name);
+  rebuildParsedEpics();
+  renderEpicChips();
+  checkRunButton();
+  refreshQuarters();
+  tryUpdatePreview();
+}
+
+function clearAllEpicFiles() {
+  epicFileStore = [];
+  rebuildParsedEpics();
+  renderEpicChips();
+  checkRunButton();
+  refreshQuarters();
+}
+
+function resetInitiativesFile() {
+  parsedInitiatives = null;
+  editedInitiatives = null;
+  initiativesLoaded = false;
+  document.getElementById('initiatives-file').value = '';
+  document.getElementById('init-file-name').textContent = 'Click to upload…';
+  const wrap = document.getElementById('init-upload');
+  wrap.classList.remove('loaded');
+  wrap.querySelector('.file-icon').textContent = '📄';
+  document.getElementById('init-reset-row').style.display = 'none';
+  checkRunButton();
+  refreshQuarters();
+}
+
+function resetConstantWorkFile() {
+  parsedConstantWork = null;
+  document.getElementById('constant-work-file').value = '';
+  document.getElementById('constant-work-file-name').textContent = 'Click to upload…';
+  const wrap = document.getElementById('constant-work-upload');
+  wrap.classList.remove('loaded');
+  wrap.querySelector('.file-icon').textContent = '📄';
+  document.getElementById('cw-reset-row').style.display = 'none';
 }
 
 function loadConstantWorkCSV(text) {
@@ -2759,6 +2919,7 @@ document.getElementById('initiatives-file').addEventListener('change', async e =
     const wrap = document.getElementById('init-upload');
     wrap.classList.add('loaded');
     wrap.querySelector('.file-icon').textContent = '✅';
+    document.getElementById('init-reset-row').style.display = 'flex';
     checkRunButton();
     tryUpdatePreview();
   } catch (err) { alert('Error loading initiatives CSV:\n' + err.message); }
@@ -2769,12 +2930,7 @@ document.getElementById('epics-file').addEventListener('change', async e => {
   if (!files.length) return;
   try {
     await loadEpicsFiles(files);
-    epicsLoaded = true;
-    document.getElementById('epics-file-name').textContent =
-      files.length === 1 ? files[0].name : `${files.length} files`;
-    const wrap = document.getElementById('epics-upload');
-    wrap.classList.add('loaded');
-    wrap.querySelector('.file-icon').textContent = '✅';
+    renderEpicChips();
     checkRunButton();
     refreshQuarters();
     tryUpdatePreview();
@@ -2790,7 +2946,15 @@ document.getElementById('constant-work-file').addEventListener('change', async e
     const wrap = document.getElementById('constant-work-upload');
     wrap.classList.add('loaded');
     wrap.querySelector('.file-icon').textContent = '✅';
+    document.getElementById('cw-reset-row').style.display = 'flex';
   } catch (err) { alert('Error loading constant work CSV:\n' + err.message); }
+});
+
+document.getElementById('init-reset-btn').addEventListener('click', e => {
+  e.stopPropagation(); resetInitiativesFile();
+});
+document.getElementById('cw-reset-btn').addEventListener('click', e => {
+  e.stopPropagation(); resetConstantWorkFile();
 });
 </script>
 
