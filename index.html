@@ -482,11 +482,11 @@
     /* Chart container */
     #chart-container {
       position: relative;
-      height: 438px;
+      height: 526px;
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
-      padding: 14px 12px 10px;
+      padding: 4px 12px 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
@@ -640,11 +640,11 @@
 
     .team-chart-wrapper {
       position: relative;
-      height: 350px;
+      height: 420px;
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
-      padding: 14px 12px 10px;
+      padding: 4px 12px 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
@@ -800,9 +800,9 @@
       letter-spacing: 0.08em; color: #6b7280;
     }
     .proj-chart-wrapper {
-      position: relative; height: 210px;
+      position: relative; height: 252px;
       background: white; border: 1px solid #e5e7eb;
-      border-radius: 10px; padding: 12px 10px 8px;
+      border-radius: 10px; padding: 4px 10px 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
@@ -852,7 +852,7 @@
       #app { height: auto; }
       main { grid-template-columns: 1fr; }
       #results-panel { padding: 18px; }
-      #chart-container { height: 350px; }
+      #chart-container { height: 420px; }
     }
   </style>
 </head>
@@ -1598,6 +1598,7 @@ async function loadEpicsFiles(files) {
     const epicKeyCol = hdrs.find(h => h.toLowerCase() === 'key' ||
                                       h.toLowerCase() === 'jira_key' ||
                                       h.toLowerCase() === 'epic_key') || null;
+    const fileIndex = epicFileStore.length; // stable index for this file
     for (const row of rows) {
       row._initiative_key = (row[linkCol] || '').trim();
       row._tshirt_size    = (
@@ -1609,7 +1610,8 @@ async function loadEpicsFiles(files) {
       row._quarter = (
         row.quarter || row.Quarter || row.target_quarter || ''
       ).trim();
-      row._epic_key = epicKeyCol ? (row[epicKeyCol] || '').trim() : '';
+      row._epic_key   = epicKeyCol ? (row[epicKeyCol] || '').trim() : '';
+      row._file_index = fileIndex; // used to prevent inflating λ across overlapping files
     }
     epicFileStore.push({ name: file.name, rows });
     console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}" | key="${epicKeyCol}"`);
@@ -1824,15 +1826,16 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
   }
 
-  // Initialise epicCounts to 0 only for initiatives whose quarter has epic coverage,
-  // so that initiatives with genuinely 0 epics still contribute to the distribution
-  // while quarters with no loaded epic data at all are excluded from the denominator.
-  const epicCounts = new Map();
+  // Track epic counts per (initiative_key → Map<file_index, count>) so that
+  // multiple files covering the same initiative/quarter don't inflate λ.
+  // Each initiative's count is averaged across the files that contributed epics
+  // to it, then λ is the mean of those per-initiative averages.
+  const epicCountsPerFile = new Map();
   for (const r of histInits) {
     const initQ = (r.quarter || '').trim();
     if (!quartersWithEpicData.has(initQ)) continue;
     const key = (r[initKeyCol] || '').trim();
-    if (key) epicCounts.set(key, 0);
+    if (key) epicCountsPerFile.set(key, new Map());
   }
 
   // Epics are in scope when:
@@ -1843,13 +1846,26 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     const epicQ  = epic._quarter;
     const inScope = epicQ ? histQSet.has(epicQ) : histKeys.has(link);
     if (!inScope || !link) continue;
-    if (!epicCounts.has(link)) epicCounts.set(link, 0); // initiative from standalone epics file
+    if (!epicCountsPerFile.has(link)) epicCountsPerFile.set(link, new Map()); // standalone epic
     const size = normalizeSize(epic._tshirt_size);
-    if (T_SHIRT_PARAMS[size]) epicCounts.set(link, epicCounts.get(link) + 1);
+    if (!T_SHIRT_PARAMS[size]) continue;
+    const fi = epic._file_index ?? 0;
+    const fileMap = epicCountsPerFile.get(link);
+    fileMap.set(fi, (fileMap.get(fi) || 0) + 1);
   }
 
-  const countArray = Array.from(epicCounts.values());
-  const lambda     = countArray.length
+  // Average count across contributing files per initiative, then average across initiatives.
+  const countArray = [];
+  for (const fileMap of epicCountsPerFile.values()) {
+    if (fileMap.size === 0) {
+      countArray.push(0);
+    } else {
+      const total = [...fileMap.values()].reduce((a, b) => a + b, 0);
+      countArray.push(total / fileMap.size);
+    }
+  }
+
+  const lambda = countArray.length
     ? countArray.reduce((a, b) => a + b, 0) / countArray.length
     : 0;
 
@@ -1943,12 +1959,12 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       const epicQ = epic._quarter;
       if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
     }
-    const epicCounts = new Map();
+    const epicCountsPerFile = new Map();
     for (const r of histInits) {
       const initQ = (r.quarter || '').trim();
       if (!quartersWithEpicData.has(initQ)) continue;
       const key = (r[initKeyCol] || '').trim();
-      if (key) epicCounts.set(key, 0);
+      if (key) epicCountsPerFile.set(key, new Map());
     }
     // An epic is in scope for this team when it links to one of the team's
     // historical initiatives AND its quarter (if tagged) is a selected hist quarter.
@@ -1959,9 +1975,21 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       const inScope = epicQ ? histQSet.has(epicQ) && histKeys.has(link) : histKeys.has(link);
       if (!inScope) continue;
       const size = normalizeSize(epic._tshirt_size);
-      if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
+      if (!T_SHIRT_PARAMS[size]) continue;
+      if (!epicCountsPerFile.has(link)) epicCountsPerFile.set(link, new Map());
+      const fi = epic._file_index ?? 0;
+      const fileMap = epicCountsPerFile.get(link);
+      fileMap.set(fi, (fileMap.get(fi) || 0) + 1);
     }
-    const countArray = Array.from(epicCounts.values());
+    const countArray = [];
+    for (const fileMap of epicCountsPerFile.values()) {
+      if (fileMap.size === 0) {
+        countArray.push(0);
+      } else {
+        const total = [...fileMap.values()].reduce((a, b) => a + b, 0);
+        countArray.push(total / fileMap.size);
+      }
+    }
     const teamLambda = countArray.length
       ? countArray.reduce((a, b) => a + b, 0) / countArray.length
       : 0;
@@ -2388,7 +2416,7 @@ function renderChartOnCanvas(canvasId, results, capacity, contextKey) {
       plugins: {
         legend: {
           position: 'top',
-          labels: { usePointStyle: true, pointStyle: 'rect', padding: 20, font: { size: 12 } },
+          labels: { usePointStyle: true, pointStyle: 'rect', padding: 10, font: { size: 12 } },
         },
         tooltip: {
           callbacks: {
