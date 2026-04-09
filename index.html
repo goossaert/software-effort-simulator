@@ -1812,26 +1812,16 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   const histKeys  = new Set(histInits.map(r => (r[initKeyCol] || '').trim()).filter(Boolean));
   const histQSet  = new Set(histQuarters);
 
-  // Build a lookup so we can map an initiative key back to its quarter.
-  const initQuarterMap = new Map();
-  for (const r of histInits) {
-    const key = (r[initKeyCol] || '').trim();
-    if (key) initQuarterMap.set(key, (r.quarter || '').trim());
-  }
-
   // Identify which historical quarters actually have epic data loaded.
-  // Only quarters with coverage contribute their initiatives to the λ denominator;
-  // this prevents quarters with no loaded epics from diluting the average.
+  // We rely only on epics that carry an explicit _quarter tag; epics without
+  // one are ambiguous (we can't tell which quarter they "belong to") so we
+  // do not use them to mark a quarter as covered.  Quarters with no tagged
+  // epics have their initiatives excluded from the λ denominator, preventing
+  // unloaded quarters from diluting the average.
   const quartersWithEpicData = new Set();
   for (const epic of parsedEpics) {
-    const link  = epic._initiative_key;
     const epicQ = epic._quarter;
-    if (epicQ && histQSet.has(epicQ)) {
-      quartersWithEpicData.add(epicQ);
-    } else if (!epicQ && histKeys.has(link)) {
-      const initQ = initQuarterMap.get(link);
-      if (initQ) quartersWithEpicData.add(initQ);
-    }
+    if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
   }
 
   // Initialise epicCounts to 0 only for initiatives whose quarter has epic coverage,
@@ -1942,18 +1932,16 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
     );
 
     // Poisson λ (team-scoped)
-    // Build initiative→quarter map to detect which quarters have epic coverage.
-    const initQuarterMap = new Map();
-    for (const r of histInits) {
-      const key = (r[initKeyCol] || '').trim();
-      if (key) initQuarterMap.set(key, (r.quarter || '').trim());
-    }
+    // Mirror the org-level approach: use explicit _quarter tags to identify
+    // which historical quarters have epic data loaded.  Do NOT use the
+    // initiative-link path for this check — an epic linking to an initiative
+    // that also appears in another quarter would wrongly mark that quarter as
+    // covered.
+    const histQSet = new Set(histQuarters);
     const quartersWithEpicData = new Set();
     for (const epic of parsedEpics) {
-      const link = epic._initiative_key;
-      if (!histKeys.has(link)) continue;
-      const initQ = initQuarterMap.get(link);
-      if (initQ) quartersWithEpicData.add(initQ);
+      const epicQ = epic._quarter;
+      if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
     }
     const epicCounts = new Map();
     for (const r of histInits) {
@@ -1962,9 +1950,14 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       const key = (r[initKeyCol] || '').trim();
       if (key) epicCounts.set(key, 0);
     }
+    // An epic is in scope for this team when it links to one of the team's
+    // historical initiatives AND its quarter (if tagged) is a selected hist quarter.
+    // This mirrors the org-level inScope logic.
     for (const epic of parsedEpics) {
-      const link = epic._initiative_key;
-      if (!histKeys.has(link)) continue;
+      const link  = epic._initiative_key;
+      const epicQ = epic._quarter;
+      const inScope = epicQ ? histQSet.has(epicQ) && histKeys.has(link) : histKeys.has(link);
+      if (!inScope) continue;
       const size = normalizeSize(epic._tshirt_size);
       if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
     }
@@ -1973,11 +1966,13 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       ? countArray.reduce((a, b) => a + b, 0) / countArray.length
       : 0;
 
-    // Epic sizing distribution (team-scoped)
+    // Epic sizing distribution (team-scoped) — same inScope logic as above.
     const teamEpicSizingDist = [];
     for (const epic of parsedEpics) {
-      const link = epic._initiative_key;
-      if (!histKeys.has(link)) continue;
+      const link  = epic._initiative_key;
+      const epicQ = epic._quarter;
+      const inScope = epicQ ? histQSet.has(epicQ) && histKeys.has(link) : histKeys.has(link);
+      if (!inScope) continue;
       const size = normalizeSize(epic._tshirt_size);
       if (T_SHIRT_PARAMS[size]) teamEpicSizingDist.push(size);
     }
