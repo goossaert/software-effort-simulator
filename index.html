@@ -168,46 +168,6 @@
     }
     .file-reset-btn:hover { color: #f87171; }
 
-    /* Epic file chips */
-    .epic-chips-area {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 5px;
-    }
-    .epic-chip {
-      display: grid;
-      grid-template-columns: auto 1fr auto auto;
-      align-items: center;
-      gap: 5px;
-      background: #132d22;
-      border: 1px solid #166534;
-      border-radius: 5px;
-      padding: 5px 8px;
-      font-size: 11px;
-      color: #86efac;
-    }
-    .epic-chip-name {
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      font-weight: 500;
-    }
-    .epic-chip-meta {
-      font-size: 9.5px; color: #818cf8; white-space: nowrap; text-align: right;
-    }
-    .epic-chip-remove {
-      background: none; border: none; color: #86efac;
-      cursor: pointer; font-size: 15px; line-height: 1;
-      padding: 0 0 0 3px; opacity: 0.5; flex-shrink: 0;
-    }
-    .epic-chip-remove:hover { opacity: 1; color: #f87171; }
-    .epic-chips-footer {
-      display: flex; justify-content: flex-end; margin-top: 1px;
-    }
-    .epic-clear-all-btn {
-      background: none; border: none; color: #f87171;
-      font-size: 10px; cursor: pointer; padding: 0; text-decoration: underline; opacity: 0.8;
-    }
-    .epic-clear-all-btn:hover { opacity: 1; }
 
     /* Lognormal parameter mode selector */
     .param-mode-options {
@@ -890,10 +850,12 @@
         <label>Epics CSV <span style="font-size:10px;color:#9ca3af;font-weight:400">(one or more)</span></label>
         <div class="file-upload-wrapper" id="epics-upload">
           <span class="file-icon">📄</span>
-          <span class="file-name" id="epics-file-name">Click to add file(s)…</span>
-          <input type="file" id="epics-file" accept=".csv" multiple>
+          <span class="file-name" id="epics-file-name">Click to upload…</span>
+          <input type="file" id="epics-file" accept=".csv">
         </div>
-        <div id="epic-chips-area" class="epic-chips-area"></div>
+        <div class="file-reset-row" id="epics-reset-row" style="display:none">
+          <button class="file-reset-btn" id="epics-reset-btn">✕ Remove file</button>
+        </div>
       </div>
 
       <div class="field-group">
@@ -1282,7 +1244,7 @@ const T_SHIRT_PARAMS = {
  * This corrects the per-size bias while preserving the shape of the distribution.
  *
  * Calibration summary (n = sample count, ratio = avg actual / synthetic mean):
- *   XS : n=10, ratio=4.23  → μ shifted +1.44  (one 15 PM outlier dominates)
+ *   XS : n=10, ratio=1.39  → μ shifted +0.33
  *   S  : n=14, ratio=1.51  → μ shifted +0.41
  *   M  : n=8,  ratio=1.24  → μ shifted +0.21
  *   L  : n=3,  ratio=1.36  → μ shifted +0.31
@@ -1534,7 +1496,7 @@ function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
 let parsedInitiatives = null;
 let editedInitiatives = null; // user-editable copy of parsedInitiatives
 let parsedEpics       = null;
-let epicFileStore     = []; // [{ name, rows }] — accumulates across multiple loads
+let epicFile          = null; // { name, rows } — single loaded epic file
 let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
 let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
 
@@ -1580,59 +1542,43 @@ function refreshQuarters() {
 }
 
 /**
- * Parse and normalise one or more File objects, appending them to epicFileStore
- * (duplicate filenames are silently skipped). Each row gets three synthetic fields:
+ * Parse and normalise a single epic CSV file. Each row gets three synthetic fields:
  *   _initiative_key  — resolved from whatever link column was detected in that file
  *   _tshirt_size     — normalised across column name variants
  *   _quarter         — from an explicit Quarter/quarter column, if present
+ *
+ * Rows that share the same epic Jira key are deduplicated (keeping the row with
+ * a valid T-shirt size when there is a choice), matching the behaviour of the
+ * previous multi-file implementation.
  */
-async function loadEpicsFiles(files) {
-  for (const file of files) {
-    if (epicFileStore.some(ef => ef.name === file.name)) continue; // skip duplicates
-    const text = await readFile(file);
-    const rows = parseCSV(text);
-    const linkCol = detectEpicLinkCol(rows);
-    // Detect the epic's own Jira key column for cross-file deduplication.
-    // Both common formats use a column literally named "key".
-    const hdrs = rows.length ? Object.keys(rows[0]) : [];
-    const epicKeyCol = hdrs.find(h => h.toLowerCase() === 'key' ||
-                                      h.toLowerCase() === 'jira_key' ||
-                                      h.toLowerCase() === 'epic_key') || null;
-    const fileIndex = epicFileStore.length; // stable index for this file
-    for (const row of rows) {
-      row._initiative_key = (row[linkCol] || '').trim();
-      row._tshirt_size    = (
-        row.t_shirt_size   || row['T-shirt size'] ||
-        row['t-shirt size']|| row.tshirt_size     || ''
-      ).trim();
-      // Recognise common quarter column name variants, including "target_quarter"
-      // used by capacity-planning exports.
-      row._quarter = (
-        row.quarter || row.Quarter || row.target_quarter || ''
-      ).trim();
-      row._epic_key   = epicKeyCol ? (row[epicKeyCol] || '').trim() : '';
-      row._file_index = fileIndex; // used to prevent inflating λ across overlapping files
-    }
-    epicFileStore.push({ name: file.name, rows });
-    console.log(`[Epics] "${file.name}" — ${rows.length} rows | link="${linkCol}" | key="${epicKeyCol}"`);
+async function loadEpicsFile(file) {
+  const text = await readFile(file);
+  const rows = parseCSV(text);
+  const linkCol = detectEpicLinkCol(rows);
+
+  // Detect the epic's own Jira key column for within-file deduplication.
+  const hdrs = rows.length ? Object.keys(rows[0]) : [];
+  const epicKeyCol = hdrs.find(h => h.toLowerCase() === 'key' ||
+                                    h.toLowerCase() === 'jira_key' ||
+                                    h.toLowerCase() === 'epic_key') || null;
+
+  for (const row of rows) {
+    row._initiative_key = (row[linkCol] || '').trim();
+    row._tshirt_size    = (
+      row.t_shirt_size   || row['T-shirt size'] ||
+      row['t-shirt size']|| row.tshirt_size     || ''
+    ).trim();
+    // Recognise common quarter column name variants, including "target_quarter"
+    // used by capacity-planning exports.
+    row._quarter  = (row.quarter || row.Quarter || row.target_quarter || '').trim();
+    row._epic_key = epicKeyCol ? (row[epicKeyCol] || '').trim() : '';
   }
-  rebuildParsedEpics();
-}
 
-/**
- * Flatten epicFileStore into parsedEpics, deduplicating rows that share the
- * same epic Jira key across files.  When a key appears in more than one file,
- * the row with a valid T-shirt size is preferred; otherwise the first occurrence
- * is kept.  Rows without a detectable epic key are always included as-is.
- */
-function rebuildParsedEpics() {
-  const allRows = epicFileStore.flatMap(f => f.rows);
-
-  // Deduplicate keyed rows, preferring those with a valid T-shirt size.
-  const byKey = new Map(); // _epic_key → best row so far
+  // Deduplicate rows that share the same epic key, preferring the row with a
+  // valid T-shirt size.  Rows without a detectable key are always kept as-is.
+  const byKey = new Map();
   const unkeyedRows = [];
-
-  for (const row of allRows) {
+  for (const row of rows) {
     if (!row._epic_key) { unkeyedRows.push(row); continue; }
     const existing = byKey.get(row._epic_key);
     if (!existing) {
@@ -1641,79 +1587,29 @@ function rebuildParsedEpics() {
       !T_SHIRT_PARAMS[normalizeSize(existing._tshirt_size)] &&
        T_SHIRT_PARAMS[normalizeSize(row._tshirt_size)]
     ) {
-      byKey.set(row._epic_key, row); // upgrade to the version that has a valid size
+      byKey.set(row._epic_key, row); // upgrade to the version with a valid size
     }
   }
 
-  parsedEpics = [...byKey.values(), ...unkeyedRows];
-  epicsLoaded = epicFileStore.length > 0;
+  const deduped = [...byKey.values(), ...unkeyedRows];
+  epicFile    = { name: file.name, rows: deduped };
+  parsedEpics = deduped;
+  epicsLoaded = true;
   detectedCols = { ...(detectedCols || {}), epicLinkCol: '(normalised→_initiative_key)' };
-  const dupeCount = allRows.length - parsedEpics.length;
-  console.log(`[Epics] store: ${epicFileStore.length} file(s), ${allRows.length} total rows → ${parsedEpics.length} after dedup (${dupeCount} duplicates removed)`);
+  const dupeCount = rows.length - deduped.length;
+  console.log(`[Epics] "${file.name}" — ${rows.length} rows → ${deduped.length} after dedup (${dupeCount} duplicates removed) | link="${linkCol}" | key="${epicKeyCol}"`);
 }
 
-/** Render per-file chips inside #epic-chips-area and sync the upload wrapper state. */
-function renderEpicChips() {
-  const area = document.getElementById('epic-chips-area');
+function resetEpicsFile() {
+  epicFile    = null;
+  parsedEpics = null;
+  epicsLoaded = false;
+  document.getElementById('epics-file').value = '';
+  document.getElementById('epics-file-name').textContent = 'Click to upload…';
   const wrap = document.getElementById('epics-upload');
-
-  if (!epicFileStore.length) {
-    area.innerHTML = '';
-    wrap.classList.remove('loaded');
-    wrap.querySelector('.file-icon').textContent = '📄';
-    document.getElementById('epics-file-name').textContent = 'Click to add file(s)…';
-    return;
-  }
-
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-  const chips = epicFileStore.map(f => {
-    const quarters = [...new Set(f.rows.map(r => r._quarter).filter(Boolean))].sort((a,b) => {
-      const pa = a.match(/^Q(\d)\s+(\d{4})$/), pb = b.match(/^Q(\d)\s+(\d{4})$/);
-      return (pa && pb) ? ((+pa[2]-+pb[2]) || (+pa[1]-+pb[1])) : a.localeCompare(b);
-    });
-    const meta = `${f.rows.length} rows${quarters.length ? ' · ' + quarters.join(', ') : ''}`;
-    return `<div class="epic-chip">
-      <span>📄</span>
-      <span class="epic-chip-name" title="${esc(f.name)}">${esc(f.name)}</span>
-      <span class="epic-chip-meta">${esc(meta)}</span>
-      <button class="epic-chip-remove" data-name="${esc(f.name)}" title="Remove this file">×</button>
-    </div>`;
-  }).join('');
-
-  const footer = epicFileStore.length > 1
-    ? `<div class="epic-chips-footer"><button class="epic-clear-all-btn" id="epic-clear-all">Clear all</button></div>`
-    : '';
-
-  area.innerHTML = chips + footer;
-
-  // Wire up remove buttons via delegation (avoids inline onclick)
-  area.querySelectorAll('.epic-chip-remove').forEach(btn => {
-    btn.addEventListener('click', () => removeEpicFile(btn.dataset.name));
-  });
-  const clearAllBtn = area.querySelector('#epic-clear-all');
-  if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllEpicFiles);
-
-  // Upload wrapper: green "add more" state
-  wrap.classList.add('loaded');
-  wrap.querySelector('.file-icon').textContent = '➕';
-  document.getElementById('epics-file-name').textContent =
-    epicFileStore.length === 1 ? 'Click to add more files…' : `${epicFileStore.length} files loaded — click to add more`;
-}
-
-function removeEpicFile(name) {
-  epicFileStore = epicFileStore.filter(f => f.name !== name);
-  rebuildParsedEpics();
-  renderEpicChips();
-  checkRunButton();
-  refreshQuarters();
-  tryUpdatePreview();
-}
-
-function clearAllEpicFiles() {
-  epicFileStore = [];
-  rebuildParsedEpics();
-  renderEpicChips();
+  wrap.classList.remove('loaded');
+  wrap.querySelector('.file-icon').textContent = '📄';
+  document.getElementById('epics-reset-row').style.display = 'none';
   checkRunButton();
   refreshQuarters();
 }
@@ -1826,16 +1722,15 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
   }
 
-  // Track epic counts per (initiative_key → Map<file_index, count>) so that
-  // multiple files covering the same initiative/quarter don't inflate λ.
-  // Each initiative's count is averaged across the files that contributed epics
-  // to it, then λ is the mean of those per-initiative averages.
-  const epicCountsPerFile = new Map();
+  // Initialise epicCounts to 0 only for initiatives whose quarter has epic coverage,
+  // so that initiatives with genuinely 0 epics still contribute to the distribution
+  // while quarters with no loaded epic data at all are excluded from the denominator.
+  const epicCounts = new Map();
   for (const r of histInits) {
     const initQ = (r.quarter || '').trim();
     if (!quartersWithEpicData.has(initQ)) continue;
     const key = (r[initKeyCol] || '').trim();
-    if (key) epicCountsPerFile.set(key, new Map());
+    if (key) epicCounts.set(key, 0);
   }
 
   // Epics are in scope when:
@@ -1846,26 +1741,13 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     const epicQ  = epic._quarter;
     const inScope = epicQ ? histQSet.has(epicQ) : histKeys.has(link);
     if (!inScope || !link) continue;
-    if (!epicCountsPerFile.has(link)) epicCountsPerFile.set(link, new Map()); // standalone epic
+    if (!epicCounts.has(link)) epicCounts.set(link, 0); // initiative from standalone epics file
     const size = normalizeSize(epic._tshirt_size);
-    if (!T_SHIRT_PARAMS[size]) continue;
-    const fi = epic._file_index ?? 0;
-    const fileMap = epicCountsPerFile.get(link);
-    fileMap.set(fi, (fileMap.get(fi) || 0) + 1);
+    if (T_SHIRT_PARAMS[size]) epicCounts.set(link, epicCounts.get(link) + 1);
   }
 
-  // Average count across contributing files per initiative, then average across initiatives.
-  const countArray = [];
-  for (const fileMap of epicCountsPerFile.values()) {
-    if (fileMap.size === 0) {
-      countArray.push(0);
-    } else {
-      const total = [...fileMap.values()].reduce((a, b) => a + b, 0);
-      countArray.push(total / fileMap.size);
-    }
-  }
-
-  const lambda = countArray.length
+  const countArray = Array.from(epicCounts.values());
+  const lambda     = countArray.length
     ? countArray.reduce((a, b) => a + b, 0) / countArray.length
     : 0;
 
@@ -1959,12 +1841,12 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       const epicQ = epic._quarter;
       if (epicQ && histQSet.has(epicQ)) quartersWithEpicData.add(epicQ);
     }
-    const epicCountsPerFile = new Map();
+    const epicCounts = new Map();
     for (const r of histInits) {
       const initQ = (r.quarter || '').trim();
       if (!quartersWithEpicData.has(initQ)) continue;
       const key = (r[initKeyCol] || '').trim();
-      if (key) epicCountsPerFile.set(key, new Map());
+      if (key) epicCounts.set(key, 0);
     }
     // An epic is in scope for this team when it links to one of the team's
     // historical initiatives AND its quarter (if tagged) is a selected hist quarter.
@@ -1975,21 +1857,9 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       const inScope = epicQ ? histQSet.has(epicQ) && histKeys.has(link) : histKeys.has(link);
       if (!inScope) continue;
       const size = normalizeSize(epic._tshirt_size);
-      if (!T_SHIRT_PARAMS[size]) continue;
-      if (!epicCountsPerFile.has(link)) epicCountsPerFile.set(link, new Map());
-      const fi = epic._file_index ?? 0;
-      const fileMap = epicCountsPerFile.get(link);
-      fileMap.set(fi, (fileMap.get(fi) || 0) + 1);
+      if (T_SHIRT_PARAMS[size]) epicCounts.set(link, (epicCounts.get(link) || 0) + 1);
     }
-    const countArray = [];
-    for (const fileMap of epicCountsPerFile.values()) {
-      if (fileMap.size === 0) {
-        countArray.push(0);
-      } else {
-        const total = [...fileMap.values()].reduce((a, b) => a + b, 0);
-        countArray.push(total / fileMap.size);
-      }
-    }
+    const countArray = Array.from(epicCounts.values());
     const teamLambda = countArray.length
       ? countArray.reduce((a, b) => a + b, 0) / countArray.length
       : 0;
@@ -3031,15 +2901,24 @@ document.getElementById('initiatives-file').addEventListener('change', async e =
 });
 
 document.getElementById('epics-file').addEventListener('change', async e => {
-  const files = [...e.target.files];
-  if (!files.length) return;
+  const file = e.target.files[0];
+  if (!file) return;
   try {
-    await loadEpicsFiles(files);
-    renderEpicChips();
+    await loadEpicsFile(file);
+    document.getElementById('epics-file-name').textContent = file.name;
+    const wrap = document.getElementById('epics-upload');
+    wrap.classList.add('loaded');
+    wrap.querySelector('.file-icon').textContent = '✅';
+    document.getElementById('epics-reset-row').style.display = '';
     checkRunButton();
     refreshQuarters();
     tryUpdatePreview();
   } catch (err) { alert('Error loading epics CSV:\n' + err.message); }
+});
+
+document.getElementById('epics-reset-btn').addEventListener('click', () => {
+  resetEpicsFile();
+  tryUpdatePreview();
 });
 
 document.getElementById('constant-work-file').addEventListener('change', async e => {
