@@ -5,7 +5,8 @@ Monte Carlo simulation over project work items to project probability of complet
 Future improvements
 - Handle orphan epics (i.e. epics that have an empty parent initiative field)
 - Handle epics showing up in initiative CSV file.
-- Handle when epics are assigned to different quarters but are all belonging to an initiative: what quarter should the epics be used to model then? Should it be split into separate intiatives by the model, one per each quarter that it has epics, as a way to model that some initiatives can span multiple quarters. What are the other options?
+- Handle when epics are assigned to different quarters but are all belonging to an initiative: what quarter should the epics be used to model then? Should it be split into separate intiatives by the model, one per each quarter that it has epics, as a way to model that some initiatives can span multiple quarters. What are the other options? (a sub case is: what happens if an epic is inside an initiative, but one has a valid quarter and the other has quarter TBD?)
+- What happens if there are duplicate initiatives or duplicate quarters?
 - Improve the "Team Level" tab (not very useful right now)
 - Use the KR (key result) field in the simulation, e.g. break down charts per key result, or have an option to allocate percentages of capacity to different KRs)
 - Add the notion of team dependencies: for now the initiatives are sampled via number of initiatives and then sizes of epics, and that’s it. It could evolve in a way that an initiative in a team could generate epics in another team based on historical data.
