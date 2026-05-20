@@ -94,6 +94,28 @@ The CSV layout where headers match their semantics: `jira_key`, `building_block`
 **Quirky format**:
 The legacy CSV layout exported by an older internal tooling, where `teams` actually held Jira keys and `emoji` actually held MoSCoW priority. Still parseable because detection scans column *values*, not header names.
 
+### Column detection
+
+**Column detector**:
+A function that, given the parsed rows of a CSV, returns the header name corresponding to a known semantic column (Initiative key, MoSCoW, team, name, Epic→Initiative link, Key Result). Downstream code reads `row[headerName]`; nothing else interprets headers.
+_Avoid_: parser, mapper, resolver.
+
+**Content scan**:
+The detector strategy that iterates over each column and computes the fraction of non-empty values matching a fixed regex (Jira-key pattern for keys, MoSCoW keyword pattern for priorities). The first column whose match ratio exceeds the **Detection threshold** wins.
+_Avoid_: regex match, content sniff, value-based detection.
+
+**Detection threshold**:
+The fraction of non-empty values that must match the regex for a content scan to claim a column. Currently `> 0.5` for the Initiative key and MoSCoW columns, `> 0.4` for the Epic→Initiative link column. Header-name fallback applies when no column clears the threshold.
+_Avoid_: confidence, score.
+
+**Detection fallback**:
+The header-name lookup invoked when a content scan finds no winning column (empty CSV, or no column above the **Detection threshold**). Returns either the **Sensible format** header (`jira_key`, `moscow`, `building_block`, `teams`) or the legacy **Quirky format** header (`teams`, `emoji`).
+_Avoid_: default column, header lookup.
+
+**Recognised t-shirt size**:
+A normalised size string (output of `normalizeSize`) that exists as a key in the active `T_SHIRT_PARAMS` map (synthetic or empirical). Used as the tie-breaker when two Epic rows share an `_epic_key` during within-file dedup — the row with a recognised size wins.
+_Avoid_: valid size, known size.
+
 ## Relationships
 
 - An **Initiative** belongs to exactly one **Quarter**, exactly one team, and exactly one **MoSCoW** bucket.
@@ -115,3 +137,4 @@ The legacy CSV layout exported by an older internal tooling, where `teams` actua
 - "size" was used to mean both **T-shirt size** (label) and **person-months** (number) — resolved: T-shirt size is always the label; PM is always the number.
 - "iteration" was used for both a single Monte Carlo draw and a Jira-style sprint — resolved: only the Monte Carlo meaning is used in this project. Use **Run** for "one press of the button."
 - "quarter" can refer to a single quarter or the user's multi-quarter selection — resolved: the historical and target selectors are both multi-selects; "quarter" in domain talk usually means the selected set unless explicitly singular.
+- "detection" was used for two distinct steps: identifying which header carries a semantic column (a **Column detector** via **Content scan** / **Detection fallback**) versus normalising a raw value once the column is known (`normalizeMoscow`, `normalizeSize`) — resolved: *detection* picks the column, *normalisation* transforms the value.
