@@ -48,6 +48,12 @@ _Avoid_: rate, mean, average epics.
 The flat array of historical **T-shirt size** labels — one entry per in-scope **Epic** in the **Historical quarter** — that each **Iteration**'s epic sizes are drawn from uniformly with replacement. Size labels that are not a **Recognised t-shirt size** are excluded from the pool.
 _Avoid_: empirical distribution, sample pool, size population.
 
+### Organisational unit
+
+**Team**:
+The owning unit of an **Initiative**, drawn from the initiative's team column (the **Sensible format** uses `teams`, the **Quirky format** uses the value-detected variant). Within `prepareTeamSimulationData` (`index.html:1802`), teams are deduplicated case-insensitively with first-seen casing preserved and sorted alphabetically case-insensitively. The **Team Level tab** renders one section per team present in the selected **Target quarter(s)**.
+_Avoid_: squad, group, tribe, owner.
+
 ### Planning vocabulary
 
 **Quarter**:
@@ -128,6 +134,24 @@ _Avoid_: overrun probability, breach probability, P(breach), risk score.
 The colour class applied to a **Probability of exceedance** cell in the stats table: `ok` (green) when `pExceed ≤ 0.25`, `caution` (orange) when `0.25 < pExceed ≤ 0.5`, `warn` (red) when `pExceed > 0.5`. Hard-coded; see [ADR-0013](docs/adr/0013-three-tier-risk-colouring.md). Applies identically to the capacity row and to per-**Marker** rows.
 _Avoid_: risk level, severity, status, RAG.
 
+### Result tabs
+
+**Tab**:
+One of four named views of a **Run**'s output: `Organization Level`, **Team Level tab**, `Team Projections`, `Initiatives`. The tab bar (`.tab-bar`, `index.html:982`) holds one `.tab-btn` per tab; exactly one carries the `.active` class at any time. After every Run, the active tab resets to `Organization Level` — see [ADR-0018](docs/adr/0018-tab-based-results-layout.md).
+_Avoid_: view, panel (which is the container the tab points to), section (which is the per-**Team** block inside the Team Level tab).
+
+**Tab panel**:
+The container `<div class="tab-panel">` that holds a Tab's content. Identified by `id="tab-${dataTab}"`; exactly one panel has `display: flex` at a time, the others are `display: none`. Pre-rendered during the Run, not lazy-rendered on tab switch.
+_Avoid_: view, page, screen.
+
+**Team Level tab**:
+The second **Tab**, `#tab-teams`. Renders one section per **Team** in the selected **Target quarter(s)**, with the team's title row, a `Historical data` radio toggle, a chart card, and a Stats table. Each section runs an *independent* Monte Carlo via `runSimulation`, with K values always team-scoped and **Poisson λ** + **Bootstrap pool** toggleable between team-scoped and org-wide — see [ADR-0019](docs/adr/0019-per-team-independent-simulations.md). Section ordering is the alphabetical case-insensitive sort produced by `prepareTeamSimulationData`.
+_Avoid_: per-team tab, teams view, drilldown.
+
+**Historical data toggle**:
+The per-section radio pair on the **Team Level tab** that selects which historical parameters to feed the section's Run: `This team only` (uses `teamLambda` + `teamEpicSizingDist`) or `All teams — org-wide` (uses the org-level `lambda` + `epicSizingDist` carried by the same Run). Defaults to *org-wide* when the team has 4 or fewer historical **Initiatives** (`useOrgByDefault === histInitCount <= 4`), surfaced via a yellow `Recommended: only N historical initiatives found for this team` chip. Toggling re-runs *only that team's* Monte Carlo via `renderTeamSection(idx, useOrg)`; the other sections, the org tab, and per-section **Markers** are untouched. K values are *not* toggleable — only the historical scope is.
+_Avoid_: source selector, parameter switch, scope toggle.
+
 ### Visualisation
 
 **Histogram**:
@@ -204,7 +228,7 @@ _Avoid_: diagnostics, detection log, parser output.
 
 ## Flagged ambiguities
 
-- "team" was used to mean both the **owning team of an Initiative** and the **team-scoped simulation context** in the Team Level tab — resolved: the column is the Initiative's owning team; the tab runs a per-team Run filtered by that column.
+- "team" was used to mean both the **owning team of an Initiative** and the **team-scoped simulation context** in the **Team Level tab** — resolved: the column is the **Team** (the Initiative's owning team); the tab runs a per-team Run filtered by that column.
 - "size" was used to mean both **T-shirt size** (label) and **person-months** (number) — resolved: T-shirt size is always the label; PM is always the number.
 - "iteration" was used for both a single Monte Carlo draw and a Jira-style sprint — resolved: only the Monte Carlo meaning is used in this project. Use **Run** for "one press of the button."
 - "quarter" can refer to a single quarter or the user's multi-quarter selection — resolved: the historical and target **Quarter selectors** are both multi-selects; "quarter" in domain talk usually means the selected set unless explicitly singular.
