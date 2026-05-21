@@ -55,12 +55,16 @@ A label like `Q3 2026`. The unit of time the simulator works in. Initiatives and
 _Avoid_: sprint, period, cycle.
 
 **Historical quarter**:
-The quarter (or set of quarters) used to fit the model: Poisson λ over initiative count and the bootstrap pool of t-shirt sizes. Selected in the sidebar.
+The quarter (or set of quarters) used to fit the model: Poisson λ over initiative count and the bootstrap pool of t-shirt sizes. Selected via the **Quarter selector** `#hist-ms` in the sidebar.
 _Avoid_: source, baseline, reference quarter.
 
 **Target quarter**:
-The quarter (or set of quarters) being forecast. Initiatives in the target quarter are bucketed by MoSCoW and counted as `K` for each scenario.
+The quarter (or set of quarters) being forecast. Initiatives in the target quarter are bucketed by MoSCoW and counted as `K` for each scenario. Selected via the **Quarter selector** `#target-ms` in the sidebar.
 _Avoid_: forecast quarter, projected quarter, future quarter.
+
+**Quarter selector**:
+The sidebar multi-select widget the user picks **Historical quarter**(s) or **Target quarter**(s) with — a custom-built combo box (`MultiSelect` class, `index.html:1083`) showing a chip strip plus a checkbox dropdown. The simulator instantiates two: `#hist-ms` (Historical) and `#target-ms` (Target). Each is populated by `refreshQuarters` from the chronologically-sorted union of quarter labels present in the loaded **Initiatives CSV** and **Epics CSV** (`extractQuarters`, `index.html:1073`). Read via `histMS.getSelected()` / `targetMS.getSelected()`, both returning `string[]`. Every checkbox toggle and every chip-`✕` click dispatches a single bubbling `ms-change` `CustomEvent` on the wrapper; the canonical observation contract — see [ADR-0017](docs/adr/0017-multi-quarter-selectors.md). Selecting zero quarters is allowed at the widget level; downstream consumers (the **Data preview**'s guard, the run-button handler's gate) decide whether to act on the empty selection.
+_Avoid_: quarter dropdown, quarter picker, multi-select, combo box.
 
 **MoSCoW**:
 The priority label on an Initiative — one of `Must`, `Should`, `Could`, `Won't`, or unknown. `Won't` and unknown initiatives are excluded from every scenario.
@@ -203,7 +207,7 @@ _Avoid_: diagnostics, detection log, parser output.
 - "team" was used to mean both the **owning team of an Initiative** and the **team-scoped simulation context** in the Team Level tab — resolved: the column is the Initiative's owning team; the tab runs a per-team Run filtered by that column.
 - "size" was used to mean both **T-shirt size** (label) and **person-months** (number) — resolved: T-shirt size is always the label; PM is always the number.
 - "iteration" was used for both a single Monte Carlo draw and a Jira-style sprint — resolved: only the Monte Carlo meaning is used in this project. Use **Run** for "one press of the button."
-- "quarter" can refer to a single quarter or the user's multi-quarter selection — resolved: the historical and target selectors are both multi-selects; "quarter" in domain talk usually means the selected set unless explicitly singular.
+- "quarter" can refer to a single quarter or the user's multi-quarter selection — resolved: the historical and target **Quarter selectors** are both multi-selects; "quarter" in domain talk usually means the selected set unless explicitly singular.
 - "detection" was used for two distinct steps: identifying which header carries a semantic column (a **Column detector** via **Content scan** / **Detection fallback**) versus normalising a raw value once the column is known (`normalizeMoscow`, `normalizeSize`) — resolved: *detection* picks the column, *normalisation* transforms the value.
 - "range" was used for both a **T-shirt size**'s P10/P90 band and the chart's **Global histogram range** on the effort axis — resolved: a size's range is its *band* (input to the lognormal fit); the chart's range is the **Global histogram range** (output of `runSimulation`).
 - "bin" had been informally used both for one of the 60 effort-axis intervals (**Bin**) and for a MoSCoW bucket — resolved: Bin is reserved for the histogram; MoSCoW grouping uses *bucket* (`moscowGroups.must` etc.).
