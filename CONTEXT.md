@@ -40,6 +40,14 @@ _Avoid_: theoretical, default, calibrated.
 An alternative parameter set, bias-corrected from realised effort in Q1 2026. Selected via the sidebar radio; swapping is global and affects all samplers.
 _Avoid_: actual, real-world, fitted.
 
+**Poisson λ**:
+The mean of the Poisson distribution from which each **Initiative**'s epic count is drawn. Fitted in `prepareSimulationData` as the average count of in-scope **Epics** per in-scope **Initiative** over the **Historical quarter**. One scalar per Run at the org level; one per team in the Team Level tab.
+_Avoid_: rate, mean, average epics.
+
+**Bootstrap pool**:
+The flat array of historical **T-shirt size** labels — one entry per in-scope **Epic** in the **Historical quarter** — that each **Iteration**'s epic sizes are drawn from uniformly with replacement. Size labels that are not a **Recognised t-shirt size** are excluded from the pool.
+_Avoid_: empirical distribution, sample pool, size population.
+
 ### Planning vocabulary
 
 **Quarter**:
@@ -63,11 +71,11 @@ One of the three forecasts the simulator runs side-by-side, defined by which MoS
 _Avoid_: case, projection, model.
 
 **Capacity**:
-The PM budget the team commits to deliver in the target quarter. Configured via the sidebar (`#capacity`), default 120 PM. Every scenario's risk is reported as `P(effort > capacity)`.
+The PM budget the team commits to deliver in the target quarter. Configured via the sidebar (`#capacity`), default 120 PM. Every scenario's risk is reported as `P(effort > capacity)`. Rendered on every chart as an auto-managed **Marker** (red dashed vertical line, label `Capacity: {value} PM`) via `ensureCapacityMarker`; the user can recolour or relabel the line from the marker dialog, but cannot delete it, and its `value` is overwritten from the sidebar input on every **Run**.
 _Avoid_: budget, headcount, throughput.
 
 **Iteration**:
-One draw of the Monte Carlo loop: sample `numEpics ~ Poisson(λ)` for each of the `K` initiatives, sample each epic's effort from `Lognormal(μ, σ)` by t-shirt size, sum to a total. Default iteration count is 10,000.
+One draw of the Monte Carlo loop: sample `numEpics ~ Poisson(λ)` for each of the `K` initiatives, sample each epic's effort from `Lognormal(μ, σ)` by t-shirt size, sum to a total. The iteration count is user-configured via `#iterations` (default 10,000 in the HTML, 1,000,000 if the field is empty when **Run** is pressed), clamped to `[1000, 10000000]`.
 _Avoid_: trial, sample, run (which means the whole batch).
 
 **Run**:
@@ -94,6 +102,46 @@ The CSV layout where headers match their semantics: `jira_key`, `building_block`
 **Quirky format**:
 The legacy CSV layout exported by an older internal tooling, where `teams` actually held Jira keys and `emoji` actually held MoSCoW priority. Still parseable because detection scans column *values*, not header names.
 
+### Summary statistics
+
+**Stats**:
+The per-**Scenario** tuple `{ p10, p25, p50, p75, p90, mean, pExceed }` produced by `computeStats` from a sorted `Float64Array` of per-**Iteration** totals. Exactly one Stats tuple per Scenario per **Run** — three per Run at the org level. Read by the stats table at `#stats-table` and by any per-team or per-**Marker** row that displays a percentile or a **Probability of exceedance**.
+_Avoid_: summary, metrics, KPIs.
+
+**Percentile (Pxx)**:
+The value at fractional rank `xx/100` in the sorted distribution, computed as `sorted[min(n − 1, floor(p · n))]`. Every reported percentile is an *actual realised Iteration* (not an interpolated value). The simulator reports P10, P25, P50, P75, and P90 — see [ADR-0012](docs/adr/0012-percentile-summary-and-probability-of-exceedance.md). P50 is the **Median**.
+_Avoid_: quantile, percentile estimate, interpolated percentile.
+
+**Tail percentile**:
+P75 and P90 specifically — the *upper* points used to read overrun risk. The simulator deliberately does *not* report P95 or P99: at the default 10,000 **Iterations** the latter are dominated by Monte Carlo noise and are the territory custom **Markers** are designed for.
+_Avoid_: extreme percentile, upper bound.
+
+**Probability of exceedance**:
+The fraction of **Iterations** whose total effort *strictly* exceeds a threshold, in `[0, 1]`. The headline cell in the stats table is `P(effort > capacity)`, but the same metric is computed against every non-capacity **Marker** value. Computed by a single binary search over the sorted `Float64Array` via `computePExceed` (or the inline form inside `computeStats`).
+_Avoid_: overrun probability, breach probability, P(breach), risk score.
+
+**Risk tier**:
+The colour class applied to a **Probability of exceedance** cell in the stats table: `ok` (green) when `pExceed ≤ 0.25`, `caution` (orange) when `0.25 < pExceed ≤ 0.5`, `warn` (red) when `pExceed > 0.5`. Hard-coded; see [ADR-0013](docs/adr/0013-three-tier-risk-colouring.md). Applies identically to the capacity row and to per-**Marker** rows.
+_Avoid_: risk level, severity, status, RAG.
+
+### Visualisation
+
+**Histogram**:
+The per-**Scenario** tuple `{ counts, binCenters, binWidth }` produced by `buildHistogram` from a sorted `Float64Array` of per-**Iteration** totals. Exactly one Histogram per Scenario per **Run** — three per Run at the org level.
+_Avoid_: chart data, frequency table, bar data.
+
+**Bin**:
+One fixed-width interval over the effort (person-month) axis. There are exactly 60 Bins per Run, shared across all three Scenarios so their bars are directly comparable.
+_Avoid_: bucket, band, slot.
+
+**Global histogram range**:
+The shared `(globalMin, globalMax)` interval used to compute every Scenario's Bins in a Run. `globalMin` equals the **Constant work** shift (`fixedEffort`; `0` when none is loaded); `globalMax` equals `max(Outlier clip of each Scenario, globalMin + 1)`. Computed once per Run in `runSimulation`.
+_Avoid_: chart range, x-range, plot range.
+
+**Outlier clip**:
+The P99.5 of a Scenario's sorted distribution, used as that Scenario's contribution to the upper bound of the Global histogram range. Purely a *display* decision — it does not change the simulated distribution and does not affect any percentile or `P(effort > capacity)` value reported in the stats table.
+_Avoid_: chart clip, tail clip, P99.5 cap.
+
 ### Column detection
 
 **Column detector**:
@@ -116,6 +164,20 @@ _Avoid_: default column, header lookup.
 A normalised size string (output of `normalizeSize`) that exists as a key in the active `T_SHIRT_PARAMS` map (synthetic or empirical). Used as the tie-breaker when two Epic rows share an `_epic_key` during within-file dedup — the row with a recognised size wins.
 _Avoid_: valid size, known size.
 
+### Pre-Run sidebar surfaces
+
+**Data preview**:
+The live sidebar block (`#data-preview`) that surfaces the *fitted* model inputs the simulator believes about the currently-loaded CSVs and quarter selection: **Historical quarter**, count of historical **Initiatives**, **Poisson λ**, **Bootstrap pool** size with its per-**T-shirt size** breakdown, **Target quarter**, and the three per-**Scenario** initiative counts (`K_must`, `K_must+should`, `K_must+should+could`). Painted by `renderPreview` from the `preview` field of `prepareSimulationData`'s return value. Hidden until both **Initiatives CSV** and **Epics CSV** are loaded *and* at least one **Historical quarter** and one **Target quarter** are selected; thereafter monotonically visible. Re-paints automatically via `tryUpdatePreview` on every file-load, every epics-reset, and every multi-select change.
+_Avoid_: summary, sidebar dashboard, input preview.
+
+**T-shirt size reference**:
+The collapsible `<details>` panel in the sidebar showing a static three-column table — `Size`, `Min PM`, `Max PM` — listing the documented P10/P90 band of each **T-shirt size** from `2XS` (`0.10`–`0.25` PM) to `XL+` (`10`–`11` PM). Hand-maintained mirror of the synthetic `T_SHIRT_PARAMS` map (see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md)); does *not* re-render when the **Empirical parameters** toggle is flipped. Always available, regardless of CSV state.
+_Avoid_: size legend, sizing guide, t-shirt key.
+
+**Column-detection debug**:
+The collapsible `<details>` panel (`#debug-details`) whose `<pre id="debug-pre">` block shows two JSON sections — `Detected columns` (the live `detectedCols` map written by the **Column detectors**) and `Target MoSCoW breakdown` (the `preview.moscowGroups` field). The trust surface for [ADR-0005](docs/adr/0005-content-based-column-detection.md)'s content-based detection: lets the user verify which header was claimed for each semantic column. Hidden until the first successful **Data preview** paint; written via `textContent` (never `innerHTML`) to neutralise HTML-special characters in user-supplied headers.
+_Avoid_: diagnostics, detection log, parser output.
+
 ## Relationships
 
 - An **Initiative** belongs to exactly one **Quarter**, exactly one team, and exactly one **MoSCoW** bucket.
@@ -123,6 +185,11 @@ _Avoid_: valid size, known size.
 - A **Scenario** is a set of MoSCoW buckets ⊆ {Must, Should, Could}; it determines `K`, the count of **Initiatives** included from the **Target quarter**.
 - A **Run** executes `iteration` independent **Iterations** per **Scenario**, producing one distribution of total effort per scenario.
 - A **Constant work** entry produces a fixed PM shift applied to every **Iteration** of the matching team/quarter, after sorting.
+- A **Run** produces one **Histogram** per **Scenario**; all three Histograms in a Run share the same **Global histogram range** and the same Bin count.
+- A **Run** also produces one **Stats** tuple per **Scenario**, computed from the same sorted distribution the **Histogram** is built from. The Stats tuple's `pExceed` field is the **Probability of exceedance** against the configured **Capacity**; its **Risk tier** classifies that probability into one of three colour bands.
+- A **Marker** (when present) adds one extra row to the stats table whose value is `P(effort > marker.value)` — the same **Probability of exceedance** metric as the capacity row, classified into the same **Risk tier** bands.
+- The **Data preview** is read pre-**Run** and reflects the fitted inputs (**Poisson λ**, **Bootstrap pool**, per-**Scenario** `K`) the engine *would* consume if the user pressed **Run** now; it is the upstream-of-the-engine companion to the post-Run **Stats** table.
+- The **Column-detection debug** panel is the user-visible audit of `detectedCols` — the same map the **Column detectors** write and that every downstream reader (`prepareSimulationData`, `prepareTeamSimulationData`, `buildTeamProjections`, `renderInitiativesTable`) consumes; surfacing it as JSON in the sidebar makes the otherwise-opaque content-scan outcome reviewable before any **Run**.
 
 ## Example dialogue
 
@@ -138,3 +205,8 @@ _Avoid_: valid size, known size.
 - "iteration" was used for both a single Monte Carlo draw and a Jira-style sprint — resolved: only the Monte Carlo meaning is used in this project. Use **Run** for "one press of the button."
 - "quarter" can refer to a single quarter or the user's multi-quarter selection — resolved: the historical and target selectors are both multi-selects; "quarter" in domain talk usually means the selected set unless explicitly singular.
 - "detection" was used for two distinct steps: identifying which header carries a semantic column (a **Column detector** via **Content scan** / **Detection fallback**) versus normalising a raw value once the column is known (`normalizeMoscow`, `normalizeSize`) — resolved: *detection* picks the column, *normalisation* transforms the value.
+- "range" was used for both a **T-shirt size**'s P10/P90 band and the chart's **Global histogram range** on the effort axis — resolved: a size's range is its *band* (input to the lognormal fit); the chart's range is the **Global histogram range** (output of `runSimulation`).
+- "bin" had been informally used both for one of the 60 effort-axis intervals (**Bin**) and for a MoSCoW bucket — resolved: Bin is reserved for the histogram; MoSCoW grouping uses *bucket* (`moscowGroups.must` etc.).
+- "probability" was used for two distinct things: the per-**Iteration** sampling draws inside the Monte Carlo loop, and the reported fraction `P(effort > capacity)` in the stats table — resolved: the latter is **Probability of exceedance**, an *empirical fraction* over the completed **Run**, never an in-loop sampling probability.
+- "exceed" / "overrun" / "breach" were used interchangeably for the same metric — resolved: the published term is **Probability of exceedance**; the cell label is `P(effort > capacity)`; the code field is `pExceed`. The comparison is *strictly* greater (`>`), not `≥`.
+- "risk" was used both for the **Risk tier** colour class and informally for "any of the three orange/red cells in the table" — resolved: Risk tier is the named classifier; individual cells *carry* a tier, they are not themselves "the risk".
