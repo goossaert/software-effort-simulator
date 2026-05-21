@@ -76,6 +76,10 @@ _Avoid_: quarter dropdown, quarter picker, multi-select, combo box.
 The priority label on an Initiative — one of `Must`, `Should`, `Could`, `Won't`, or unknown. `Won't` and unknown initiatives are excluded from every scenario.
 _Avoid_: priority, tier, importance.
 
+**Key Result**:
+An optional free-text label on an **Initiative** linking it to the strategic outcome it serves (`KR-7`, `Activation +10% YoY`, etc.). Detected by `detectKrCol` (`index.html:1436-1450`) from a small canonical vocabulary of header variants — `key_result`, `kr`, `key result`, `keyresult`, `key_results` — first by exact match, then by case-insensitive fallback returning the *raw-case* header. The detector returns `null` when no variant is present, which is the *only* `null`-able key in `detectedCols`. Display-only: never read by the simulation engine; surfaced only as a conditional `KR` column in the **Initiative matrix** inside each **Projection section**, gated per-section by `hasKr = allInits.some(i => i.kr)` so that teams whose initiatives carry no KRs render the matrix without the column. **Constant work** rows participate in the same gate and read their own KR via a parallel `r.key_result || r.KR || r.kr` lookup inside `getConstantWorkEpics` (the **Constant Work CSV** has a fixed schema and does not go through the detector family) — see [ADR-0022](docs/adr/0022-optional-key-result-column.md).
+_Avoid_: OKR, outcome, objective, KR label.
+
 **Scenario**:
 One of the three forecasts the simulator runs side-by-side, defined by which MoSCoW buckets are included: **Must Only**, **Must + Should**, **Must + Should + Could**.
 _Avoid_: case, projection, model.
@@ -99,7 +103,7 @@ _Avoid_: projection run, mini simulation, quick MC.
 ### Inputs
 
 **Initiatives CSV**:
-A user-supplied file listing one row per Initiative. Carries the Jira key, name, MoSCoW priority, team, quarter, and optionally a Key Result. Required.
+A user-supplied file listing one row per Initiative. Carries the Jira key, name, MoSCoW priority, team, quarter, and optionally a **Key Result**. Required. The optional **Key Result** column is detected by `detectKrCol` from a fixed vocabulary of header variants — see [ADR-0022](docs/adr/0022-optional-key-result-column.md).
 _Avoid_: initiative file, input file.
 
 **Epics CSV**:
@@ -185,7 +189,7 @@ The P99.5 of a Scenario's sorted distribution, used as that Scenario's contribut
 _Avoid_: chart clip, tail clip, P99.5 cap.
 
 **Initiative matrix**:
-The wide table inside each **Projection section** (`.proj-init-table`) listing every in-scope **Initiative** for the team as a row, with columns `Jira Key`, optional `KR` ([feature 0014](backtracked-features.md#0014); only present when at least one row in the section has a non-empty Key Result), `Initiative Name`, and one column per **Quarter** in `allQuarters`. A row's MoSCoW badge appears in *exactly* the column matching that initiative's `quarter`; other quarter columns are blank. Rows are sorted Must → Should → Could → Won't → Unknown then alphabetically by Jira key. **Constant work** rows are appended after the sorted Initiatives, tinted soft green (`#f0fdf4`) with the t-shirt size and estimated PM in the name cell (`[M · ~2.12 PM]`). The `<tfoot>` holds two summary rows per section: `Initiatives count` (per-quarter MoSCoW count chips) and `Effort P50 (P25–P75)` (the **Effort projection band** values for each quarter).
+The wide table inside each **Projection section** (`.proj-init-table`) listing every in-scope **Initiative** for the team as a row, with columns `Jira Key`, optional `KR` (the **Key Result**; only present when at least one row in the section — Initiative or **Constant work** — has a non-empty value, gated per-section by `hasKr = allInits.some(i => i.kr)` — see [ADR-0022](docs/adr/0022-optional-key-result-column.md)), `Initiative Name`, and one column per **Quarter** in `allQuarters`. A row's MoSCoW badge appears in *exactly* the column matching that initiative's `quarter`; other quarter columns are blank. Rows are sorted Must → Should → Could → Won't → Unknown then alphabetically by Jira key. **Constant work** rows are appended after the sorted Initiatives, tinted soft green (`#f0fdf4`) with the t-shirt size and estimated PM in the name cell (`[M · ~2.12 PM]`). The `<tfoot>` holds two summary rows per section: `Initiatives count` (per-quarter MoSCoW count chips) and `Effort P50 (P25–P75)` (the **Effort projection band** values for each quarter); both rows' first `<td>` carries `colspan="3"` when the KR column is present and `colspan="2"` otherwise.
 _Avoid_: initiative table, projection table, initiative grid.
 
 **Effort projection band**:
@@ -195,7 +199,7 @@ _Avoid_: projection range, P25–P75 range (which is just one half of the band),
 ### Column detection
 
 **Column detector**:
-A function that, given the parsed rows of a CSV, returns the header name corresponding to a known semantic column (Initiative key, MoSCoW, team, name, Epic→Initiative link, Key Result). Downstream code reads `row[headerName]`; nothing else interprets headers.
+A function that, given the parsed rows of a CSV, returns the header name corresponding to a known semantic column (Initiative key, MoSCoW, team, name, Epic→Initiative link, **Key Result**). Downstream code reads `row[headerName]`; nothing else interprets headers. Every detector returns a `string` *except* `detectKrCol`, which returns `string | null` because the **Key Result** column is optional — see [ADR-0022](docs/adr/0022-optional-key-result-column.md).
 _Avoid_: parser, mapper, resolver.
 
 **Content scan**:
@@ -243,6 +247,7 @@ _Avoid_: diagnostics, detection log, parser output.
 - A **Run** produces one **Projection section** per **Team** appearing in the **Initiatives CSV** (not bounded by the **Quarter selector**'s selection — contrast with the **Team Level tab**). Each Projection section contains one **Effort projection band** per quarter where the team has in-scope **Initiatives** or **Constant work**.
 - An **Effort projection band** is the `{p25, p50, p75}` output of a **Quick projection Monte Carlo** for one (Team, Quarter) cell — the same engine as the headline Run, with a smaller iteration budget and the MSC **Scenario** only. **Constant work** for the cell is folded in deterministically as a `fixedEffort` shift, so the band always sits at or above `cwEffort`.
 - The **Initiative matrix** inside a **Projection section** lists every in-scope **Initiative** for the team (including **Constant work** rows at the bottom) with the MoSCoW badge in exactly the column matching the initiative's quarter; per-quarter footer rows surface the cumulative MoSCoW count chips and the **Effort projection band** as `~{p50} PM` with `{p25}–{p75}` underneath.
+- An **Initiative** carries an optional **Key Result** ([ADR-0022](docs/adr/0022-optional-key-result-column.md)) — a free-text label detected by `detectKrCol` from a fixed vocabulary of header variants. The **Key Result** never reaches the simulation engine; it surfaces only as a conditional column in the **Initiative matrix**, gated per-section by `hasKr = allInits.some(i => i.kr)` so that a team whose initiatives carry no KRs renders the matrix without the column. **Constant work** entries carry their own **Key Result** via a parallel `r.key_result || r.KR || r.kr` lookup against the **Constant Work CSV**'s fixed schema, and participate in the same per-section gate.
 
 ## Example dialogue
 
