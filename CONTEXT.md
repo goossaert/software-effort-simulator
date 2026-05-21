@@ -92,6 +92,10 @@ _Avoid_: trial, sample, run (which means the whole batch).
 A single press of `Run Simulation`. Re-seeds the PRNG and executes `iteration` × 3 scenarios.
 _Avoid_: simulation, batch.
 
+**Quick projection Monte Carlo**:
+The per-(**Team**, **Quarter**) Monte Carlo run inside `buildTeamProjections` (`index.html:1986-1996`) that produces the **Effort projection band** for the **Team Projections tab**. Uses the same `runSimulation` engine as the headline Run but with three differences: (a) only the MSC **Scenario** is read out (P25/P50/P75 from `mustShouldCould.stats`), (b) the iteration count is *capped* at `projIterations = Math.min(iters, 3000)` (set once in the run-button handler, `index.html:3357`), and (c) **Capacity** is passed as `0` so no risk-gate row is computed and no marker is drawn. Reads the org-wide **Poisson λ** and **Bootstrap pool** verbatim — never the team-scoped ones — see [ADR-0020](docs/adr/0020-team-projections-cross-quarter-view.md). Skipped (band defaults to `cwEffort`) when the team-quarter cell has `kMustShouldCould === 0`, when `orgLambda === 0`, or when `orgEpicSizingDist.length === 0`.
+_Avoid_: projection run, mini simulation, quick MC.
+
 ### Inputs
 
 **Initiatives CSV**:
@@ -137,8 +141,8 @@ _Avoid_: risk level, severity, status, RAG.
 ### Result tabs
 
 **Tab**:
-One of four named views of a **Run**'s output: `Organization Level`, **Team Level tab**, `Team Projections`, `Initiatives`. The tab bar (`.tab-bar`, `index.html:982`) holds one `.tab-btn` per tab; exactly one carries the `.active` class at any time. After every Run, the active tab resets to `Organization Level` — see [ADR-0018](docs/adr/0018-tab-based-results-layout.md).
-_Avoid_: view, panel (which is the container the tab points to), section (which is the per-**Team** block inside the Team Level tab).
+One of four named views of a **Run**'s output: `Organization Level`, **Team Level tab**, **Team Projections tab**, `Initiatives`. The tab bar (`.tab-bar`, `index.html:982`) holds one `.tab-btn` per tab; exactly one carries the `.active` class at any time. After every Run, the active tab resets to `Organization Level` — see [ADR-0018](docs/adr/0018-tab-based-results-layout.md).
+_Avoid_: view, panel (which is the container the tab points to), section (which is the per-**Team** block inside the Team Level tab or **Projection section** inside the Team Projections tab).
 
 **Tab panel**:
 The container `<div class="tab-panel">` that holds a Tab's content. Identified by `id="tab-${dataTab}"`; exactly one panel has `display: flex` at a time, the others are `display: none`. Pre-rendered during the Run, not lazy-rendered on tab switch.
@@ -151,6 +155,14 @@ _Avoid_: per-team tab, teams view, drilldown.
 **Historical data toggle**:
 The per-section radio pair on the **Team Level tab** that selects which historical parameters to feed the section's Run: `This team only` (uses `teamLambda` + `teamEpicSizingDist`) or `All teams — org-wide` (uses the org-level `lambda` + `epicSizingDist` carried by the same Run). Defaults to *org-wide* when the team has 4 or fewer historical **Initiatives** (`useOrgByDefault === histInitCount <= 4`), surfaced via a yellow `Recommended: only N historical initiatives found for this team` chip. Toggling re-runs *only that team's* Monte Carlo via `renderTeamSection(idx, useOrg)`; the other sections, the org tab, and per-section **Markers** are untouched. K values are *not* toggleable — only the historical scope is.
 _Avoid_: source selector, parameter switch, scope toggle.
+
+**Team Projections tab**:
+The third **Tab**, `#tab-projections`. A *cross-quarter*, *per-team* view: a single **Summary table** of **Initiative** counts per **Team** per **Quarter** followed by one **Projection section** per team appearing anywhere in the loaded **Initiatives CSV**. The team list is bounded by the *entire CSV*, never by the **Quarter selector**'s **Historical quarter(s)** or **Target quarter(s)** selection — see [ADR-0020](docs/adr/0020-team-projections-cross-quarter-view.md). Built by `buildTeamProjections` (`index.html:1917`) and `renderTeamProjections` (`index.html:2550`); the team-list dedup is the same case-insensitive rule with first-seen casing as the **Team Level tab**. Unlike the Team Level tab, this tab does *not* surface a **Historical data toggle** — every projection runs with the org-wide **Poisson λ** and **Bootstrap pool**.
+_Avoid_: projections view, cross-quarter view, forecast tab.
+
+**Projection section**:
+The per-**Team** block inside the **Team Projections tab** (`.proj-team-section`). Contains the team's title, a `proj-charts-row` holding two charts side-by-side (the stacked-bar `Initiatives by Quarter` count chart and the `Effort Projection by Quarter` P25/P50/P75 bar chart), and a `.proj-init-table` **Initiative matrix** with a per-quarter MoSCoW badge column per initiative plus footer rows for the per-quarter cumulative count chips and the **Effort projection band**. Sections are appended to `#proj-teams-container` in alphabetical case-insensitive order. Each section's quarter axis (`displayQuarters`) is *always* the full `allQuarters` from `extractQuarters(editedInitiatives)`, regardless of which quarters that team has data in — see [ADR-0020](docs/adr/0020-team-projections-cross-quarter-view.md).
+_Avoid_: team projection card, projection panel, drilldown (which is the **Team Level tab**'s per-team block).
 
 ### Visualisation
 
@@ -169,6 +181,14 @@ _Avoid_: chart range, x-range, plot range.
 **Outlier clip**:
 The P99.5 of a Scenario's sorted distribution, used as that Scenario's contribution to the upper bound of the Global histogram range. Purely a *display* decision — it does not change the simulated distribution and does not affect any percentile or `P(effort > capacity)` value reported in the stats table.
 _Avoid_: chart clip, tail clip, P99.5 cap.
+
+**Initiative matrix**:
+The wide table inside each **Projection section** (`.proj-init-table`) listing every in-scope **Initiative** for the team as a row, with columns `Jira Key`, optional `KR` ([feature 0014](backtracked-features.md#0014); only present when at least one row in the section has a non-empty Key Result), `Initiative Name`, and one column per **Quarter** in `allQuarters`. A row's MoSCoW badge appears in *exactly* the column matching that initiative's `quarter`; other quarter columns are blank. Rows are sorted Must → Should → Could → Won't → Unknown then alphabetically by Jira key. **Constant work** rows are appended after the sorted Initiatives, tinted soft green (`#f0fdf4`) with the t-shirt size and estimated PM in the name cell (`[M · ~2.12 PM]`). The `<tfoot>` holds two summary rows per section: `Initiatives count` (per-quarter MoSCoW count chips) and `Effort P50 (P25–P75)` (the **Effort projection band** values for each quarter).
+_Avoid_: initiative table, projection table, initiative grid.
+
+**Effort projection band**:
+The triple `{p25, p50, p75}` produced by the **Quick projection Monte Carlo** for one **Team** in one **Quarter** on the MSC scenario (with `fixedEffort = cwEffort`). Surfaced two ways: (a) as a paired bar on the `Effort Projection by Quarter` chart — a semi-transparent indigo P25–P75 range bar overlaid by a narrower opaque P50 median bar; (b) as a footer row in the **Initiative matrix** showing `~{p50} PM` with `{p25}–{p75}` underneath. When the Quick projection is skipped (no MSC initiatives, zero org λ, or empty bootstrap pool), all three values default to `cwEffort` — surfacing a flat band that reads as "constant-work only" in the chart. The band is deliberately a *three-point summary*, not P10/P90: the 3000-iteration cap on the **Quick projection Monte Carlo** is calibrated to those three quartiles only — see [ADR-0020](docs/adr/0020-team-projections-cross-quarter-view.md).
+_Avoid_: projection range, P25–P75 range (which is just one half of the band), percentile band.
 
 ### Column detection
 
@@ -218,6 +238,9 @@ _Avoid_: diagnostics, detection log, parser output.
 - A **Marker** (when present) adds one extra row to the stats table whose value is `P(effort > marker.value)` — the same **Probability of exceedance** metric as the capacity row, classified into the same **Risk tier** bands.
 - The **Data preview** is read pre-**Run** and reflects the fitted inputs (**Poisson λ**, **Bootstrap pool**, per-**Scenario** `K`) the engine *would* consume if the user pressed **Run** now; it is the upstream-of-the-engine companion to the post-Run **Stats** table.
 - The **Column-detection debug** panel is the user-visible audit of `detectedCols` — the same map the **Column detectors** write and that every downstream reader (`prepareSimulationData`, `prepareTeamSimulationData`, `buildTeamProjections`, `renderInitiativesTable`) consumes; surfacing it as JSON in the sidebar makes the otherwise-opaque content-scan outcome reviewable before any **Run**.
+- A **Run** produces one **Projection section** per **Team** appearing in the **Initiatives CSV** (not bounded by the **Quarter selector**'s selection — contrast with the **Team Level tab**). Each Projection section contains one **Effort projection band** per quarter where the team has in-scope **Initiatives** or **Constant work**.
+- An **Effort projection band** is the `{p25, p50, p75}` output of a **Quick projection Monte Carlo** for one (Team, Quarter) cell — the same engine as the headline Run, with a smaller iteration budget and the MSC **Scenario** only. **Constant work** for the cell is folded in deterministically as a `fixedEffort` shift, so the band always sits at or above `cwEffort`.
+- The **Initiative matrix** inside a **Projection section** lists every in-scope **Initiative** for the team (including **Constant work** rows at the bottom) with the MoSCoW badge in exactly the column matching the initiative's quarter; per-quarter footer rows surface the cumulative MoSCoW count chips and the **Effort projection band** as `~{p50} PM` with `{p25}–{p75}` underneath.
 
 ## Example dialogue
 
