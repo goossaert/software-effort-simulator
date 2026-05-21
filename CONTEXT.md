@@ -111,10 +111,12 @@ An optional third CSV describing constant-work epics (see *Constant work*).
 _Avoid_: fixed-work file.
 
 **Sensible format**:
-The CSV layout where headers match their semantics: `jira_key`, `building_block`, `moscow`, `teams`, `quarter`. The recommended layout going forward.
+The CSV layout where headers match their semantics: `jira_key`, `building_block`, `moscow`, `teams`, `quarter`. The recommended layout going forward. The `building_block` and `teams` headers are read by `detectNameCol` and `detectTeamCol` via a *direct header-name match* placed *before* the positional fallback (see [ADR-0021](docs/adr/0021-sensible-csv-format-dual-support.md)); the `jira_key` and `moscow` headers are picked up by the **Content scan** in the normal case and by the **Detection fallback** in degenerate-data cases.
+_Avoid_: new format, target format, modern format.
 
 **Quirky format**:
-The legacy CSV layout exported by an older internal tooling, where `teams` actually held Jira keys and `emoji` actually held MoSCoW priority. Still parseable because detection scans column *values*, not header names.
+The legacy CSV layout exported by an older internal tooling, where `teams` actually held Jira keys and `emoji` actually held MoSCoW priority. Still parseable because detection scans column *values*, not header names — and because the positional fallbacks inside `detectNameCol` / `detectTeamCol` read the header immediately *before* `initKeyCol` and `moscowCol` respectively (the layout the legacy export imposes). Both **Sensible format** and **Quirky format** remain first-class inputs — see [ADR-0021](docs/adr/0021-sensible-csv-format-dual-support.md).
+_Avoid_: old format, legacy format (acceptable in prose, but the canonical term is **Quirky format**).
 
 ### Summary statistics
 
@@ -205,7 +207,7 @@ The fraction of non-empty values that must match the regex for a content scan to
 _Avoid_: confidence, score.
 
 **Detection fallback**:
-The header-name lookup invoked when a content scan finds no winning column (empty CSV, or no column above the **Detection threshold**). Returns either the **Sensible format** header (`jira_key`, `moscow`, `building_block`, `teams`) or the legacy **Quirky format** header (`teams`, `emoji`).
+The header-name lookup branch inside a **Column detector**, used when the **Content scan** finds no winning column (empty CSV, or no column above the **Detection threshold**) or — for the name and team detectors only — checked *before* any positional inference. The fallback returns either the **Sensible format** header (`jira_key`, `moscow`, `building_block`, `teams`) or the legacy **Quirky format** header (`teams`, `emoji`). Per-detector branch order is asymmetric and *intentional*: `detectInitKeyCol` and `detectMoscowCol` run the **Content scan** first and treat the **Sensible format** header as a fallback; `detectNameCol` and `detectTeamCol` check the **Sensible format** header *first* and only fall through to positional inference when it is absent — see [ADR-0021](docs/adr/0021-sensible-csv-format-dual-support.md).
 _Avoid_: default column, header lookup.
 
 **Recognised t-shirt size**:
