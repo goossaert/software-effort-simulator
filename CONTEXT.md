@@ -25,7 +25,7 @@ _Avoid_: fixed work, baseline work.
 ### Sizing and effort
 
 **T-shirt size**:
-The categorical effort label on an Epic — one of `2XS`, `XS`, `S`, `M`, `L`, `XL`, `XL+`. Each size maps to a lognormal distribution over person-months.
+The categorical effort label on an Epic — one of `2XS`, `XS`, `S`, `M`, `L`, `XL`, `XL+`. Each size maps to a lognormal distribution over person-months. The seven sizes are listed in their canonical order (smallest band on top); `2XS` was added later as a downward extension of the original six-size set — see [ADR-0024](docs/adr/0024-2xs-t-shirt-size-extension.md).
 _Avoid_: estimate, story points, complexity.
 
 **Person-month (PM)**:
@@ -225,7 +225,7 @@ The live sidebar block (`#data-preview`) that surfaces the *fitted* model inputs
 _Avoid_: summary, sidebar dashboard, input preview.
 
 **T-shirt size reference**:
-The collapsible `<details>` panel in the sidebar showing a static three-column table — `Size`, `Min PM`, `Max PM` — listing the documented P10/P90 band of each **T-shirt size** from `2XS` (`0.10`–`0.25` PM) to `XL+` (`10`–`11` PM). Hand-maintained mirror of the synthetic `T_SHIRT_PARAMS` map (see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md)); does *not* re-render when the **Empirical parameters** toggle is flipped. Always available, regardless of CSV state.
+The collapsible `<details>` panel in the sidebar showing a static three-column table — `Size`, `Min PM`, `Max PM` — listing the documented P10/P90 band of each **T-shirt size** from `2XS` (`0.10`–`0.25` PM — see [ADR-0024](docs/adr/0024-2xs-t-shirt-size-extension.md)) to `XL+` (`10`–`11` PM). Hand-maintained mirror of the synthetic `T_SHIRT_PARAMS` map (see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md)); does *not* re-render when the **Empirical parameters** toggle is flipped. Always available, regardless of CSV state.
 _Avoid_: size legend, sizing guide, t-shirt key.
 
 **Column-detection debug**:
