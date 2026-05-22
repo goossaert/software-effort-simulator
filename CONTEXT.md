@@ -19,7 +19,7 @@ The Jira-style identifier (e.g. `INIT-123`) that links an Epic to its parent Ini
 _Avoid_: parent id, ticket id.
 
 **Constant work**:
-Deterministic, guaranteed work assigned to a specific **Team** / **Quarter** pair, uploaded via the optional **Constant Work CSV**. Bypasses Monte Carlo sampling — its effort is computed from **T-shirt size** as the closed-form lognormal *mean* (`e^(μ + σ²/2)`) via `tshirtToPersonMonths` (`index.html:1272-1276`) against the *active* parameter set (so it follows the **Synthetic parameters** ↔ **Empirical parameters** toggle), and added as a `fixedEffort` shift to every **Iteration**'s output *after* the Monte Carlo sort — see [ADR-0023](docs/adr/0023-constant-work-csv-deterministic-shift.md). Three scopes coexist: the org-level **Run** sums across *all* teams in the **Target quarter(s)**; the **Team Level tab** section's Run sums per-team; the **Quick projection Monte Carlo** sums per-team-per-quarter. Surfaces as appended soft-green-tinted rows at the bottom of each **Projection section**'s **Initiative matrix** with `[<size> · ~<PM> PM]` annotated in the name cell.
+Deterministic, guaranteed work assigned to a specific **Team** / **Quarter** pair, uploaded via the optional **Constant Work CSV**. Bypasses Monte Carlo sampling — its effort is computed from **T-shirt size** as the closed-form lognormal *mean* (`e^(μ + σ²/2)`) via `tshirtToPersonMonths` (`index.html:1272-1276`) against the *active* parameter set (so it follows the **Synthetic parameters** ↔ **Empirical parameters** toggle — see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md)), and added as a `fixedEffort` shift to every **Iteration**'s output *after* the Monte Carlo sort — see [ADR-0023](docs/adr/0023-constant-work-csv-deterministic-shift.md). Three scopes coexist: the org-level **Run** sums across *all* teams in the **Target quarter(s)**; the **Team Level tab** section's Run sums per-team; the **Quick projection Monte Carlo** sums per-team-per-quarter. Surfaces as appended soft-green-tinted rows at the bottom of each **Projection section**'s **Initiative matrix** with `[<size> · ~<PM> PM]` annotated in the name cell.
 _Avoid_: fixed work, baseline work.
 
 ### Sizing and effort
@@ -33,11 +33,11 @@ The unit of effort throughout the system: one engineer working for one calendar 
 _Avoid_: man-month, FTE-month, sprint-points.
 
 **Synthetic parameters**:
-The default lognormal parameter set, fit to the documented P10/P90 of each t-shirt size band.
+The default lognormal parameter set, fit to the documented P10/P90 of each **T-shirt size** band via the closed-form `μ = (ln min + ln max) / 2`, `σ = (ln max − ln min) / (2 · Φ⁻¹(0.9))` formula — see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md). Lives at `T_SHIRT_PARAMS` (`index.html:1229`). The user-facing **T-shirt size reference** panel mirrors *this* table's bands and does not re-render when the **Empirical parameters** ↔ **Synthetic parameters** radio flips — see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md). The default value of `activeParams` (`index.html:1264`) on every page-load.
 _Avoid_: theoretical, default, calibrated.
 
 **Empirical parameters**:
-An alternative parameter set, bias-corrected from realised effort in Q1 2026. Selected via the sidebar radio; swapping is global and affects all samplers.
+An alternative parameter set, bias-corrected from realised effort in Q1 2026 (`n = 36` epics across `XS`/`S`/`M`/`L`). Calibration preserves the synthetic `σ` per size and shifts `μ` by `ln(avg_ratio)`, where `avg_ratio = mean(actual / synthetic_mean)` per size; sizes lacking Q1 data (`2XS`, `XL`, `XL+`) carry the synthetic `(μ, σ)` through unchanged so `Object.keys(T_SHIRT_PARAMS_EMPIRICAL)` matches `Object.keys(T_SHIRT_PARAMS)` exactly — see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md). Lives at `T_SHIRT_PARAMS_EMPIRICAL` (`index.html:1253-1261`). Selected via the **Lognormal Parameters** sidebar radio (`<input name="param-mode" value="empirical">`); the `change` handler (`index.html:3293-3300`) reassigns the module-scoped `activeParams` reference (`index.html:1264`) so every sampler (`sampleLognormal`, `tshirtToPersonMonths`) reads through the new table on the *next* call. Swapping is global, ephemeral (no `localStorage`, reset to **Synthetic parameters** on every reload), and does *not* re-run the simulation or repaint any pre-Run surface — see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md).
 _Avoid_: actual, real-world, fitted.
 
 **Poisson λ**:
@@ -231,7 +231,7 @@ The header-name lookup branch inside a **Column detector**, used when the **Cont
 _Avoid_: default column, header lookup.
 
 **Recognised t-shirt size**:
-A normalised size string (output of `normalizeSize`) that exists as a key in the active `T_SHIRT_PARAMS` map (synthetic or empirical). Used as the tie-breaker when two Epic rows share an `_epic_key` during within-file dedup — the row with a recognised size wins.
+A normalised size string (output of `normalizeSize`) that exists as a key in the active parameter table — the one `activeParams` (`index.html:1264`) currently references, **Synthetic parameters** or **Empirical parameters**. The two tables share the same key set by invariant (see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md)), so a size's recognition status does *not* change when the user flips the **Lognormal Parameters** radio. Used as the tie-breaker when two Epic rows share an `_epic_key` during within-file dedup — the row with a recognised size wins.
 _Avoid_: valid size, known size.
 
 ### Pre-Run sidebar surfaces
@@ -241,7 +241,7 @@ The live sidebar block (`#data-preview`) that surfaces the *fitted* model inputs
 _Avoid_: summary, sidebar dashboard, input preview.
 
 **T-shirt size reference**:
-The collapsible `<details>` panel in the sidebar showing a static three-column table — `Size`, `Min PM`, `Max PM` — listing the documented P10/P90 band of each **T-shirt size** from `2XS` (`0.10`–`0.25` PM — see [ADR-0024](docs/adr/0024-2xs-t-shirt-size-extension.md)) to `XL+` (`10`–`11` PM). Hand-maintained mirror of the synthetic `T_SHIRT_PARAMS` map (see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md)); does *not* re-render when the **Empirical parameters** toggle is flipped. Always available, regardless of CSV state.
+The collapsible `<details>` panel in the sidebar showing a static three-column table — `Size`, `Min PM`, `Max PM` — listing the documented P10/P90 band of each **T-shirt size** from `2XS` (`0.10`–`0.25` PM — see [ADR-0024](docs/adr/0024-2xs-t-shirt-size-extension.md)) to `XL+` (`10`–`11` PM). Hand-maintained mirror of the synthetic `T_SHIRT_PARAMS` map (see [ADR-0007](docs/adr/0007-lognormal-effort-distribution.md)); does *not* re-render when the **Empirical parameters** ↔ **Synthetic parameters** radio is flipped — the panel's contract is band-as-definition, not band-as-current-sampling-window, see [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md). Always available, regardless of CSV state.
 _Avoid_: size legend, sizing guide, t-shirt key.
 
 **Column-detection debug**:
