@@ -479,6 +479,7 @@
       border-bottom: 2px solid #f1f5f9;
       background: #f9fafb;
     }
+    #stats-table th:not(:first-child) { text-align: right; }
 
     #stats-table td {
       padding: 8px 16px;
@@ -564,6 +565,13 @@
     .group-color-overlay-grid { display:grid; grid-template-columns:repeat(10, 24px); gap:4px; }
     .group-color-overlay-grid .color-swatch { width:24px; height:24px; border-radius:4px; border:1px solid #d1d5db; cursor:pointer; padding:0; }
     .group-color-overlay-grid .color-swatch:hover { box-shadow:0 0 0 2px #4f46e5; }
+    .group-name-cell { display:flex; align-items:center; gap:6px; }
+    .group-drag-handle { cursor:grab; color:#9ca3af; font-size:14px; line-height:1; user-select:none; padding:2px 4px; border-radius:3px; flex:0 0 auto; }
+    .group-drag-handle:hover { color:#4338ca; background:#eef2ff; }
+    .group-drag-handle:active { cursor:grabbing; }
+    #groups-table-wrap tr.groups-row-dragging { opacity:0.4; }
+    #groups-table-wrap tr.groups-row-drop-above > td { box-shadow:inset 0 2px 0 0 #4f46e5; }
+    #groups-table-wrap tr.groups-row-drop-below > td { box-shadow:inset 0 -2px 0 0 #4f46e5; }
 
     /* Initiatives table */
     #initiatives-table-wrap { overflow-x: auto; }
@@ -3383,9 +3391,19 @@ function renderGroupsTab() {
 
   const rows = groupsStore.map((g, i) => {
     const chips = g.members.map((m, mi) => _renderGroupChip(m, i, mi)).join('');
-    return `<tr>
-      <td><input type="text" value="${escapeAttr(g.name)}"
-        onchange="groupsStore[${i}].name = this.value"></td>
+    return `<tr draggable="true" data-group-idx="${i}"
+      ondragstart="onGroupRowDragStart(event, ${i})"
+      ondragend="onGroupRowDragEnd(event)"
+      ondragover="onGroupRowDragOver(event, ${i})"
+      ondragleave="onGroupRowDragLeave(event)"
+      ondrop="onGroupRowDrop(event, ${i})">
+      <td>
+        <div class="group-name-cell">
+          <span class="group-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
+          <input type="text" value="${escapeAttr(g.name)}"
+            onchange="groupsStore[${i}].name = this.value">
+        </div>
+      </td>
       <td>
         <span class="group-color-swatch" style="background:${g.color}"
               onclick="openGroupColorPalette(${i})"></span>
@@ -3466,6 +3484,115 @@ function appendNewGroup() {
     isProjection: isFirst,
   });
   renderGroupsTab();
+}
+
+// ── Drag-and-drop reordering ───────────────────────────────────────
+// Reordering `groupsStore` propagates left-to-right ordering to the chart
+// legend, the Summary Statistics columns, and every cached `kPerGroup`
+// array (org and per-team), so the next render — or any in-place re-render
+// of an already-displayed chart — reflects the new order.
+
+let _groupDragFromIdx = null;
+
+function _clearGroupRowDropMarkers() {
+  document.querySelectorAll('#groups-table-wrap tr.groups-row-drop-above, #groups-table-wrap tr.groups-row-drop-below')
+    .forEach(el => el.classList.remove('groups-row-drop-above', 'groups-row-drop-below'));
+}
+
+function onGroupRowDragStart(e, idx) {
+  _groupDragFromIdx = idx;
+  // dataTransfer.setData is required for Firefox to fire `drop`.
+  try { e.dataTransfer.setData('text/plain', String(idx)); } catch (_) {}
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('groups-row-dragging');
+}
+
+function onGroupRowDragEnd(_e) {
+  _groupDragFromIdx = null;
+  document.querySelectorAll('#groups-table-wrap tr.groups-row-dragging')
+    .forEach(el => el.classList.remove('groups-row-dragging'));
+  _clearGroupRowDropMarkers();
+}
+
+function onGroupRowDragOver(e, idx) {
+  if (_groupDragFromIdx === null) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const rect   = e.currentTarget.getBoundingClientRect();
+  const above  = (e.clientY - rect.top) < rect.height / 2;
+  _clearGroupRowDropMarkers();
+  // Hide the marker when the prospective drop is a no-op (drop onto self,
+  // or onto the boundary that maps back to the source position).
+  const beforeIdx = above ? idx : idx + 1;
+  if (beforeIdx === _groupDragFromIdx || beforeIdx === _groupDragFromIdx + 1) return;
+  e.currentTarget.classList.add(above ? 'groups-row-drop-above' : 'groups-row-drop-below');
+}
+
+function onGroupRowDragLeave(e) {
+  // Only clear if leaving the row entirely, not entering a child element
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('groups-row-drop-above', 'groups-row-drop-below');
+  }
+}
+
+function onGroupRowDrop(e, targetIdx) {
+  if (_groupDragFromIdx === null) return;
+  e.preventDefault();
+  const rect    = e.currentTarget.getBoundingClientRect();
+  const above   = (e.clientY - rect.top) < rect.height / 2;
+  const fromIdx = _groupDragFromIdx;
+  // beforeIdx: insertion point in the *pre-removal* array — i.e., place the
+  // dragged group just before this index. `above` drops at targetIdx, `below`
+  // at targetIdx + 1.
+  const beforeIdx = above ? targetIdx : targetIdx + 1;
+  _groupDragFromIdx = null;
+  _clearGroupRowDropMarkers();
+  reorderGroup(fromIdx, beforeIdx);
+}
+
+/**
+ * Move `groupsStore[fromIdx]` so it sits before the slot currently at
+ * `beforeIdx`. No-op if the move would leave order unchanged. Also propagates
+ * the same index permutation to every cached per-Group array (lastTeamData
+ * kPerGroup, lastRenderState.results) so already-rendered charts can be
+ * re-emitted in the new order without re-running the simulation.
+ */
+function reorderGroup(fromIdx, beforeIdx) {
+  if (fromIdx < 0 || fromIdx >= groupsStore.length) return;
+  // After splicing out `fromIdx`, indices above it shift down by one.
+  const toIdx = beforeIdx > fromIdx ? beforeIdx - 1 : beforeIdx;
+  if (toIdx === fromIdx) return;
+
+  _spliceMove(groupsStore, fromIdx, toIdx);
+  _applyGroupReorderToCaches(fromIdx, toIdx);
+
+  renderGroupsTab();
+
+  // Re-render every context whose results have been cached. This keeps the
+  // Organization Level chart legend + Summary Statistics columns in sync with
+  // the Groups list ordering (and likewise for any team-level charts that
+  // were rendered by the most recent Run).
+  for (const ctxKey of Object.keys(lastRenderState)) {
+    rerenderContext(ctxKey);
+  }
+}
+
+function _spliceMove(arr, fromIdx, toIdx) {
+  if (!Array.isArray(arr)) return;
+  if (fromIdx === toIdx) return;
+  if (fromIdx < 0 || fromIdx >= arr.length) return;
+  const [moved] = arr.splice(fromIdx, 1);
+  arr.splice(toIdx, 0, moved);
+}
+
+function _applyGroupReorderToCaches(fromIdx, toIdx) {
+  for (const td of (lastTeamData || [])) {
+    if (td && Array.isArray(td.kPerGroup)) _spliceMove(td.kPerGroup, fromIdx, toIdx);
+  }
+  for (const ctxKey of Object.keys(lastRenderState)) {
+    const inner = lastRenderState[ctxKey]?.results?.results;
+    if (Array.isArray(inner)) _spliceMove(inner, fromIdx, toIdx);
+  }
 }
 
 // ── Members popover ────────────────────────────────────────────────
