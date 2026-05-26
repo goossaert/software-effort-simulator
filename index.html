@@ -480,10 +480,6 @@
       background: #f9fafb;
     }
 
-    #stats-table th.col-ms  { color: #4f46e5; }
-    #stats-table th.col-m   { color: #ea7c2c; }
-    #stats-table th.col-msc { color: #059669; } /* emerald green — Must+Should+Could */
-
     #stats-table td {
       padding: 8px 16px;
       border-bottom: 1px solid #f8fafc;
@@ -535,6 +531,39 @@
 
     /* Tab panels */
     .tab-panel { display: flex; flex-direction: column; gap: 22px; }
+
+    /* Groups tab (feature 0020 Phase 2) */
+    #groups-table-wrap { overflow-x: auto; }
+    #groups-table-wrap table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    #groups-table-wrap th { background: #f1f5f9; padding: 7px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; font-weight: 600; color: #374151; }
+    #groups-table-wrap td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    #groups-table-wrap input[type="text"] { font-size: 12px; border: 1px solid #d1d5db; border-radius: 4px; padding: 3px 8px; width: 100%; max-width: 200px; }
+    .group-color-swatch { display:inline-block; width:24px; height:24px; border-radius:4px; cursor:pointer; border:1px solid #d1d5db; vertical-align:middle; }
+    .group-color-swatch:hover { box-shadow: 0 0 0 2px #4f46e5; }
+    .group-chip { display:inline-flex; align-items:center; gap:4px; padding:1px 4px 1px 8px; border-radius:10px; background:#f3f4f6; color:#374151; font-size:11px; font-weight:600; margin:1px 3px 1px 0; }
+    .group-chip-blank { font-style: italic; background:#f9fafb; color:#9ca3af; }
+    .group-chip-remove { background:none; border:none; color:#6b7280; cursor:pointer; font-size:13px; line-height:1; padding:0 3px; border-radius:50%; }
+    .group-chip-remove:hover { background:#e5e7eb; color:#111827; }
+    .group-add-chip-btn { background:#e0e7ff; color:#4338ca; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; font-weight:700; line-height:1; }
+    .group-add-chip-btn:hover { background:#c7d2fe; }
+    .group-new-row-btn { background:#eef2ff; color:#4338ca; border:1px dashed #c7d2fe; border-radius:6px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; }
+    .group-new-row-btn:hover { background:#e0e7ff; }
+    .group-row-btn { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:5px; padding:3px 10px; font-size:11px; cursor:pointer; }
+    .group-row-btn:hover { background:#e5e7eb; }
+    .group-row-btn.danger:hover { background:#fee2e2; color:#b91c1c; border-color:#fca5a5; }
+    .groups-toolbar { display:flex; gap:8px; margin-bottom:10px; }
+    .members-popover { position:absolute; z-index:1100; background:#fff; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.18); padding:8px; min-width:220px; max-height:360px; overflow-y:auto; }
+    .members-popover label { display:flex; align-items:center; gap:6px; padding:3px 4px; font-size:12px; cursor:pointer; border-radius:4px; }
+    .members-popover label:hover { background:#f3f4f6; }
+    .members-popover .ms-option { display:flex; align-items:center; gap:6px; padding:3px 4px; font-size:12px; cursor:pointer; border-radius:4px; }
+    .members-popover .members-blank-label { font-style: italic; color:#6b7280; }
+    .members-popover .members-add-row { display:flex; gap:6px; padding-top:6px; border-top:1px solid #e5e7eb; margin-top:6px; }
+    .members-popover input[type="text"] { font-size:12px; border:1px solid #d1d5db; border-radius:4px; padding:3px 6px; flex:1; }
+    .group-color-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:1200; }
+    .group-color-overlay-inner { background:#fff; border-radius:12px; padding:16px; box-shadow:0 8px 32px rgba(0,0,0,0.22); max-width:360px; }
+    .group-color-overlay-grid { display:grid; grid-template-columns:repeat(10, 24px); gap:4px; }
+    .group-color-overlay-grid .color-swatch { width:24px; height:24px; border-radius:4px; border:1px solid #d1d5db; cursor:pointer; padding:0; }
+    .group-color-overlay-grid .color-swatch:hover { box-shadow:0 0 0 2px #4f46e5; }
 
     /* Initiatives table */
     #initiatives-table-wrap { overflow-x: auto; }
@@ -626,9 +655,6 @@
       border-bottom: 2px solid #f1f5f9;
       background: #f9fafb;
     }
-    .team-stats-table th.col-ms  { color: #4f46e5; }
-    .team-stats-table th.col-m   { color: #ea7c2c; }
-    .team-stats-table th.col-msc { color: #059669; }
     .team-stats-table td {
       padding: 8px 16px;
       border-bottom: 1px solid #f8fafc;
@@ -641,15 +667,12 @@
        TEAM PROJECTIONS TAB
        ===================================================== */
 
-    /* MoSCoW badges — shared across projections tab */
-    .mb { display:inline-block; padding:1px 7px; border-radius:4px;
-          font-size:11px; font-weight:600; white-space:nowrap; }
-    .mb-must     { background:#fef2f2; color:#ef4444; }
-    .mb-should   { background:#fffbeb; color:#d97706; }
-    .mb-could    { background:#eff6ff; color:#3b82f6; }
-    .mb-wont     { background:#f9fafb; color:#9ca3af; }
+    /* Category badges — uniform neutral grey (ADR-0028) */
+    .cat-badge { display:inline-block; padding:1px 7px; border-radius:4px;
+                 font-size:11px; font-weight:600; white-space:nowrap;
+                 background:#f3f4f6; color:#374151; }
+    .cat-badge-blank { font-style: italic; background:#f9fafb; color:#9ca3af; }
     .mb-constant { background:#f0fdf4; color:#16a34a; font-size:13px; padding:1px 3px; }
-    .mb-unknown { background:#f9fafb; color:#9ca3af; }
     /* ── Marker dialog ───────────────────────────────────────────── */
     .marker-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -984,6 +1007,7 @@
           <button class="tab-btn" data-tab="teams">Team Level</button>
           <button class="tab-btn" data-tab="projections">Team Projections</button>
           <button class="tab-btn" data-tab="initiatives">Initiatives</button>
+          <button class="tab-btn" data-tab="groups">Groups</button>
         </div>
 
         <!-- Organization Level tab panel -->
@@ -999,14 +1023,7 @@
           <div class="stats-section">
             <h3>Summary Statistics (person-months)</h3>
             <table id="stats-table">
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th class="col-m">■ Must Only</th>
-                  <th class="col-ms">■ Must + Should</th>
-                  <th class="col-msc">■ Must + Should + Could</th>
-                </tr>
-              </thead>
+              <thead></thead>
               <tbody id="stats-tbody"></tbody>
             </table>
           </div>
@@ -1026,6 +1043,11 @@
         <!-- Initiatives tab panel -->
         <div id="tab-initiatives" class="tab-panel" style="display:none">
           <div id="initiatives-table-wrap"></div>
+        </div>
+
+        <!-- Groups tab panel (feature 0020 Phase 2) -->
+        <div id="tab-groups" class="tab-panel" style="display:none">
+          <div id="groups-table-wrap"></div>
         </div>
       </div>
 
@@ -1369,22 +1391,18 @@ function detectInitKeyCol(rows) {
 }
 
 /**
- * Scan all columns; return the header whose values most closely
- * resemble MoSCoW priority strings (must / should / could / won't).
- * Falls back to column named 'moscow' (new sensible format) or 'emoji' (old quirky format).
+ * Detect the Category column via a pure header-name cascade:
+ *   category (preferred) → moscow (legacy Sensible) → emoji (legacy Quirky).
+ * No Content scan branch (per ADR-0028). Returns the matching header name,
+ * or `null` if none of the cascade headers are present.
  */
-function detectMoscowCol(rows) {
-  if (!rows.length) return 'moscow';
-  const RE = /must|should|could|won.t/i;
-  // 1) Content-based scan
-  for (const hdr of Object.keys(rows[0])) {
-    const vals = rows.map(r => (r[hdr] || '').trim()).filter(Boolean);
-    if (vals.length && vals.filter(v => RE.test(v)).length / vals.length > 0.5) return hdr;
-  }
-  // 2) Header-name fallback
+function detectCategoryCol(rows) {
+  if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
-  if (headers.includes('moscow')) return 'moscow';
-  return 'emoji'; // old fallback
+  if (headers.includes('category')) return 'category';
+  if (headers.includes('moscow'))   return 'moscow';
+  if (headers.includes('emoji'))    return 'emoji';
+  return null;
 }
 
 /**
@@ -1410,21 +1428,24 @@ function detectNameCol(rows, initKeyColHeader) {
 /**
  * Find the team/owner column.
  * For the new sensible format, this is simply the 'teams' column.
- * For the old quirky format, it's the column before moscow (which held team names).
+ * For the old quirky format, it's the column before the Category header
+ * (which historically held team names).
  * Falls back to 'teams'.
  */
-function detectTeamCol(rows, initKeyColHeader, moscowColHeader) {
+function detectTeamCol(rows, initKeyColHeader, categoryColHeader) {
   if (!rows.length) return 'teams';
   const headers = Object.keys(rows[0]);
 
   // 1) Direct header match (new sensible format)
   if (headers.includes('teams')) return 'teams';
 
-  // 2) Position-based fallback (old quirky format: column before moscow)
-  const moscowIdx = headers.indexOf(moscowColHeader);
-  if (moscowIdx > 0) {
-    const candidate = headers[moscowIdx - 1];
-    if (candidate !== initKeyColHeader) return candidate;
+  // 2) Position-based fallback (old quirky format: column before category column)
+  if (categoryColHeader) {
+    const catIdx = headers.indexOf(categoryColHeader);
+    if (catIdx > 0) {
+      const candidate = headers[catIdx - 1];
+      if (candidate !== initKeyColHeader) return candidate;
+    }
   }
   return 'teams';
 }
@@ -1476,43 +1497,91 @@ function detectEpicLinkCol(rows) {
 }
 
 /**
- * Normalize a raw MoSCoW string (possibly emoji-prefixed) to a
- * canonical lowercase token: 'must' | 'should' | 'could' | 'wont' | 'unknown'
+ * Normalise a raw Category cell value.
+ * Returns BLANK (the JavaScript `null` value — the **(Blank) sentinel**)
+ * for empty / whitespace input; otherwise returns the trimmed string
+ * verbatim. Emoji and non-ASCII characters are preserved (per ADR-0028).
+ * The string keeps its first-seen casing; case-folding for equality is
+ * applied at bucketing time by callers, not by this function.
  */
-function normalizeMoscow(raw) {
-  // Strip non-ASCII characters (emoji) before keyword matching
-  const s = (raw || '').replace(/[^\x00-\x7F]/g, '').toLowerCase().trim();
-  if (s.includes('must'))                        return 'must';
-  if (s.includes('should'))                      return 'should';
-  if (s.includes('could'))                       return 'could';
-  if (s.includes("won't") || s.includes('wont')) return 'wont';
-  return 'unknown';
+function normalizeCategory(raw) {
+  if (raw === undefined || raw === null) return BLANK;
+  const s = String(raw).trim();
+  return s === '' ? BLANK : s;
 }
 
 /** Normalize a raw t-shirt size string to a T_SHIRT_PARAMS key. */
 function normalizeSize(raw) { return (raw || '').trim().toUpperCase(); }
 
 // ── Parsed row cache + detected column names ──────────────────────
+
+// The (Blank) sentinel — the JavaScript `null` value, used in members
+// arrays and as the return value of normalizeCategory for empty cells.
+// JS `null` matches the JSON `null` literal exactly — no mapping needed.
+const BLANK = null;
+
 let parsedInitiatives = null;
 let editedInitiatives = null; // user-editable copy of parsedInitiatives
 let parsedEpics       = null;
 let epicFile          = null; // { name, rows } — single loaded epic file
 let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
-let detectedCols      = null; // { initKeyCol, moscowCol, epicLinkCol }
+let detectedCols      = null; // { initKeyCol, categoryCol, teamCol, nameCol, krCol, epicLinkCol }
+
+// Module-scoped ordered array of Group records:
+//   { name: string, color: string, members: (string|null)[], isProjection: boolean }
+// Mutated in place by: (a) auto-default-Group creation in loadInitiativesCSV,
+// (b) Groups-tab inline edit handlers (Phase 2), (c) JSON load (Phase 3).
+let groupsStore = [];
 
 function loadInitiativesCSV(text) {
   parsedInitiatives = parseCSV(text);
   editedInitiatives = parsedInitiatives.map(r => ({ ...r }));
   const initKeyCol  = detectInitKeyCol(parsedInitiatives);
-  const moscowCol   = detectMoscowCol(parsedInitiatives);
-  const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, moscowCol);
+  const categoryCol = detectCategoryCol(parsedInitiatives);
+  const teamCol     = detectTeamCol(parsedInitiatives, initKeyCol, categoryCol);
   const nameCol     = detectNameCol(parsedInitiatives, initKeyCol);
   // Detect key_result column (e.g. "key_result", "kr", "key result")
   const krCol       = detectKrCol(parsedInitiatives);
-  detectedCols = { ...(detectedCols || {}), initKeyCol, moscowCol, teamCol, nameCol, krCol };
-  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | moscow="${moscowCol}" | team="${teamCol}" | name="${nameCol}" | kr="${krCol}"`);
+  detectedCols = { ...(detectedCols || {}), initKeyCol, categoryCol, teamCol, nameCol, krCol };
+  console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | category="${categoryCol}" | team="${teamCol}" | name="${nameCol}" | kr="${krCol}"`);
+
+  // Auto-default `All` Group: fires only on first ever CSV load
+  // (when groupsStore is still empty). Subsequent loads preserve the
+  // user's Groups — see ADR-0029 invariants and AT-9 / AT-29.
+  if (groupsStore.length === 0) {
+    const observed = collectObservedCategories(editedInitiatives, categoryCol);
+    groupsStore.push({
+      name: 'All',
+      color: '#4f46e5',
+      members: observed,
+      isProjection: true,
+    });
+  }
 
   refreshQuarters();
+}
+
+/**
+ * Return the distinct observed Categories in a row set as a `(string|null)[]`.
+ * First-seen casing wins for strings; BLANK is included iff any row normalises
+ * to BLANK. Order is insertion order (first occurrence wins for both casing
+ * and position), with BLANK pushed last to match the **Initiative matrix**
+ * sort convention used elsewhere.
+ */
+function collectObservedCategories(rows, categoryCol) {
+  if (!rows || !rows.length) return [];
+  const firstSeen = new Map(); // lowercase → first-seen string
+  let hasBlank = false;
+  for (const r of rows) {
+    const raw = categoryCol ? r[categoryCol] : '';
+    const cat = normalizeCategory(raw);
+    if (cat === BLANK) { hasBlank = true; continue; }
+    const lc = cat.toLowerCase();
+    if (!firstSeen.has(lc)) firstSeen.set(lc, cat);
+  }
+  const out = [...firstSeen.values()];
+  if (hasBlank) out.push(BLANK);
+  return out;
 }
 
 /**
@@ -1617,6 +1686,7 @@ function resetEpicsFile() {
 function resetInitiativesFile() {
   parsedInitiatives = null;
   editedInitiatives = null;
+  detectedCols      = null; // CSV reset invalidates column detection; Groups are user-managed and intentionally preserved (ADR-0029, AT-30).
   initiativesLoaded = false;
   document.getElementById('initiatives-file').value = '';
   document.getElementById('init-file-name').textContent = 'Click to upload…';
@@ -1678,7 +1748,8 @@ function getConstantWorkEpics(quarter, teamName) {
       key:        (r.jira_key || r.epic_key || '').trim(),
       name:       (r.epic_name || r.building_block || '').trim(),
       kr:         (r.key_result || r.KR || r.kr || '').trim(),
-      moscow:     normalizeMoscow(r.moscow || ''),
+      // Mirror the Initiatives CSV cascade: category → moscow → emoji (ADR-0023).
+      category:   normalizeCategory(r.category || r.moscow || r.emoji || ''),
       effort:     tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || ''),
       tshirt:     normalizeSize(r.tshirt_size || r.t_shirt_size || ''),
       isConstant: true,
@@ -1692,18 +1763,76 @@ function getConstantWorkEpics(quarter, teamName) {
      Builds two empirical distributions from the historical quarter:
        1) Initiative distribution  →  Poisson λ
        2) Epic sizing distribution →  bootstrap pool of size labels
-     Then counts K for each MoSCoW scenario in the target quarter.
+     Then counts K for each Group in the target quarter (one K per Group
+     in groupsStore order — see ADR-0029).
      ============================================================ -->
 <script>
 /**
+ * Build a `Map<lowercased, firstSeenCasing>` for the given iterable of
+ * normalised Category values. BLANK is skipped (handled separately).
+ */
+function buildCategoryCasingMap(values) {
+  const m = new Map();
+  for (const v of values) {
+    if (v === BLANK) continue;
+    const lc = v.toLowerCase();
+    if (!m.has(lc)) m.set(lc, v);
+  }
+  return m;
+}
+
+/**
+ * Compute the K count per Group given a row set and a categoryCol.
+ * Matching is case-insensitive on category strings; BLANK matches BLANK.
+ * Returns `{ kPerGroup: number[], categoryCounts: object, categoryBreakdown: object }`.
+ * The `categoryCounts` and `categoryBreakdown` objects share the same shape
+ * — keyed by the first-seen casing for non-blank Categories and by the
+ * literal `"(Blank)"` display string for the (Blank) sentinel.
+ */
+function bucketRowsByGroups(rows, categoryCol) {
+  // Build the first-seen casing map from the row set (canonical display values).
+  const cats = rows.map(r => normalizeCategory(categoryCol ? r[categoryCol] : ''));
+  const casingMap = buildCategoryCasingMap(cats);
+
+  // categoryBreakdown: count per canonical Category string (+ "(Blank)" for BLANK)
+  const categoryBreakdown = {};
+  let blankCount = 0;
+  for (const c of cats) {
+    if (c === BLANK) { blankCount++; continue; }
+    const canon = casingMap.get(c.toLowerCase()) || c;
+    categoryBreakdown[canon] = (categoryBreakdown[canon] || 0) + 1;
+  }
+  if (blankCount > 0) categoryBreakdown['(Blank)'] = blankCount;
+
+  // kPerGroup: one count per Group in groupsStore order. Matching is
+  // case-insensitive on strings; BLANK ∈ members matches BLANK rows.
+  const kPerGroup = groupsStore.map(g => {
+    const lcMembers = new Set();
+    let blankMember = false;
+    for (const m of g.members) {
+      if (m === BLANK) blankMember = true;
+      else lcMembers.add(String(m).toLowerCase());
+    }
+    let count = 0;
+    for (const c of cats) {
+      if (c === BLANK) { if (blankMember) count++; }
+      else if (lcMembers.has(c.toLowerCase())) count++;
+    }
+    return count;
+  });
+
+  return { kPerGroup, categoryBreakdown };
+}
+
+/**
  * Build all inputs needed for the Monte Carlo engine.
  *
- * @param {string} histQuarter    e.g. "Q2 2026"
- * @param {string} targetQuarter  e.g. "Q3 2026"
- * @returns {{ lambda, epicSizingDist, kMustShould, kMust, preview }}
+ * @param {string[]} histQuarters    e.g. ["Q2 2026"]
+ * @param {string[]} targetQuarters  e.g. ["Q3 2026"]
+ * @returns {{ lambda, epicSizingDist, kPerGroup, preview }}
  */
 function prepareSimulationData(histQuarters, targetQuarters) {
-  const { initKeyCol, moscowCol } = detectedCols;
+  const { initKeyCol, categoryCol } = detectedCols || {};
 
   // ── STEP 1: Historical initiatives ───────────────────────────────
   const histInits = editedInitiatives.filter(r => histQuarters.includes((r.quarter || '').trim()));
@@ -1762,15 +1891,9 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     if (T_SHIRT_PARAMS[size]) epicSizingDist.push(size);
   }
 
-  // ── STEP 3: Target quarter initiative counts by MoSCoW ───────────
+  // ── STEP 3: Target quarter initiative counts per Group ───────────
   const targetInits = editedInitiatives.filter(r => targetQuarters.includes((r.quarter || '').trim()));
-
-  const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
-  for (const r of targetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
-
-  const kMustShould      = moscowGroups.must + moscowGroups.should;
-  const kMust            = moscowGroups.must;
-  const kMustShouldCould = moscowGroups.must + moscowGroups.should + moscowGroups.could;
+  const { kPerGroup, categoryBreakdown } = bucketRowsByGroups(targetInits, categoryCol);
 
   // Size breakdown for preview
   const sizeDist = {};
@@ -1782,10 +1905,13 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     epicCountMin: countArray.length ? Math.min(...countArray) : 0,
     epicCountMax: countArray.length ? Math.max(...countArray) : 0,
     targetQuarter: targetQuarters.join(', '), targetInitCount: targetInits.length,
-    moscowGroups, kMustShould, kMust, kMustShouldCould,
+    kPerGroup,
+    groupNames:  groupsStore.map(g => g.name),
+    groupColors: groupsStore.map(g => g.color),
+    categoryBreakdown,
   };
 
-  return { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview };
+  return { lambda, epicSizingDist, kPerGroup, preview };
 }
 
 /**
@@ -1800,7 +1926,7 @@ function prepareSimulationData(histQuarters, targetQuarters) {
  * @returns {Array} one entry per team
  */
 function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgEpicSizingDist) {
-  const { initKeyCol, moscowCol, teamCol } = detectedCols;
+  const { initKeyCol, categoryCol, teamCol } = detectedCols;
 
   // Collect all teams present in the target quarters (case-insensitive dedup)
   const targetInits = editedInitiatives.filter(r =>
@@ -1875,10 +2001,9 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       if (T_SHIRT_PARAMS[size]) teamEpicSizingDist.push(size);
     }
 
-    // ── Target-quarter MoSCoW counts (always team-filtered) ──────
+    // ── Target-quarter per-Group counts (always team-filtered) ──
     const teamTargetInits = targetInits.filter(isTeam);
-    const moscowGroups = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
-    for (const r of teamTargetInits) moscowGroups[normalizeMoscow(r[moscowCol])]++;
+    const { kPerGroup, categoryBreakdown } = bucketRowsByGroups(teamTargetInits, categoryCol);
 
     const histInitCount = histInits.length;
     const useOrgByDefault = histInitCount <= 4;
@@ -1893,10 +2018,9 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       // Org-wide historical parameters (passed in)
       orgLambda,
       orgEpicSizingDist,
-      // Target K values (always team-scoped)
-      kMust:            moscowGroups.must,
-      kMustShould:      moscowGroups.must + moscowGroups.should,
-      kMustShouldCould: moscowGroups.must + moscowGroups.should + moscowGroups.could,
+      // Target K values (always team-scoped) — one entry per Group in groupsStore order
+      kPerGroup,
+      categoryBreakdown,
       // Deterministic constant-work effort for this team's target quarters
       fixedEffort: getConstantWorkEffort(targetQuarters, teamName),
     };
@@ -1915,11 +2039,11 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
  * @returns {Array}  one entry per team
  */
 function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIterations) {
-  const { initKeyCol, moscowCol, teamCol, nameCol, krCol } = detectedCols;
+  const { initKeyCol, categoryCol, teamCol, nameCol, krCol } = detectedCols || {};
 
   // Collect all teams appearing anywhere in the CSV (not just target quarter)
   const teamMap = new Map();
-  for (const r of editedInitiatives) {
+  for (const r of (editedInitiatives || [])) {
     const raw = (r[teamCol] || '').trim();
     if (!raw) continue;
     const key = raw.toLowerCase();
@@ -1929,10 +2053,23 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
 
+  // The Projection group drives the per-(team, quarter) **Effort projection band**.
+  // No Projection group OR projection K === 0 falls back to (cwEffort, cwEffort, cwEffort)
+  // per ADR-0023.
+  const projGroup = groupsStore.find(g => g.isProjection) || null;
+  const projLcMembers = new Set();
+  let projHasBlank = false;
+  if (projGroup) {
+    for (const m of projGroup.members) {
+      if (m === BLANK) projHasBlank = true;
+      else projLcMembers.add(String(m).toLowerCase());
+    }
+  }
+
   return teams.map(teamName => {
     const teamKey = teamName.toLowerCase();
     const isTeam  = r => (r[teamCol] || '').trim().toLowerCase() === teamKey;
-    const teamAll = editedInitiatives.filter(isTeam);
+    const teamAll = (editedInitiatives || []).filter(isTeam);
 
     const byQuarter = {};
 
@@ -1951,53 +2088,58 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
 
       if (!qInits.length && !cwEpics.length) continue;
 
-      // MoSCoW counts (initiatives only — constant work is separate)
-      const mg = { must: 0, should: 0, could: 0, wont: 0, unknown: 0 };
+      // Per-Group counts for this quarter (one K per Group in groupsStore order).
+      const { kPerGroup, categoryBreakdown } = bucketRowsByGroups(qInits, categoryCol);
+
+      // Initiative list, sorted by Category (alpha case-insensitive) then jira key.
       const initiatives = [];
       for (const r of qInits) {
-        const m = normalizeMoscow(r[moscowCol]);
-        mg[m]++;
+        const cat = normalizeCategory(categoryCol ? r[categoryCol] : '');
         initiatives.push({
-          key:    (r[initKeyCol] || '').trim(),
-          name:   (r[nameCol]    || '').trim(),
-          moscow: m,
-          kr:     krCol ? (r[krCol] || '').trim() : '',
+          key:      (r[initKeyCol] || '').trim(),
+          name:     (r[nameCol]    || '').trim(),
+          category: cat,
+          kr:       krCol ? (r[krCol] || '').trim() : '',
         });
       }
-      // Sort initiatives: Must → Should → Could → Won't → Unknown, then alpha by key
-      const mOrder = ['must','should','could','wont','unknown'];
-      initiatives.sort((a, b) =>
-        (mOrder.indexOf(a.moscow) - mOrder.indexOf(b.moscow)) ||
-        a.key.localeCompare(b.key)
-      );
+      initiatives.sort((a, b) => {
+        const ac = a.category === BLANK ? '￿' : a.category.toLowerCase();
+        const bc = b.category === BLANK ? '￿' : b.category.toLowerCase();
+        return ac.localeCompare(bc) || a.key.localeCompare(b.key);
+      });
       // Append constant-work epics at the end (already labelled isConstant)
       for (const cw of cwEpics) initiatives.push(cw);
-
-      const kMust            = mg.must;
-      const kMustShould      = mg.must + mg.should;
-      const kMustShouldCould = mg.must + mg.should + mg.could;
 
       // Total deterministic constant-work effort for this team/quarter
       const cwEffort = cwEpics.reduce((s, e) => s + e.effort, 0);
 
-      // Run quick Monte Carlo for P25/P50/P75 on the "all" (MSC) scenario,
-      // then shift by the constant-work effort so projections include it.
+      // Effort projection band — driven by the Projection group's K only
+      // (ADR-0029). Fall back to flat (cwEffort, cwEffort, cwEffort) when no
+      // Projection group, projection K === 0, or no historical signal.
       let p25 = cwEffort, p50 = cwEffort, p75 = cwEffort;
-      if (kMustShouldCould > 0 && orgEpicSizingDist.length > 0 && orgLambda > 0) {
+      let kProj = 0;
+      if (projGroup) {
+        for (const r of qInits) {
+          const cat = normalizeCategory(categoryCol ? r[categoryCol] : '');
+          if (cat === BLANK) { if (projHasBlank) kProj++; }
+          else if (projLcMembers.has(cat.toLowerCase())) kProj++;
+        }
+      }
+      if (projGroup && kProj > 0 && orgEpicSizingDist.length > 0 && orgLambda > 0) {
         const sim = runSimulation({
           lambda: orgLambda, epicSizingDist: orgEpicSizingDist,
-          kMust, kMustShould, kMustShouldCould,
+          kPerGroup: [kProj], groups: [projGroup],
           capacity: 0, iterations: projIterations,
           fixedEffort: cwEffort,
         });
-        p25 = sim.mustShouldCould.stats.p25;
-        p50 = sim.mustShouldCould.stats.p50;
-        p75 = sim.mustShouldCould.stats.p75;
+        p25 = sim.results[0].stats.p25;
+        p50 = sim.results[0].stats.p50;
+        p75 = sim.results[0].stats.p75;
       }
 
       byQuarter[q] = {
-        kMust, kShould: mg.should, kCould: mg.could,
-        kMustShould, kMustShouldCould,
+        kPerGroup,
+        categoryBreakdown,
         p25, p50, p75,
         cwEffort,
         initiatives,
@@ -2081,60 +2223,66 @@ function buildHistogram(sorted, globalMin, globalMax, numBins) {
 }
 
 /**
- * Orchestrate both scenarios and return all data needed for rendering.
+ * Orchestrate one scenario per Group and return all data needed for rendering.
+ *
+ * @param {object}  args
+ * @param {number}  args.lambda
+ * @param {string[]} args.epicSizingDist
+ * @param {number[]} args.kPerGroup        — one count per Group in the snapshot
+ * @param {Array}   args.groups            — snapshot of `groupsStore` at Run time
+ * @param {number}  args.capacity
+ * @param {number}  args.iterations
+ * @param {number}  [args.fixedEffort=0]
+ * @returns {{ results: Array, globalMin: number, globalMax: number, fixedEffort: number }}
+ *   `results` is one `{ name, color, sorted, stats, hist }` per Group, in
+ *   the same order as the input `groups` snapshot.
  */
-function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations, fixedEffort = 0 }) {
+function runSimulation({ lambda, epicSizingDist, kPerGroup, groups, capacity, iterations, fixedEffort = 0 }) {
   // Fresh RNG seed combining time and entropy
   rng = new Xoshiro128ss((Date.now() ^ Math.imul(Date.now(), 0x9e3779b9)) >>> 0);
   resetBoxMuller();
 
-  const sortedMS = kMustShould > 0
-    ? runScenario(kMustShould, lambda, epicSizingDist, iterations)
-    : new Float64Array(iterations); // K=0 → all zeros
+  const groupList = groups || [];
+  const ks = kPerGroup || [];
 
-  const sortedM = kMust > 0
-    ? runScenario(kMust, lambda, epicSizingDist, iterations)
-    : new Float64Array(iterations);
-
-  const sortedMSC = kMustShouldCould > 0
-    ? runScenario(kMustShouldCould, lambda, epicSizingDist, iterations)
-    : new Float64Array(iterations);
+  // Run one Monte Carlo scenario per Group. A K === 0 Group yields the
+  // all-zeros distribution (which shifts to `fixedEffort` below) — see AT-12.
+  const rawSorted = groupList.map((_, i) => {
+    const k = ks[i] || 0;
+    return k > 0
+      ? runScenario(k, lambda, epicSizingDist, iterations)
+      : new Float64Array(iterations);
+  });
 
   // Shift all samples by the deterministic constant-work effort.
   // Adding a constant to a sorted array preserves sort order.
-  const shift = arr => {
+  const shifted = rawSorted.map(arr => {
     if (!fixedEffort) return arr;
     const out = new Float64Array(arr.length);
     for (let i = 0; i < arr.length; i++) out[i] = arr[i] + fixedEffort;
     return out;
-  };
-  const shiftedMS  = shift(sortedMS);
-  const shiftedM   = shift(sortedM);
-  const shiftedMSC = shift(sortedMSC);
+  });
 
   // Clip chart range at P99.5 to prevent outliers from stretching the axis
-  const p995 = arr => arr[Math.min(arr.length - 1, Math.floor(0.995 * arr.length))];
+  const p995 = arr => arr.length ? arr[Math.min(arr.length - 1, Math.floor(0.995 * arr.length))] : 0;
   const globalMin = fixedEffort; // distribution now starts at fixedEffort, not 0
-  const globalMax = Math.max(p995(shiftedMS), p995(shiftedM), p995(shiftedMSC), fixedEffort + 1);
+  const globalMax = Math.max(
+    ...shifted.map(p995),
+    fixedEffort + 1,
+  );
 
   const NUM_BINS = 60;
 
+  const results = groupList.map((g, i) => ({
+    name:   g.name,
+    color:  g.color,
+    sorted: shifted[i],
+    stats:  computeStats(shifted[i], capacity),
+    hist:   buildHistogram(shifted[i], globalMin, globalMax, NUM_BINS),
+  }));
+
   return {
-    mustShould: {
-      sorted: shiftedMS,
-      stats:  computeStats(shiftedMS, capacity),
-      hist:   buildHistogram(shiftedMS, globalMin, globalMax, NUM_BINS),
-    },
-    mustOnly: {
-      sorted: shiftedM,
-      stats:  computeStats(shiftedM, capacity),
-      hist:   buildHistogram(shiftedM, globalMin, globalMax, NUM_BINS),
-    },
-    mustShouldCould: {
-      sorted: shiftedMSC,
-      stats:  computeStats(shiftedMSC, capacity),
-      hist:   buildHistogram(shiftedMSC, globalMin, globalMax, NUM_BINS),
-    },
+    results,
     globalMin, globalMax,
     fixedEffort,
   };
@@ -2152,23 +2300,43 @@ function runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShould
 let chartInstance = null;
 
 /**
+ * Convert a `#RRGGBB` (or short `#RGB`) hex string to an rgba() CSS string
+ * with the given alpha. Used to derive translucent overlapping-histogram
+ * dataset backgrounds from each Group's solid hex colour (ADR-0011, ADR-0029).
+ */
+function hexWithAlpha(hex, alpha) {
+  const s = String(hex || '').trim();
+  let r = 0, g = 0, b = 0;
+  if (/^#[0-9a-fA-F]{6}$/.test(s)) {
+    r = parseInt(s.slice(1, 3), 16);
+    g = parseInt(s.slice(3, 5), 16);
+    b = parseInt(s.slice(5, 7), 16);
+  } else if (/^#[0-9a-fA-F]{3}$/.test(s)) {
+    r = parseInt(s[1] + s[1], 16);
+    g = parseInt(s[2] + s[2], 16);
+    b = parseInt(s[3] + s[3], 16);
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
  * Core chart renderer. Draws an overlapping histogram on the given canvas.
  * Accepts an optional contextKey to drive per-context marker lines.
  * Returns the Chart instance so callers can track and destroy it later.
  */
-function renderChartOnCanvas(canvasId, results, capacity, contextKey) {
-  const { mustShould, mustOnly, mustShouldCould, globalMin, globalMax } = results;
+function renderChartOnCanvas(canvasId, simResults, capacity, contextKey) {
+  const { results: groupResults, globalMin, globalMax } = simResults;
   const canvas = document.getElementById(canvasId);
   const ctx    = canvas.getContext('2d');
 
   // Save render state so re-renders after marker edit work
   if (contextKey) {
     const tbodyId = contextKey === 'org' ? 'stats-tbody' : `team-stats-tbody-${contextKey.slice(5)}`;
-    lastRenderState[contextKey] = { canvasId, results, capacity, tbodyId };
+    lastRenderState[contextKey] = { canvasId, results: simResults, capacity, tbodyId };
   }
 
-  // Shared x-axis labels = bin centers formatted to 2 dp
-  const labels = mustShould.hist.binCenters.map(v => v.toFixed(2));
+  // Shared x-axis labels = bin centers formatted to 2 dp (all Groups share bins)
+  const labels = (groupResults[0]?.hist.binCenters || []).map(v => v.toFixed(2));
 
   // ── Custom plugin: all marker lines (incl. capacity) ────────────
   const markersPlugin = {
@@ -2242,40 +2410,23 @@ function renderChartOnCanvas(canvasId, results, capacity, contextKey) {
     },
   };
 
+  // One dataset per Group — ADR-0029. Order preserves groupsStore order.
+  const datasets = groupResults.map((r, idx) => ({
+    label: r.name,
+    data:  r.hist.counts,
+    backgroundColor: hexWithAlpha(r.color, 0.5),
+    borderColor:     hexWithAlpha(r.color, 0),
+    barPercentage:      1.0,
+    categoryPercentage: 1.0,
+    order: groupResults.length - idx,
+  }));
+
   const instance = new Chart(ctx, {
     type: 'bar',
     plugins: [markersPlugin],
     data: {
       labels,
-      datasets: [
-        {
-          label: 'Must + Should + Could',
-          data: mustShouldCould.hist.counts,
-          backgroundColor: 'rgba(5, 150, 105, 0.42)',
-          borderColor:     'rgba(5, 150, 105, 0)',
-          barPercentage:      1.0,
-          categoryPercentage: 1.0,
-          order: 3,
-        },
-        {
-          label: 'Must + Should',
-          data: mustShould.hist.counts,
-          backgroundColor: 'rgba(79, 70, 229, 0.52)',
-          borderColor:     'rgba(79, 70, 229, 0)',
-          barPercentage:      1.0,
-          categoryPercentage: 1.0,
-          order: 2,
-        },
-        {
-          label: 'Must Only',
-          data: mustOnly.hist.counts,
-          backgroundColor: 'rgba(234, 124, 44, 0.58)',
-          borderColor:     'rgba(234, 124, 44, 0)',
-          barPercentage:      1.0,
-          categoryPercentage: 1.0,
-          order: 1,
-        },
-      ],
+      datasets,
     },
     options: {
       grouped: false,
@@ -2352,53 +2503,55 @@ function renderChart(results, capacity) {
 
 /**
  * Render summary statistics into the given <tbody> element.
- * Reusable for both org-level and per-team tables.
+ * Reusable for both org-level and per-team tables. The function also
+ * rewrites the sibling <thead> (if present) to emit one column per Group,
+ * coloured inline via the Group's `color` (ADR-0029, AT-14, AT-25).
  */
-function renderStatsTableInto(tbodyId, results, capacity, contextKey) {
-  const { mustShould, mustOnly, mustShouldCould } = results;
+function renderStatsTableInto(tbodyId, simResults, capacity, contextKey) {
+  const { results: groupResults } = simResults;
   const fmt = n => n.toFixed(1);
   const pct = p => (p * 100).toFixed(1) + '%';
   const cls = p => p > 0.5 ? 'warn' : p > 0.25 ? 'caution' : 'ok';
 
-  const rows = [
-    ['P10',          fmt(mustOnly.stats.p10),  fmt(mustShould.stats.p10),  fmt(mustShouldCould.stats.p10)],
-    ['P25',          fmt(mustOnly.stats.p25),  fmt(mustShould.stats.p25),  fmt(mustShouldCould.stats.p25)],
-    ['Median (P50)', fmt(mustOnly.stats.p50),  fmt(mustShould.stats.p50),  fmt(mustShouldCould.stats.p50)],
-    ['P75',          fmt(mustOnly.stats.p75),  fmt(mustShould.stats.p75),  fmt(mustShouldCould.stats.p75)],
-    ['P90',          fmt(mustOnly.stats.p90),  fmt(mustShould.stats.p90),  fmt(mustShouldCould.stats.p90)],
-    ['Mean',         fmt(mustOnly.stats.mean), fmt(mustShould.stats.mean), fmt(mustShouldCould.stats.mean)],
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const thead = tbody.parentNode?.querySelector('thead');
+  if (thead) {
+    thead.innerHTML = `<tr><th>Metric</th>${
+      groupResults.map(r =>
+        `<th style="color:${r.color}">■ ${escapeHtml(r.name)}</th>`
+      ).join('')
+    }</tr>`;
+  }
+
+  const statRows = [
+    ['P10',          r => fmt(r.stats.p10)],
+    ['P25',          r => fmt(r.stats.p25)],
+    ['Median (P50)', r => fmt(r.stats.p50)],
+    ['P75',          r => fmt(r.stats.p75)],
+    ['P90',          r => fmt(r.stats.p90)],
+    ['Mean',         r => fmt(r.stats.mean)],
   ];
 
-  const mX   = mustOnly.stats.pExceed;
-  const msX  = mustShould.stats.pExceed;
-  const mscX = mustShouldCould.stats.pExceed;
-
-  // Extra marker rows (non-capacity markers, sorted by value ascending)
   const extraMarkers = contextKey
     ? getMarkers(contextKey).filter(m => !m.isCapacity).sort((a, b) => a.value - b.value)
     : [];
-  const markerRows = extraMarkers.map(m => {
-    const mXm   = computePExceed(mustOnly.sorted,       m.value);
-    const msXm  = computePExceed(mustShould.sorted,     m.value);
-    const mscXm = computePExceed(mustShouldCould.sorted, m.value);
-    return `<tr class="marker-stats-row">
-      <td><span style="display:inline-block;width:9px;height:9px;background:${m.color};border-radius:2px;vertical-align:middle;margin-right:5px"></span>P(effort &gt; ${m.value} PM) <span style="color:#9ca3af">${m.label}</span></td>
-      <td class="val"><span class="${cls(mXm)}">${pct(mXm)}</span></td>
-      <td class="val"><span class="${cls(msXm)}">${pct(msXm)}</span></td>
-      <td class="val"><span class="${cls(mscXm)}">${pct(mscXm)}</span></td>
-    </tr>`;
-  });
 
-  document.getElementById(tbodyId).innerHTML = [
-    ...rows.map(([lbl, m, ms, msc]) =>
-      `<tr><td>${lbl}</td><td class="val">${m}</td><td class="val">${ms}</td><td class="val">${msc}</td></tr>`),
+  tbody.innerHTML = [
+    ...statRows.map(([lbl, project]) =>
+      `<tr><td>${lbl}</td>${groupResults.map(r => `<td class="val">${project(r)}</td>`).join('')}</tr>`
+    ),
     `<tr>
       <td>P(effort &gt; ${capacity} PM)</td>
-      <td class="val"><span class="${cls(mX)}">${pct(mX)}</span></td>
-      <td class="val"><span class="${cls(msX)}">${pct(msX)}</span></td>
-      <td class="val"><span class="${cls(mscX)}">${pct(mscX)}</span></td>
+      ${groupResults.map(r => `<td class="val"><span class="${cls(r.stats.pExceed)}">${pct(r.stats.pExceed)}</span></td>`).join('')}
     </tr>`,
-    ...markerRows,
+    ...extraMarkers.map(m => `<tr class="marker-stats-row">
+      <td><span style="display:inline-block;width:9px;height:9px;background:${m.color};border-radius:2px;vertical-align:middle;margin-right:5px"></span>P(effort &gt; ${m.value} PM) <span style="color:#9ca3af">${escapeHtml(m.label)}</span></td>
+      ${groupResults.map(r => {
+        const p = computePExceed(r.sorted, m.value);
+        return `<td class="val"><span class="${cls(p)}">${pct(p)}</span></td>`;
+      }).join('')}
+    </tr>`),
   ].join('');
 }
 
@@ -2426,7 +2579,8 @@ function renderTeamSection(idx, useOrg) {
 
   const results = runSimulation({
     lambda, epicSizingDist,
-    kMust: td.kMust, kMustShould: td.kMustShould, kMustShouldCould: td.kMustShouldCould,
+    kPerGroup: td.kPerGroup,
+    groups:    groupsStore.slice(),
     capacity: lastCapacity, iterations: lastIterations,
     fixedEffort: td.fixedEffort || 0,
   });
@@ -2465,11 +2619,14 @@ function renderTeamCharts(teamDataArray, capacity, iterations) {
     const section = document.createElement('div');
     section.className = 'team-section';
     section.dataset.teamIdx = idx;
+    const groupSummary = groupsStore.map((g, i) =>
+      `<span style="color:${g.color}">■</span>&nbsp;${escapeHtml(g.name)}: ${td.kPerGroup?.[i] ?? 0}`
+    ).join('&nbsp;·&nbsp;');
     section.innerHTML = `
       <div class="team-section-title">
         ${td.teamName}
         <span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:10px">
-          Must: ${td.kMust} &nbsp;·&nbsp; Must+Should: ${td.kMustShould} &nbsp;·&nbsp; All: ${td.kMustShouldCould}
+          ${groupSummary || '—'}
         </span>
       </div>
       <div class="team-hist-selector">
@@ -2495,14 +2652,7 @@ function renderTeamCharts(teamDataArray, capacity, iterations) {
       <div class="stats-section">
         <h3>Summary Statistics (person-months)</h3>
         <table class="team-stats-table">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th class="col-m">■ Must Only</th>
-              <th class="col-ms">■ Must + Should</th>
-              <th class="col-msc">■ Must + Should + Could</th>
-            </tr>
-          </thead>
+          <thead></thead>
           <tbody id="team-stats-tbody-${idx}"></tbody>
         </table>
       </div>
@@ -2526,19 +2676,30 @@ function renderTeamCharts(teamDataArray, capacity, iterations) {
 
 // ── Helpers for Team Projections rendering ────────────────────────
 
-/** Return an HTML badge for a normalised MoSCoW value. */
-function moscowBadge(m) {
-  const labels = { must:'Must', should:'Should', could:'Could', wont:"Won't", unknown:'?' };
-  return `<span class="mb mb-${m}">${labels[m] || m}</span>`;
+/**
+ * Return an HTML badge for a Category value. Uniform neutral grey for any
+ * non-blank Category; italic grey `(Blank)` for the **(Blank) sentinel**.
+ * No per-Category colour class (ADR-0028, AT-17, AT-18).
+ */
+function categoryBadge(cat) {
+  if (cat === BLANK) {
+    return '<span class="cat-badge cat-badge-blank" style="font-style:italic;background:#f9fafb;color:#9ca3af">(Blank)</span>';
+  }
+  return `<span class="cat-badge" style="background:#f3f4f6;color:#374151">${escapeHtml(cat)}</span>`;
 }
 
-/** Return compact count-chips HTML (omits categories with 0 count). */
-function countChips(kMust, kShould, kCould) {
-  let s = '';
-  if (kMust)   s += `<span class="mc-chip mc-must">M:${kMust}</span>`;
-  if (kShould) s += `<span class="mc-chip mc-should">S:${kShould}</span>`;
-  if (kCould)  s += `<span class="mc-chip mc-could">C:${kCould}</span>`;
-  return s || '<span style="color:#d1d5db">—</span>';
+/**
+ * Return compact per-Group count-chips HTML (omits Groups with 0 count).
+ * Each chip is coloured by its Group's `color` (inline) and labelled by name.
+ */
+function groupCountChips(kPerGroup) {
+  const chips = [];
+  groupsStore.forEach((g, i) => {
+    const k = kPerGroup?.[i] || 0;
+    if (!k) return;
+    chips.push(`<span class="mc-chip" style="background:${hexWithAlpha(g.color, 0.2)};color:${g.color}">${escapeHtml(g.name)}:${k}</span>`);
+  });
+  return chips.length ? chips.join('') : '<span style="color:#d1d5db">—</span>';
 }
 
 /**
@@ -2562,17 +2723,17 @@ function renderTeamProjections(projData, allQuarters) {
     const cells = allQuarters.map(q => {
       const d = byQuarter[q];
       if (!d) return '<td>—</td>';
-      const total = d.kMust + d.kShould + d.kCould;
+      const total = (d.kPerGroup || []).reduce((a, b) => a + b, 0);
       return `<td>
         <div class="proj-cell-chips">
           <span style="font-size:11px;font-weight:700;color:#1e1b4b">${total}</span>
           <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center">
-            ${countChips(d.kMust, d.kShould, d.kCould)}
+            ${groupCountChips(d.kPerGroup)}
           </div>
         </div>
       </td>`;
     }).join('');
-    return `<tr><td>${teamName}</td>${cells}</tr>`;
+    return `<tr><td>${escapeHtml(teamName)}</td>${cells}</tr>`;
   }).join('');
 
   summaryWrap.innerHTML = `
@@ -2588,12 +2749,6 @@ function renderTeamProjections(projData, allQuarters) {
   // ── 2. Per-team sections ──────────────────────────────────────────
   const teamsContainer = document.getElementById('proj-teams-container');
   teamsContainer.innerHTML = '';
-
-  const CHART_COLORS = {
-    must:   { bg: 'rgba(239,68,68,0.75)',   border: 'rgba(239,68,68,0)' },
-    should: { bg: 'rgba(245,158,11,0.75)',  border: 'rgba(245,158,11,0)' },
-    could:  { bg: 'rgba(59,130,246,0.75)',  border: 'rgba(59,130,246,0)' },
-  };
 
   projData.forEach(({ teamName, byQuarter }, teamIdx) => {
     // Include all quarters (even if empty for this team) for visual alignment across all teams
@@ -2617,7 +2772,7 @@ function renderTeamProjections(projData, allQuarters) {
     const initRows = allInits.map(i => {
       const qCols = displayQuarters.map(q =>
         q === i.quarter
-          ? `<td class="qcol">${moscowBadge(i.moscow)}</td>`
+          ? `<td class="qcol">${categoryBadge(i.category ?? BLANK)}</td>`
           : '<td class="qcol"></td>'
       ).join('');
       const krCell = hasKr
@@ -2651,7 +2806,7 @@ function renderTeamProjections(projData, allQuarters) {
       if (!d) return '<td class="qcol"></td>';
       return `<td class="qcol" style="font-size:10px">
         <div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap">
-          ${countChips(d.kMust, d.kShould, d.kCould)}
+          ${groupCountChips(d.kPerGroup)}
         </div>
       </td>`;
     }).join('');
@@ -2709,30 +2864,18 @@ function renderTeamProjections(projData, allQuarters) {
 
     // ── Render count chart ────────────────────────────────────────────
     const countCtx = document.getElementById(`proj-count-${teamIdx}`).getContext('2d');
+    // One stacked dataset per Group (ADR-0029) — Group colour applied inline.
+    const countDatasets = groupsStore.map((g, gi) => ({
+      label: g.name,
+      data:  displayQuarters.map(q => byQuarter[q]?.kPerGroup?.[gi] || 0),
+      backgroundColor: hexWithAlpha(g.color, 0.75),
+      stack: 'stack',
+    }));
     projectionChartInstances.push(new Chart(countCtx, {
       type: 'bar',
       data: {
         labels: displayQuarters,
-        datasets: [
-          {
-            label: 'Must',
-            data: displayQuarters.map(q => byQuarter[q]?.kMust   || 0),
-            backgroundColor: CHART_COLORS.must.bg,
-            stack: 'stack',
-          },
-          {
-            label: 'Should',
-            data: displayQuarters.map(q => byQuarter[q]?.kShould || 0),
-            backgroundColor: CHART_COLORS.should.bg,
-            stack: 'stack',
-          },
-          {
-            label: 'Could',
-            data: displayQuarters.map(q => byQuarter[q]?.kCould  || 0),
-            backgroundColor: CHART_COLORS.could.bg,
-            stack: 'stack',
-          },
-        ],
+        datasets: countDatasets,
       },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -2816,7 +2959,7 @@ function renderTeamProjections(projData, allQuarters) {
 
 /** Render the sidebar data-preview block. */
 function renderPreview(preview) {
-  const sizeStr = Object.entries(preview.sizeDist)
+  const sizeStr = Object.entries(preview.sizeDist || {})
     .sort((a, b) => {
       const order = ['2XS','XS','S','M','L','XL','XL+'];
       return order.indexOf(a[0]) - order.indexOf(b[0]);
@@ -2824,17 +2967,26 @@ function renderPreview(preview) {
     .map(([k, v]) => `${k}×${v}`)
     .join('  ');
 
+  // One K row per Group, coloured by the Group's `color`. Empty Groups
+  // surface as `K = 0` (AT-23) — none are filtered out. The leading and
+  // trailing whitespace around the name is intentional: it surfaces as a
+  // text node between sibling pk/pv spans so `textContent` (and any
+  // word-boundary regex) sees `name` and `K = n` as distinct tokens.
+  const groupKRows = (preview.kPerGroup || []).map((k, i) => {
+    const name  = preview.groupNames?.[i]  ?? '';
+    const color = preview.groupColors?.[i] ?? '#6366f1';
+    return ` <span class="pk" style="color:${color}">${escapeHtml(name)}</span> <span class="pv">K = ${k}</span>`;
+  }).join('');
+
   document.getElementById('preview-grid').innerHTML = `
-    <span class="pk">Hist. quarter</span><span class="pv">${preview.histQuarter}</span>
+    <span class="pk">Hist. quarter</span><span class="pv">${escapeHtml(preview.histQuarter)}</span>
     <span class="pk">Initiatives (hist.)</span><span class="pv">${preview.histInitCount}</span>
     <span class="pk">Poisson λ</span><span class="pv">${preview.lambda.toFixed(2)}</span>
     <span class="pk">Epic samples</span><span class="pv">${preview.epicSizingCount}</span>
     <span class="pk" style="grid-column:1/-1;color:#6366f1;font-size:10px;padding-top:2px">${sizeStr || '—'}</span>
     <div class="divider"></div>
-    <span class="pk">Target quarter</span><span class="pv">${preview.targetQuarter}</span>
-    <span class="pk">Must + Should (K)</span><span class="pv">${preview.kMustShould}</span>
-    <span class="pk">Must only (K)</span><span class="pv">${preview.kMust}</span>
-    <span class="pk">Must+Should+Could (K)</span><span class="pv">${preview.kMustShouldCould}</span>
+    <span class="pk">Target quarter</span><span class="pv">${escapeHtml(preview.targetQuarter)}</span>
+    ${groupKRows}
   `;
   document.getElementById('data-preview').style.display = 'flex';
 
@@ -2842,7 +2994,7 @@ function renderPreview(preview) {
   document.getElementById('debug-details').style.display = 'block';
   document.getElementById('debug-pre').textContent =
     'Detected columns:\n' + JSON.stringify(detectedCols, null, 2) +
-    '\n\nTarget MoSCoW breakdown:\n' + JSON.stringify(preview.moscowGroups, null, 2);
+    '\n\nTarget category breakdown:\n' + JSON.stringify(preview.categoryBreakdown || {}, null, 2);
 }
 </script>
 
@@ -3142,6 +3294,7 @@ function renderInitiativesTable() {
 
   const uniqueVals  = getUniqueColumnValues(parsedInitiatives);
   const nonEditable = new Set([detectedCols.initKeyCol, detectedCols.nameCol].filter(Boolean));
+  const categoryCol = detectedCols.categoryCol; // string | null per ADR-0028
   // Columns hidden in the table view but still included in CSV export
   const hiddenCols  = new Set(['jira_link', 'emoji']);
   // Columns that should be free-form numeric text inputs instead of dropdowns
@@ -3149,10 +3302,23 @@ function renderInitiativesTable() {
   const allCols     = Object.keys(parsedInitiatives[0]);
   const visibleCols = allCols.filter(c => !hiddenCols.has(c));
 
+  // Category datalist options — observed Categories sorted alphabetically (case-insensitive).
+  // The (Blank) sentinel is intentionally absent — empty values are entered by clearing the input.
+  const catOptionsRaw = categoryCol
+    ? (uniqueVals[categoryCol] || []).map(v => String(v).trim()).filter(Boolean)
+    : [];
+  const catOptions = [...new Set(catOptionsRaw)].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+  const datalistHtml = `<datalist id="category-options">${
+    catOptions.map(v => `<option value="${escapeAttr(v)}"></option>`).join('')
+  }</datalist>`;
+
   let html = `
     <div class="initiatives-toolbar">
       <button class="add-marker-btn" onclick="exportInitiativesCSV()">↓ Export CSV</button>
     </div>
+    ${datalistHtml}
     <table>
       <thead><tr>${visibleCols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
       <tbody>`;
@@ -3164,6 +3330,11 @@ function renderInitiativesTable() {
       const safeCol = escapeAttr(col);
       if (nonEditable.has(col)) {
         html += `<td class="init-readonly-cell">${escapeHtml(val)}</td>`;
+      } else if (col === categoryCol) {
+        // Category cell — free-text-friendly datalist combo (ADR-0028, AT-19).
+        html += `<td><input list="category-options" type="text" value="${escapeAttr(String(val))}"
+          style="font-size:12px;border:1px solid #d1d5db;border-radius:4px;padding:2px 6px;max-width:180px"
+          onchange="editedInitiatives[${rowIdx}]['${safeCol}'] = this.value"></td>`;
       } else if (numericCols.has(col)) {
         html += `<td><input type="number" step="any" value="${escapeAttr(String(val))}"
           style="width:90px;font-size:12px;border:1px solid #d1d5db;border-radius:4px;padding:2px 6px"
@@ -3186,6 +3357,318 @@ function renderInitiativesTable() {
 
   html += '</tbody></table>';
   container.innerHTML = html;
+}
+
+// ── Groups tab — feature 0020 Phase 2 ─────────────────────────────
+//
+// Renders the editable Groups table from `groupsStore` into #groups-table-wrap.
+// Per ADR-0029: six columns Name | Color | Members | Projection | Duplicate
+// | Delete; trailing `+ New group` row; inline `onchange`/`onclick` handlers
+// write directly to `groupsStore[idx]`. Commit-on-Run discipline — edits do
+// NOT trigger a simulation; only the run-button handler does.
+
+function _renderGroupChip(member, groupIdx, memberIdx) {
+  if (member === BLANK) {
+    return `<span class="group-chip group-chip-blank" style="font-style:italic">(Blank)<button class="group-chip-remove" onclick="removeGroupMember(${groupIdx}, ${memberIdx})">×</button></span>`;
+  }
+  return `<span class="group-chip">${escapeHtml(member)}<button class="group-chip-remove" onclick="removeGroupMember(${groupIdx}, ${memberIdx})">×</button></span>`;
+}
+
+function renderGroupsTab() {
+  const wrap = document.getElementById('groups-table-wrap');
+  if (!wrap) return;
+
+  // Close any open popover/overlay before re-rendering
+  closeMembersPopover();
+
+  const rows = groupsStore.map((g, i) => {
+    const chips = g.members.map((m, mi) => _renderGroupChip(m, i, mi)).join('');
+    return `<tr>
+      <td><input type="text" value="${escapeAttr(g.name)}"
+        onchange="groupsStore[${i}].name = this.value"></td>
+      <td>
+        <span class="group-color-swatch" style="background:${g.color}"
+              onclick="openGroupColorPalette(${i})"></span>
+      </td>
+      <td>
+        ${chips}
+        <button class="group-add-chip-btn" onclick="openMembersPopover(${i}, this)" data-add-member>+</button>
+      </td>
+      <td>
+        <input type="radio" name="proj-group" ${g.isProjection ? 'checked' : ''}
+               onchange="setGroupProjection(${i})">
+      </td>
+      <td><button class="group-row-btn" onclick="duplicateGroup(${i})">Duplicate</button></td>
+      <td><button class="group-row-btn danger" onclick="deleteGroup(${i})">Delete</button></td>
+    </tr>`;
+  }).join('');
+
+  const newRow = `<tr>
+    <td colspan="6" style="text-align:left;padding:8px 6px">
+      <button class="group-new-row-btn" onclick="appendNewGroup()">+ New group</button>
+    </td>
+  </tr>`;
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>Color</th><th>Members</th>
+          <th>Projection</th><th>Duplicate</th><th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>${rows}${newRow}</tbody>
+    </table>
+  `;
+}
+
+function removeGroupMember(groupIdx, memberIdx) {
+  const g = groupsStore[groupIdx];
+  if (!g) return;
+  g.members.splice(memberIdx, 1);
+  renderGroupsTab();
+}
+
+function setGroupProjection(idx) {
+  groupsStore.forEach((g, i) => { g.isProjection = (i === idx); });
+  renderGroupsTab();
+}
+
+function duplicateGroup(idx) {
+  const src = groupsStore[idx];
+  if (!src) return;
+  groupsStore.splice(idx + 1, 0, {
+    name:    `${src.name} (copy)`,
+    color:   src.color,
+    members: src.members.slice(),
+    isProjection: false, // never copy the flag — ADR-0029, AT-14
+  });
+  renderGroupsTab();
+}
+
+function deleteGroup(idx) {
+  const removed = groupsStore.splice(idx, 1)[0];
+  if (removed?.isProjection && groupsStore.length > 0) {
+    groupsStore[0].isProjection = true;
+  }
+  renderGroupsTab();
+}
+
+function appendNewGroup() {
+  // First Group gets isProjection=true so the exactly-one invariant holds
+  // from the empty state forward (AT-33).
+  const isFirst = groupsStore.length === 0;
+  const color   = COLOR_PALETTE[groupsStore.length % COLOR_PALETTE.length];
+  groupsStore.push({
+    name: '',
+    color,
+    members: [],
+    isProjection: isFirst,
+  });
+  renderGroupsTab();
+}
+
+// ── Members popover ────────────────────────────────────────────────
+let _membersPopoverEl   = null;
+let _membersPopoverIdx  = null;
+let _membersPopoverDocs = null;
+
+function _observedCategoriesForPopover() {
+  // Source from editedInitiatives (current edited state per AT-28).
+  // Stable order: alphabetical (case-insensitive) by first-seen casing.
+  if (!editedInitiatives || !editedInitiatives.length) return [];
+  const categoryCol = detectedCols?.categoryCol;
+  const firstSeen = new Map();
+  for (const r of editedInitiatives) {
+    const raw = categoryCol ? r[categoryCol] : '';
+    const cat = normalizeCategory(raw);
+    if (cat === BLANK) continue;
+    const lc = cat.toLowerCase();
+    if (!firstSeen.has(lc)) firstSeen.set(lc, cat);
+  }
+  return [...firstSeen.values()].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+}
+
+function openMembersPopover(groupIdx, anchorEl) {
+  closeMembersPopover();
+  const g = groupsStore[groupIdx];
+  if (!g) return;
+
+  const observed = _observedCategoriesForPopover();
+  const members  = new Set(g.members.filter(m => m !== BLANK));
+  const hasBlank = g.members.includes(BLANK);
+
+  const optionsHtml = observed.map(cat => {
+    const checked = members.has(cat) ? 'checked' : '';
+    return `<label class="ms-option">
+      <input type="checkbox" value="${escapeAttr(cat)}" ${checked}>
+      ${escapeHtml(cat)}
+    </label>`;
+  }).join('');
+
+  const blankRow = `<label class="ms-option">
+    <input type="checkbox" data-blank="1" ${hasBlank ? 'checked' : ''}>
+    <span class="members-blank-label">(Blank)</span>
+  </label>`;
+
+  const popover = document.createElement('div');
+  popover.className = 'members-popover';
+  popover.dataset.groupIdx = String(groupIdx);
+  popover.innerHTML = `
+    ${optionsHtml}
+    ${blankRow}
+    <div class="members-add-row">
+      <input type="text" placeholder="Add a category…">
+      <button class="group-row-btn" data-popover-add>Add</button>
+    </div>
+  `;
+
+  // Position the popover near the anchor (the + button).
+  document.body.appendChild(popover);
+  if (anchorEl && anchorEl.getBoundingClientRect) {
+    const rect = anchorEl.getBoundingClientRect();
+    popover.style.left = `${Math.max(8, rect.left)}px`;
+    popover.style.top  = `${rect.bottom + 4}px`;
+  } else {
+    popover.style.left = '50%';
+    popover.style.top  = '120px';
+  }
+
+  _membersPopoverEl  = popover;
+  _membersPopoverIdx = groupIdx;
+
+  // Wire option change handlers
+  popover.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      const group = groupsStore[_membersPopoverIdx];
+      if (!group) return;
+      if (e.target.dataset.blank) {
+        if (e.target.checked) { if (!group.members.includes(BLANK)) group.members.push(BLANK); }
+        else                  { group.members = group.members.filter(m => m !== BLANK); }
+      } else {
+        const val = e.target.value;
+        if (e.target.checked) {
+          if (!group.members.some(m => m !== BLANK && String(m).toLowerCase() === val.toLowerCase())) {
+            group.members.push(val);
+          }
+        } else {
+          group.members = group.members.filter(m => m === BLANK || String(m).toLowerCase() !== val.toLowerCase());
+        }
+      }
+      // Re-render the Groups table (chip strip) without closing the popover.
+      _renderGroupsTabPreservingPopover();
+    });
+  });
+
+  // Free-text add: Enter key or Add button
+  const txt = popover.querySelector('input[type="text"]');
+  const addBtn = popover.querySelector('[data-popover-add]');
+  const doAdd = () => {
+    const val = (txt.value || '').trim();
+    if (!val) return;
+    const group = groupsStore[_membersPopoverIdx];
+    if (!group) return;
+    if (!group.members.some(m => m !== BLANK && String(m).toLowerCase() === val.toLowerCase())) {
+      group.members.push(val);
+    }
+    txt.value = '';
+    _renderGroupsTabPreservingPopover();
+  };
+  txt.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); doAdd(); }
+  });
+  addBtn.addEventListener('click', doAdd);
+
+  // Outside-click and Esc close. Listeners attach synchronously so synthetic
+  // event dispatches in tests close the popover without an event-loop tick.
+  // The opening click is still bubbling up to document at the time listeners
+  // are registered, so we skip the first 'click' to avoid auto-close (real
+  // browsers also fire the opening click in bubble phase after our handler
+  // attaches). Mousedown never fires during opening because click was the
+  // initiating event, so we don't need a skip-first for it.
+  let firstClickSkipped = false;
+  _membersPopoverDocs = {
+    mousedown(e) {
+      if (_membersPopoverEl && !_membersPopoverEl.contains(e.target)) closeMembersPopover();
+    },
+    click(e) {
+      if (!firstClickSkipped) { firstClickSkipped = true; return; }
+      if (_membersPopoverEl && !_membersPopoverEl.contains(e.target)) closeMembersPopover();
+    },
+    keydown(e) {
+      if (e.key === 'Escape') closeMembersPopover();
+    },
+  };
+  document.addEventListener('mousedown', _membersPopoverDocs.mousedown);
+  document.addEventListener('click', _membersPopoverDocs.click);
+  document.addEventListener('keydown', _membersPopoverDocs.keydown);
+}
+
+function _renderGroupsTabPreservingPopover() {
+  // Re-render Groups tab but keep the open popover mounted, since member
+  // toggles should not dismiss it (AT-29).
+  const openIdx = _membersPopoverIdx;
+  const popover = _membersPopoverEl;
+  _membersPopoverEl = null; // suppress closeMembersPopover side-effect
+  renderGroupsTab();
+  _membersPopoverEl  = popover;
+  _membersPopoverIdx = openIdx;
+}
+
+function closeMembersPopover() {
+  if (!_membersPopoverEl) return;
+  _membersPopoverEl.remove();
+  _membersPopoverEl  = null;
+  _membersPopoverIdx = null;
+  if (_membersPopoverDocs) {
+    document.removeEventListener('mousedown', _membersPopoverDocs.mousedown);
+    document.removeEventListener('click', _membersPopoverDocs.click);
+    document.removeEventListener('keydown', _membersPopoverDocs.keydown);
+    _membersPopoverDocs = null;
+  }
+}
+
+// ── Color palette overlay ──────────────────────────────────────────
+let _groupColorOverlay = null;
+
+function openGroupColorPalette(groupIdx) {
+  closeGroupColorPalette();
+  const g = groupsStore[groupIdx];
+  if (!g) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'group-color-overlay';
+  overlay.innerHTML = `
+    <div class="group-color-overlay-inner">
+      <div class="group-color-overlay-grid">
+        ${COLOR_PALETTE.map(c => `<button class="color-swatch" style="background:${c}" data-color="${c}"></button>`).join('')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  _groupColorOverlay = overlay;
+
+  overlay.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.addEventListener('click', e => {
+      e.stopPropagation();
+      const hex = sw.dataset.color;
+      groupsStore[groupIdx].color = hex;
+      closeGroupColorPalette();
+      renderGroupsTab();
+    });
+  });
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeGroupColorPalette();
+  });
+}
+
+function closeGroupColorPalette() {
+  if (!_groupColorOverlay) return;
+  _groupColorOverlay.remove();
+  _groupColorOverlay = null;
 }
 
 function exportInitiativesCSV() {
@@ -3319,7 +3802,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
   // Defer heavy computation so the browser can paint the spinner first
   setTimeout(() => {
     try {
-      const { lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, preview } =
+      const { lambda, epicSizingDist, kPerGroup, preview } =
         prepareSimulationData(histQs, targetQs);
 
       // ── Validate inputs ───────────────────────────────────────
@@ -3335,13 +3818,20 @@ document.getElementById('run-btn').addEventListener('click', () => {
       if (lambda === 0) {
         console.warn('[run] λ = 0 — all historical initiatives had 0 sized epics');
       }
-      if (kMustShould === 0 && kMust === 0) {
-        console.warn(`[run] No Must/Should initiatives found for "${targetQs.join(', ')}"`);
+      const totalK = (kPerGroup || []).reduce((a, b) => a + b, 0);
+      if (totalK === 0) {
+        console.warn(`[run] No Initiatives match any Group's members for "${targetQs.join(', ')}"`);
       }
 
       // ── Run simulation ────────────────────────────────────────
       const orgFixedEffort = getConstantWorkEffort(targetQs); // sum across ALL teams for org level
-      const results = runSimulation({ lambda, epicSizingDist, kMustShould, kMust, kMustShouldCould, capacity, iterations: iters, fixedEffort: orgFixedEffort });
+      const groupsSnapshot = groupsStore.slice();
+      const results = runSimulation({
+        lambda, epicSizingDist,
+        kPerGroup, groups: groupsSnapshot,
+        capacity, iterations: iters,
+        fixedEffort: orgFixedEffort,
+      });
 
       // ── Render org level ──────────────────────────────────────
       renderPreview(preview);
@@ -3361,6 +3851,9 @@ document.getElementById('run-btn').addEventListener('click', () => {
       // ── Render initiatives table ──────────────────────────────
       renderInitiativesTable();
 
+      // ── Render Groups tab (feature 0020 Phase 2) ──────────────
+      renderGroupsTab();
+
       // ── Show results, reset to org tab ────────────────────────
       document.getElementById('results-subtitle').textContent =
         `— ${targetQs.join(', ')} · ${iters.toLocaleString()} iterations`;
@@ -3372,6 +3865,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
       document.getElementById('tab-teams').style.display        = 'none';
       document.getElementById('tab-projections').style.display  = 'none';
       document.getElementById('tab-initiatives').style.display  = 'none';
+      document.getElementById('tab-groups').style.display       = 'none';
       document.getElementById('results-content').style.display  = 'flex';
 
     } catch (err) {
