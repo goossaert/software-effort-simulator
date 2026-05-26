@@ -1,0 +1,14 @@
+{
+  "name": "software-effort-simulator-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:phase-1": "vitest run tests/acceptance/phase-1-engine.test.js",
+    "test:phase-2": "vitest run tests/acceptance/phase-2-groups-tab.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
+  }
+}

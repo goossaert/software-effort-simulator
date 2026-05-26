@@ -1,0 +1,645 @@
+command: npm run test:phase-2
+run_at: 2026-05-26T09:08:18Z
+exit_code: 1
+---
+
+> test:phase-2
+> vitest run tests/acceptance/phase-2-groups-tab.test.js
+
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr>
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input
+[Initiatives] 3 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it
+[Initiatives] 2 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:12:25)
+    at renderChart (http://localhost/:200:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:8145)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:185:14) undefined
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives Categories > an edit to editedInitiatives appears in the popover even before Run
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM
+[Initiatives] 2 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js (34 tests | 34 failed) 558ms
+   × AT-1: fifth Groups tab button in the tab bar > the tab bar contains exactly 5 .tab-btn elements ending with Groups 80ms
+     → expected [ HTMLButtonElement{ …(1) }, …(3) ] to have a length of 5 but got 4
+   × AT-2: #tab-groups panel is initially display:none > the panel exists and has style.display === "none" 22ms
+     → expected null to be truthy
+   × AT-3: clicking Groups tab reveals #tab-groups > panel switches to display:flex on tab-button click 20ms
+     → expected null to be truthy
+   × AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr> 21ms
+     → expected  to have a length of 4 but got +0
+   × AT-5: each Group row has six cells Name|Color|Members|Projection|Duplicate|Delete > first Group row has 6 <td> with the documented contents 16ms
+     → expected null to be truthy
+   × AT-6: editing Group Name writes through immediately on change > changing the input and dispatching `change` updates groupsStore[idx].name 15ms
+     → expected null to be truthy
+   × AT-7: clicking the Color swatch opens the COLOR_PALETTE overlay > clicking the swatch reveals an overlay with palette swatches; picking one writes color 16ms
+     → expected null to be truthy
+   × AT-8: Members cell renders one chip per member with × and a + button > three members render as three chips; (Blank) renders italic-grey; + button trails 14ms
+     → Cannot read properties of undefined (reading 'querySelectorAll')
+   × AT-9: clicking × on a chip removes the member from groupsStore > after click, groupsStore[idx].members no longer contains the removed value 14ms
+     → expected undefined to be truthy
+   × AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input 16ms
+     → expected null to be truthy
+   × AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it 15ms
+     → Cannot read properties of null (reading 'click')
+   × AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open 15ms
+     → Cannot read properties of null (reading 'click')
+   × AT-13: clicking another row's Projection radio transfers the flag > exactly one Group has isProjection===true after the click 13ms
+     → expected  to have a length of 3 but got +0
+   × AT-14: Duplicate clones the row with name + " (copy)" and isProjection:false > clone is inserted; isProjection is never copied 15ms
+     → Cannot read properties of undefined (reading 'querySelector')
+   × AT-15: Delete splices the row from groupsStore > non-projection delete leaves the other rows intact 14ms
+     → Cannot read properties of undefined (reading 'querySelector')
+   × AT-16: deleting the current Projection group transfers isProjection to the next row > the new first remaining row gets isProjection:true 13ms
+     → Cannot read properties of undefined (reading 'querySelector')
+   × AT-17: deleting the last Group leaves groupsStore === [] > table renders only the + New group row after deletion 13ms
+     → Cannot read properties of undefined (reading 'querySelector')
+   × AT-18: + New group pushes a default Group > clicking the + New group row appends { name:"", members:[], isProjection:false } 13ms
+     → Cannot read properties of null (reading 'querySelector')
+   × AT-19: edits commit to groupsStore without running the simulation > after edits the chart, stats, and preview surfaces stay on their previous state 13ms
+     → Cannot set properties of null (setting 'value')
+   × AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length 20ms
+     → expected [ Array(3) ] to have a length of 2 but got 3
+   × AT-21: a Group with name === "" renders with empty label, no error > the row's Name cell is an empty <input>; no error fires during render 12ms
+     → expected null to be truthy
+   × AT-22: two Groups with the same name both render > both rows appear, both with the same name value, no error 13ms
+     → expected [] to deeply equal [ 'KR1', 'KR1' ]
+   × AT-23: a zero-member Group renders with no chips and a working + button > chip strip is empty; + button still mounts 12ms
+     → Cannot read properties of undefined (reading 'querySelectorAll')
+   × AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value 13ms
+     → Cannot read properties of null (reading 'textContent')
+   × AT-25: a BLANK member renders as italic-grey (Blank) chip > the chip carries the literal "(Blank)" string in italic styling 12ms
+     → expected null to be truthy
+   × AT-26: renderGroupsTab is callable repeatedly and reflects current groupsStore > an in-memory edit appears on the next renderGroupsTab() call 12ms
+     → Cannot read properties of null (reading 'value')
+   × AT-27: typed-but-unblurred value does not commit > groupsStore[idx].name stays previous value until `change` fires 12ms
+     → Cannot set properties of null (setting 'value')
+   × AT-28: Members popover lists current editedInitiatives Categories > an edit to editedInitiatives appears in the popover even before Run 13ms
+     → Cannot read properties of null (reading 'click')
+   × AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM 12ms
+     → Cannot read properties of null (reading 'click')
+   × AT-30: Members popover closes on outside-click and Esc > clicking outside the popover removes it from the DOM 13ms
+     → Cannot read properties of null (reading 'click')
+   × AT-30: Members popover closes on outside-click and Esc > pressing Esc closes the popover 13ms
+     → Cannot read properties of null (reading 'click')
+   × AT-31: more than ~5 Groups render without warning or error > 8 Group rows + 1 + New group row mount cleanly 13ms
+     → expected  to have a length of 9 but got +0
+   × AT-32: Name onchange writes this.value as a string > an empty string overwrite is accepted 12ms
+     → Cannot set properties of null (setting 'value')
+   × AT-33: empty groupsStore renders only the + New group row > table has exactly one <tr>; clicking + New group pushes a Group with isProjection:true 14ms
+     → expected  to have a length of 1 but got +0
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 34 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-1: fifth Groups tab button in the tab bar > the tab bar contains exactly 5 .tab-btn elements ending with Groups
+AssertionError: expected [ HTMLButtonElement{ …(1) }, …(3) ] to have a length of 5 but got 4
+
+- Expected
++ Received
+
+- 5
++ 4
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:50:21
+     48|     const win = loadSimulator();
+     49|     const buttons = Array.from(win.document.querySelectorAll('.tab-btn…
+     50|     expect(buttons).toHaveLength(5);
+       |                     ^
+     51|     const last = buttons[buttons.length - 1];
+     52|     expect(last.dataset.tab).toBe('groups');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-2: #tab-groups panel is initially display:none > the panel exists and has style.display === "none"
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:62:19
+     60|     const win = loadSimulator();
+     61|     const panel = win.document.getElementById('tab-groups');
+     62|     expect(panel).toBeTruthy();
+       |                   ^
+     63|     expect(panel.style.display).toBe('none');
+     64|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-3: clicking Groups tab reveals #tab-groups > panel switches to display:flex on tab-button click
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:72:17
+     70|     const win = loadSimulator();
+     71|     const btn = win.document.querySelector('.tab-btn[data-tab="groups"…
+     72|     expect(btn).toBeTruthy();
+       |                 ^
+     73|     btn.click();
+     74|     const panel = win.document.getElementById('tab-groups');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr>
+AssertionError: expected  to have a length of 4 but got +0
+
+- Expected
++ Received
+
+- 4
++ 0
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:94:18
+     92| 
+     93|     const rows = win.document.querySelectorAll('#groups-table-wrap tbo…
+     94|     expect(rows).toHaveLength(4);
+       |                  ^
+     95|     // First three rows preserve groupsStore order:
+     96|     const nameInputs = win.document.querySelectorAll('#groups-table-wr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-5: each Group row has six cells Name|Color|Members|Projection|Duplicate|Delete > first Group row has 6 <td> with the documented contents
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:110:22
+    108|     renderGroups(win);
+    109|     const firstRow = win.document.querySelector('#groups-table-wrap tb…
+    110|     expect(firstRow).toBeTruthy();
+       |                      ^
+    111|     const tds = firstRow.querySelectorAll('td');
+    112|     expect(tds).toHaveLength(6);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-6: editing Group Name writes through immediately on change > changing the input and dispatching `change` updates groupsStore[idx].name
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:141:19
+    139| 
+    140|     const input = win.document.querySelector('#groups-table-wrap tbody…
+    141|     expect(input).toBeTruthy();
+       |                   ^
+    142|     input.value = 'Critical only';
+    143|     input.dispatchEvent(new win.Event('change', { bubbles: true }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-7: clicking the Color swatch opens the COLOR_PALETTE overlay > clicking the swatch reveals an overlay with palette swatches; picking one writes color
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:158:27
+    156|     renderGroups(win);
+    157|     const swatchTrigger = win.document.querySelector('#groups-table-wr…
+    158|     expect(swatchTrigger).toBeTruthy();
+       |                           ^
+    159|     swatchTrigger.click();
+    160| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-8: Members cell renders one chip per member with × and a + button > three members render as three chips; (Blank) renders italic-grey; + button trails
+TypeError: Cannot read properties of undefined (reading 'querySelectorAll')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:186:30
+    184|     renderGroups(win);
+    185|     const memberCell = win.document.querySelectorAll('#groups-table-wr…
+    186|     const chips = memberCell.querySelectorAll('.group-chip');
+       |                              ^
+    187|     expect(chips).toHaveLength(3);
+    188|     // The third chip is the (Blank) sentinel — italic styling.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-9: clicking × on a chip removes the member from groupsStore > after click, groupsStore[idx].members no longer contains the removed value
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:212:24
+    210|     const chips = win.document.querySelectorAll('#groups-table-wrap .g…
+    211|     const shouldChip = Array.from(chips).find(c => c.textContent.inclu…
+    212|     expect(shouldChip).toBeTruthy();
+       |                        ^
+    213|     const removeBtn = shouldChip.querySelector('.group-chip-remove, bu…
+    214|     expect(removeBtn).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:236:20
+    234| 
+    235|     const addBtn = win.document.querySelector('#groups-table-wrap .gro…
+    236|     expect(addBtn).toBeTruthy();
+       |                    ^
+    237|     addBtn.click();
+    238| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:265:117
+    263|     ]);
+    264|     renderGroups(win);
+    265|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    266| 
+    267|     const popover = win.document.querySelector('.members-popover, #mem…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:291:117
+    289|     ]);
+    290|     renderGroups(win);
+    291|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    292| 
+    293|     const popover = win.document.querySelector('.members-popover, #mem…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-13: clicking another row's Projection radio transfers the flag > exactly one Group has isProjection===true after the click
+AssertionError: expected  to have a length of 3 but got +0
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:316:20
+    314| 
+    315|     const radios = win.document.querySelectorAll('#groups-table-wrap i…
+    316|     expect(radios).toHaveLength(3);
+       |                    ^
+    317|     radios[1].checked = true;
+    318|     radios[1].dispatchEvent(new win.Event('change', { bubbles: true })…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-14: Duplicate clones the row with name + " (copy)" and isProjection:false > clone is inserted; isProjection is never copied
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:336:86
+    334|     renderGroups(win);
+    335| 
+    336|     const dupBtn = win.document.querySelectorAll('#groups-table-wrap t…
+       |                                                                                      ^
+    337|     expect(dupBtn).toBeTruthy();
+    338|     dupBtn.click();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-15: Delete splices the row from groupsStore > non-projection delete leaves the other rows intact
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:364:27
+    362| 
+    363|     const tds = win.document.querySelectorAll('#groups-table-wrap tbod…
+    364|     const delBtn = tds[5].querySelector('button');
+       |                           ^
+    365|     expect(delBtn).toBeTruthy();
+    366|     delBtn.click();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-16: deleting the current Projection group transfers isProjection to the next row > the new first remaining row gets isProjection:true
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:386:12
+    384| 
+    385|     const tds = win.document.querySelectorAll('#groups-table-wrap tbod…
+    386|     tds[5].querySelector('button').click();
+       |            ^
+    387| 
+    388|     const groups = read(win, 'groupsStore');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-17: deleting the last Group leaves groupsStore === [] > table renders only the + New group row after deletion
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:403:84
+    401|     ]);
+    402|     renderGroups(win);
+    403|     win.document.querySelectorAll('#groups-table-wrap tbody tr:nth-chi…
+       |                                                                                    ^
+    404| 
+    405|     expect(read(win, 'groupsStore')).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-18: + New group pushes a default Group > clicking the + New group row appends { name:"", members:[], isProjection:false }
+TypeError: Cannot read properties of null (reading 'querySelector')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:420:27
+    418|     renderGroups(win);
+    419|     const addRow = win.document.querySelector('#groups-table-wrap tbod…
+    420|     const addBtn = addRow.querySelector('button');
+       |                           ^
+    421|     expect(addBtn).toBeTruthy();
+    422|     addBtn.click();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-19: edits commit to groupsStore without running the simulation > after edits the chart, stats, and preview surfaces stay on their previous state
+TypeError: Cannot set properties of null (setting 'value')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:443:88
+    441|     // Capture current chart instance reference; any Run would replace…
+    442|     const beforeChart = evalIn(win, 'typeof chartInstance');
+    443|     win.document.querySelector('#groups-table-wrap tbody tr input[type…
+       |                                                                                        ^
+    444|     win.document.querySelector('#groups-table-wrap tbody tr input[type…
+    445| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
+AssertionError: expected [ Array(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:470:22
+    468|     execIn(win, `renderChart(${JSON.stringify(out)}, 120);`);
+    469|     const datasets = evalIn(win, 'chartInstance.data.datasets');
+    470|     expect(datasets).toHaveLength(2);
+       |                      ^
+    471|     expect(datasets.map(d => d.label)).toEqual(['X', 'Y']);
+    472|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-21: a Group with name === "" renders with empty label, no error > the row's Name cell is an empty <input>; no error fires during render
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:484:19
+    482|     renderGroups(win);
+    483|     const input = win.document.querySelector('#groups-table-wrap tbody…
+    484|     expect(input).toBeTruthy();
+       |                   ^
+    485|     expect(input.value).toBe('');
+    486|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-22: two Groups with the same name both render > both rows appear, both with the same name value, no error
+AssertionError: expected [] to deeply equal [ 'KR1', 'KR1' ]
+
+- Expected
++ Received
+
+- Array [
+-   "KR1",
+-   "KR1",
+- ]
++ Array []
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:500:62
+    498|     const inputs = win.document.querySelectorAll('#groups-table-wrap t…
+    499|     // Two Group rows + one + New group row = 3 <tr>, but only Group r…
+    500|     expect(Array.from(inputs).slice(0, 2).map(i => i.value)).toEqual([…
+       |                                                              ^
+    501|   });
+    502| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-23: a zero-member Group renders with no chips and a working + button > chip strip is empty; + button still mounts
+TypeError: Cannot read properties of undefined (reading 'querySelectorAll')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:513:23
+    511|     renderGroups(win);
+    512|     const memberCell = win.document.querySelectorAll('#groups-table-wr…
+    513|     expect(memberCell.querySelectorAll('.group-chip')).toHaveLength(0);
+       |                       ^
+    514|     expect(memberCell.querySelector('.group-add-chip-btn, button[data-…
+    515|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
+TypeError: Cannot read properties of null (reading 'textContent')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:530:17
+    528|     renderGroups(win);
+    529|     const chip = win.document.querySelector('#groups-table-wrap .group…
+    530|     expect(chip.textContent).toMatch(/KR99/);
+       |                 ^
+    531|   });
+    532| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-25: a BLANK member renders as italic-grey (Blank) chip > the chip carries the literal "(Blank)" string in italic styling
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:543:18
+    541|     renderGroups(win);
+    542|     const chip = win.document.querySelector('#groups-table-wrap .group…
+    543|     expect(chip).toBeTruthy();
+       |                  ^
+    544|     expect(chip.textContent).toMatch(/\(Blank\)/);
+    545|     expect(chip.outerHTML.toLowerCase()).toMatch(/italic|font-style\s*…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-26: renderGroupsTab is callable repeatedly and reflects current groupsStore > an in-memory edit appears on the next renderGroupsTab() call
+TypeError: Cannot read properties of null (reading 'value')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:560:18
+    558|     renderGroups(win);
+    559|     const input = win.document.querySelector('#groups-table-wrap tbody…
+    560|     expect(input.value).toBe('A2');
+       |                  ^
+    561|   });
+    562| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-27: typed-but-unblurred value does not commit > groupsStore[idx].name stays previous value until `change` fires
+TypeError: Cannot set properties of null (setting 'value')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:573:17
+    571|     renderGroups(win);
+    572|     const input = win.document.querySelector('#groups-table-wrap tbody…
+    573|     input.value = 'Critical'; // typed in but no change event
+       |                 ^
+    574|     expect(read(win, 'groupsStore')[0].name).toBe('A');
+    575|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives Categories > an edit to editedInitiatives appears in the popover even before Run
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:591:117
+    589|     ]);
+    590|     renderGroups(win);
+    591|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    592|     const popover = win.document.querySelector('.members-popover, #mem…
+    593|     expect(popover).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:610:117
+    608|     ]);
+    609|     renderGroups(win);
+    610|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    611|     const popover = win.document.querySelector('.members-popover, #mem…
+    612|     const checkboxes = popover.querySelectorAll('input[type="checkbox"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-30: Members popover closes on outside-click and Esc > clicking outside the popover removes it from the DOM
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:628:117
+    626|     ]);
+    627|     renderGroups(win);
+    628|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    629|     expect(win.document.querySelector('.members-popover, #members-popo…
+    630| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-30: Members popover closes on outside-click and Esc > pressing Esc closes the popover
+TypeError: Cannot read properties of null (reading 'click')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:644:117
+    642|     ]);
+    643|     renderGroups(win);
+    644|     win.document.querySelector('#groups-table-wrap .group-add-chip-btn…
+       |                                                                                                                     ^
+    645|     expect(win.document.querySelector('.members-popover, #members-popo…
+    646| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-31: more than ~5 Groups render without warning or error > 8 Group rows + 1 + New group row mount cleanly
+AssertionError: expected  to have a length of 9 but got +0
+
+- Expected
++ Received
+
+- 9
++ 0
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:663:18
+    661|     renderGroups(win);
+    662|     const rows = win.document.querySelectorAll('#groups-table-wrap tbo…
+    663|     expect(rows).toHaveLength(9);
+       |                  ^
+    664|     // No warning banner mounted inside the tab.
+    665|     expect(win.document.querySelector('#tab-groups .warning, #tab-grou…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-32: Name onchange writes this.value as a string > an empty string overwrite is accepted
+TypeError: Cannot set properties of null (setting 'value')
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:678:17
+    676|     renderGroups(win);
+    677|     const input = win.document.querySelector('#groups-table-wrap tbody…
+    678|     input.value = '';
+       |                 ^
+    679|     input.dispatchEvent(new win.Event('change', { bubbles: true }));
+    680|     expect(read(win, 'groupsStore')[0].name).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/34]⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-33: empty groupsStore renders only the + New group row > table has exactly one <tr>; clicking + New group pushes a Group with isProjection:true
+AssertionError: expected  to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:691:18
+    689|     renderGroups(win);
+    690|     const rows = win.document.querySelectorAll('#groups-table-wrap tbo…
+    691|     expect(rows).toHaveLength(1);
+       |                  ^
+    692| 
+    693|     const addBtn = rows[0].querySelector('button');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/34]⎯
+
+ Test Files  1 failed (1)
+      Tests  34 failed (34)
+   Start at  11:08:05
+   Duration  1.21s (transform 21ms, setup 0ms, collect 384ms, tests 558ms, environment 0ms, prepare 68ms)
+

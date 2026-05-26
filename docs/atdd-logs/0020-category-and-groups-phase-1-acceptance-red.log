@@ -1,0 +1,1514 @@
+command: npm run test:phase-1
+run_at: 2026-05-26T09:04:23Z
+exit_code: 1
+---
+
+> test:phase-1
+> vitest run tests/acceptance/phase-1-engine.test.js
+
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-1: category header detection > detects the literal `category` header via detectCategoryCol
+[Initiatives] 1 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-2: legacy moscow header detection > falls back to the `moscow` header when no `category` header is present
+[Initiatives] 1 rows | key="jira_key" | moscow="moscow" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-3: Quirky-format emoji header detection > falls back to the `emoji` header when neither `category` nor `moscow` is present
+[Initiatives] 1 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-4: missing category/moscow/emoji header > yields categoryCol === null and every initiative resolves to the (Blank) sentinel
+[Initiatives] 1 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-5: normalizeCategory equality semantics > buckets Automation, automation, "Automation " under one canonical Category
+[Initiatives] 3 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-9: subsequent CSV load preserves user Groups > does NOT re-create the auto-default when groupsStore is non-empty
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-10: prepareSimulationData kPerGroup output > returns one count per Group in groupsStore order
+[Initiatives] 7 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:12:25)
+    at renderChart (http://localhost/:200:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:8145)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:185:14) undefined
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
+[Initiatives] 9 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-19: Initiatives tab category cell is input list datalist combo > renders <input list="category-options" …> per row and emits one <datalist> once
+[Initiatives] 2 rows | key="jira_key" | moscow="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-20: free-text Category typed in datalist combo writes through > after onchange fires, editedInitiatives[idx][categoryCol] === typed string
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-22: auto-default All Group includes (Blank) sentinel > members contains BLANK when any Initiative has an empty category cell
+[Initiatives] 3 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-23: auto-default All Group → single Scenario covering all > kPerGroup[0] === total target-quarter initiative count
+[Initiatives] 10 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-24: unreferenced Category buckets are excluded > initiatives in Categories absent from any Group.members do not influence any Scenario
+[Initiatives] 10 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-26: buildTeamProjections drives band from the Projection Group > a zero-member Projection Group collapses the band to cwEffort even when MSC has non-zero count
+[Initiatives] 10 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === []
+[Initiatives] 10 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-28: overlapping Group membership counts in every match > an Initiative in a Category present in multiple Groups contributes to each K
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-29: subsequent CSV (re)load does NOT re-sync the existing All Group > the auto-default fires once; later loads leave the existing Group untouched
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-30: resetInitiativesFile leaves groupsStore intact > CSV reset clears parsedInitiatives but not Groups
+[Initiatives] 1 rows | key="jira_key" | moscow="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-1-engine.test.js (30 tests | 30 failed) 535ms
+   × AT-1: category header detection > detects the literal `category` header via detectCategoryCol 77ms
+     → expected undefined to be 'category' // Object.is equality
+   × AT-2: legacy moscow header detection > falls back to the `moscow` header when no `category` header is present 25ms
+     → expected undefined to be 'moscow' // Object.is equality
+   × AT-3: Quirky-format emoji header detection > falls back to the `emoji` header when neither `category` nor `moscow` is present 19ms
+     → expected undefined to be 'emoji' // Object.is equality
+   × AT-4: missing category/moscow/emoji header > yields categoryCol === null and every initiative resolves to the (Blank) sentinel 16ms
+     → expected undefined to be null
+   × AT-5: normalizeCategory equality semantics > buckets Automation, automation, "Automation " under one canonical Category 15ms
+     → expected undefined to deeply equal [ 3 ]
+   × AT-6: BLANK sentinel for empty cells > normalizeCategory returns BLANK for "", "   ", and undefined 15ms
+     → expected undefined to be null
+   × AT-7: normalizeCategory preserves emoji > returns the verbatim string for "📊 Analytics" (modulo trim) 14ms
+     → expected undefined to be '📊 Analytics' // Object.is equality
+   × AT-8: auto-default All Group on first CSV load > creates one Group {name:"All", color:"#4f46e5", isProjection:true, members:<observed>} 13ms
+     → expected undefined to deeply equal []
+   × AT-9: subsequent CSV load preserves user Groups > does NOT re-create the auto-default when groupsStore is non-empty 13ms
+     → Cannot read properties of undefined (reading 'map')
+   × AT-10: prepareSimulationData kPerGroup output > returns one count per Group in groupsStore order 17ms
+     → expected undefined to deeply equal [ 2, 1, 3 ]
+   × AT-11: runSimulation results per Group > returns one {name, color, sorted, stats, hist} per Group; bins are shared 15ms
+     → expected false to be true // Object.is equality
+   × AT-12: zero-members Group yields fixedEffort-only distribution > Float64Array of all fixedEffort with p50 === fixedEffort 13ms
+     → Cannot read properties of undefined (reading 'find')
+   × AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length 16ms
+     → expected [ Array(3) ] to have a length of 2 but got 3
+   × AT-14: org-level stats table renders one column per Group > thead has 1 + groupsStore.length <th> elements with Group names 15ms
+     → expected [ 'Must Only', 'Must + Should', …(1) ] to deeply equal [ 'Must', 'Must+Should', 'All' ]
+   × AT-15: legacy MSC column CSS rules removed > no rule selector references .col-m, .col-ms, or .col-msc 1ms
+     → expected '\n    /* ============================…' not to match /\.col-m\b/
+   × AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels 14ms
+     → expected '\n        📋  Data Preview\n        \…' to match /\bA\b[\s\S]*K\s*=\s*5/
+   × AT-17: Initiative matrix neutral grey category badges > categoryBadge does not apply mb-must/mb-should/mb-could/mb-wont/mb-unknown classes 14ms
+     → .toMatch() expects to receive a string, but got undefined
+   × AT-18: (Blank) badge is italic grey > categoryBadge(BLANK) renders italic styling and the literal "(Blank)" 12ms
+     → .toMatch() expects to receive a string, but got undefined
+   × AT-19: Initiatives tab category cell is input list datalist combo > renders <input list="category-options" …> per row and emits one <datalist> once 15ms
+     → expected  to have a length of 1 but got +0
+   × AT-20: free-text Category typed in datalist combo writes through > after onchange fires, editedInitiatives[idx][categoryCol] === typed string 16ms
+     → expected null to be truthy
+   × AT-21: Constant Work CSV cascade category→moscow→emoji > getConstantWorkEpics resolves the row's category via the cascade 13ms
+     → expected '{"key":"CW-1","name":"","kr":"","mosc…' to match /KR1/
+   × AT-22: auto-default All Group includes (Blank) sentinel > members contains BLANK when any Initiative has an empty category cell 12ms
+     → Target cannot be null or undefined.
+   × AT-23: auto-default All Group → single Scenario covering all > kPerGroup[0] === total target-quarter initiative count 14ms
+     → expected undefined to deeply equal [ 10 ]
+   × AT-24: unreferenced Category buckets are excluded > initiatives in Categories absent from any Group.members do not influence any Scenario 13ms
+     → expected undefined to deeply equal [ 3 ]
+   × AT-25: Team Level tab stats table has one column per Group > renderStatsTableInto emits 1 + groupsStore.length headers for a team tbody 14ms
+     → expected <td></td>
+<td class="val"></td>
+…(2) to have a length of 3 but got 4
+   × AT-26: buildTeamProjections drives band from the Projection Group > a zero-member Projection Group collapses the band to cwEffort even when MSC has non-zero count 32ms
+     → expected 16.72442399935212 to be 27.10205961947658 // Object.is equality
+   × AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === [] 26ms
+     → expected 19.477096413704096 to be 2.200382139383515 // Object.is equality
+   × AT-28: overlapping Group membership counts in every match > an Initiative in a Category present in multiple Groups contributes to each K 20ms
+     → expected undefined to deeply equal [ 1, 1 ]
+   × AT-29: subsequent CSV (re)load does NOT re-sync the existing All Group > the auto-default fires once; later loads leave the existing Group untouched 18ms
+     → Cannot read properties of undefined (reading '0')
+   × AT-30: resetInitiativesFile leaves groupsStore intact > CSV reset clears parsedInitiatives but not Groups 15ms
+     → "undefined" is not valid JSON
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 30 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-1: category header detection > detects the literal `category` header via detectCategoryCol
+AssertionError: expected undefined to be 'category' // Object.is equality
+
+- Expected: 
+"category"
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:75:30
+     73| 
+     74|     const cols = read(win, 'detectedCols');
+     75|     expect(cols.categoryCol).toBe('category');
+       |                              ^
+     76|   });
+     77| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-2: legacy moscow header detection > falls back to the `moscow` header when no `category` header is present
+AssertionError: expected undefined to be 'moscow' // Object.is equality
+
+- Expected: 
+"moscow"
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:90:30
+     88| 
+     89|     const cols = read(win, 'detectedCols');
+     90|     expect(cols.categoryCol).toBe('moscow');
+       |                              ^
+     91|   });
+     92| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-3: Quirky-format emoji header detection > falls back to the `emoji` header when neither `category` nor `moscow` is present
+AssertionError: expected undefined to be 'emoji' // Object.is equality
+
+- Expected: 
+"emoji"
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:105:30
+    103| 
+    104|     const cols = read(win, 'detectedCols');
+    105|     expect(cols.categoryCol).toBe('emoji');
+       |                              ^
+    106|   });
+    107| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-4: missing category/moscow/emoji header > yields categoryCol === null and every initiative resolves to the (Blank) sentinel
+AssertionError: expected undefined to be null
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:120:30
+    118| 
+    119|     const cols = read(win, 'detectedCols');
+    120|     expect(cols.categoryCol).toBeNull();
+       |                              ^
+    121| 
+    122|     const BLANK = read(win, 'BLANK');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-5: normalizeCategory equality semantics > buckets Automation, automation, "Automation " under one canonical Category
+AssertionError: expected undefined to deeply equal [ 3 ]
+
+- Expected: 
+Array [
+  3,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:141:30
+    139| 
+    140|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    141|     expect(result.kPerGroup).toEqual([3]);
+       |                              ^
+    142| 
+    143|     // The Column-detection debug surface is also expected to expose
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-6: BLANK sentinel for empty cells > normalizeCategory returns BLANK for "", "   ", and undefined
+AssertionError: expected undefined to be null
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:155:19
+    153|     const win = loadSimulator();
+    154|     const BLANK = read(win, 'BLANK');
+    155|     expect(BLANK).toBeNull();
+       |                   ^
+    156| 
+    157|     expect(evalIn(win, "normalizeCategory('')")).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-7: normalizeCategory preserves emoji > returns the verbatim string for "📊 Analytics" (modulo trim)
+AssertionError: expected undefined to be '📊 Analytics' // Object.is equality
+
+- Expected: 
+"📊 Analytics"
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:168:17
+    166|     const win = loadSimulator();
+    167|     const out = evalIn(win, "normalizeCategory(' 📊 Analytics ')");
+    168|     expect(out).toBe('📊 Analytics');
+       |                 ^
+    169|   });
+    170| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-8: auto-default All Group on first CSV load > creates one Group {name:"All", color:"#4f46e5", isProjection:true, members:<observed>}
+AssertionError: expected undefined to deeply equal []
+
+- Expected: 
+Array []
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:176:38
+    174|   it('creates one Group {name:"All", color:"#4f46e5", isProjection:tru…
+    175|     const win = loadSimulator();
+    176|     expect(read(win, 'groupsStore')).toEqual([]);
+       |                                      ^
+    177| 
+    178|     loadInitiatives(win, [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-9: subsequent CSV load preserves user Groups > does NOT re-create the auto-default when groupsStore is non-empty
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ tests/acceptance/phase-1-engine.test.js:212:19
+    210| 
+    211|     const groups = read(win, 'groupsStore');
+    212|     expect(groups.map(g => g.name)).toEqual(['KR1', 'KR2']);
+       |                   ^
+    213|   });
+    214| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-10: prepareSimulationData kPerGroup output > returns one count per Group in groupsStore order
+AssertionError: expected undefined to deeply equal [ 2, 1, 3 ]
+
+- Expected: 
+Array [
+  2,
+  1,
+  3,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:237:30
+    235| 
+    236|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    237|     expect(result.kPerGroup).toEqual([2, 1, 3]);
+       |                              ^
+    238|   });
+    239| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-11: runSimulation results per Group > returns one {name, color, sorted, stats, hist} per Group; bins are shared
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-1-engine.test.js:259:40
+    257|     })`);
+    258| 
+    259|     expect(Array.isArray(out.results)).toBe(true);
+       |                                        ^
+    260|     expect(out.results).toHaveLength(2);
+    261|     expect(out.results[0].name).toBe('Must');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-12: zero-members Group yields fixedEffort-only distribution > Float64Array of all fixedEffort with p50 === fixedEffort
+TypeError: Cannot read properties of undefined (reading 'find')
+ ❯ tests/acceptance/phase-1-engine.test.js:288:31
+    286|     })`);
+    287| 
+    288|     const empty = out.results.find(r => r.name === 'Empty');
+       |                               ^
+    289|     expect(empty.sorted).toHaveLength(100);
+    290|     for (let i = 0; i < empty.sorted.length; i++) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
+AssertionError: expected [ Array(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/acceptance/phase-1-engine.test.js:319:22
+    317|     execIn(win, `renderChart(${JSON.stringify(out)}, 120);`);
+    318|     const datasets = evalIn(win, 'chartInstance.data.datasets');
+    319|     expect(datasets).toHaveLength(2);
+       |                      ^
+    320|     expect(datasets[0].label).toBe('Must');
+    321|     expect(datasets[1].label).toBe('All');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-14: org-level stats table renders one column per Group > thead has 1 + groupsStore.length <th> elements with Group names
+AssertionError: expected [ 'Must Only', 'Must + Should', …(1) ] to deeply equal [ 'Must', 'Must+Should', 'All' ]
+
+- Expected
++ Received
+
+  Array [
+-   "Must",
+-   "Must+Should",
+-   "All",
++   "Must Only",
++   "Must + Should",
++   "Must + Should + Could",
+  ]
+
+ ❯ tests/acceptance/phase-1-engine.test.js:351:25
+    349|     expect(ths).toHaveLength(1 + groups.length);
+    350|     const headerTexts = Array.from(ths).slice(1).map(th => th.textCont…
+    351|     expect(headerTexts).toEqual(['Must', 'Must+Should', 'All']);
+       |                         ^
+    352|     expect(headerTexts.join(' | ')).not.toMatch(/Must Only|Must \+ Sho…
+    353|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-15: legacy MSC column CSS rules removed > no rule selector references .col-m, .col-ms, or .col-msc
+AssertionError: expected '\n    /* ============================…' not to match /\.col-m\b/
+
+- Expected: 
+/\.col-m\b/
+
++ Received: 
+"
+    /* =====================================================
+       BASE RESET & TYPOGRAPHY
+       ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #111827;
+      background: #0f0e2a;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* =====================================================
+       APP SHELL — full-viewport grid
+       ===================================================== */
+    #app {
+      display: grid;
+      grid-template-rows: 52px 1fr;
+      height: 100vh;
+    }
+
+    header {
+      background: #1e1b4b;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+      border-bottom: 1px solid #312e81;
+      flex-shrink: 0;
+    }
+
+    header .logo { font-size: 22px; }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e0e7ff;
+      letter-spacing: 0.01em;
+    }
+
+    header .sep { color: #4338ca; margin: 0 2px; }
+
+    header .subtitle {
+      font-size: 12px;
+      color: #6366f1;
+      font-weight: 400;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 296px 1fr;
+      overflow: hidden;
+    }
+
+    /* =====================================================
+       CONFIG SIDEBAR
+       ===================================================== */
+    #config-panel {
+      background: #1a1840;
+      color: #e0e7ff;
+      padding: 16px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-right: 1px solid #2d2b6b;
+    }
+
+    .section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6366f1;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #2d2b6b;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .field-group input[type=\"text\"],
+    .field-group input[type=\"number\"] {
+      background: #252349;
+      border: 1px solid #3d3b7a;
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: #f1f5f9;
+      font-size: 13px;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field-group input:focus {
+      outline: none;
+      border-color: #818cf8;
+      box-shadow: 0 0 0 2px rgba(129,140,248,0.2);
+    }
+
+    /* Multi-select combo box */
+    .ms-wrapper { position: relative; }
+    .ms-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #2d2b52; border: 1px solid #4a4870; border-radius: 6px;
+      padding: 6px 10px; cursor: pointer; min-height: 36px; flex-wrap: wrap; gap: 4px;
+    }
+    .ms-trigger:hover { border-color: #7c78c0; }
+    .ms-placeholder { color: #9997c0; font-size: 0.82rem; }
+    .ms-arrow { color: #9997c0; font-size: 0.7rem; margin-left: 4px; flex-shrink: 0; transition: transform 0.15s; }
+    .ms-wrapper.open .ms-arrow { transform: rotate(180deg); }
+    .ms-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #4a4870; color: #e2e0ff; border-radius: 4px;
+      padding: 1px 6px; font-size: 0.78rem;
+    }
+    .ms-chip-x { cursor: pointer; opacity: 0.7; }
+    .ms-chip-x:hover { opacity: 1; }
+    .ms-options-wrap {
+      max-height: 0; overflow: hidden; transition: max-height 0.2s ease;
+      background: #2d2b52; border: 1px solid #4a4870; border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+    .ms-wrapper.open .ms-options-wrap { max-height: 200px; overflow-y: auto; }
+    .ms-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; cursor: pointer; font-size: 0.82rem; color: #c8c6f0;
+    }
+    .ms-option:hover { background: #3d3b62; }
+    .ms-option input[type=checkbox] { accent-color: #7c78c0; }
+
+    /* File reset row (shown below wrapper when a file is loaded) */
+    .file-reset-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2px;
+    }
+    .file-reset-btn {
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.01em;
+    }
+    .file-reset-btn:hover { color: #f87171; }
+
+
+    /* Lognormal parameter mode selector */
+    .param-mode-options {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .param-mode-options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 11px;
+      color: #c8c6f0;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .param-mode-options label input[type=radio] { margin-top: 1px; }
+    .param-mode-options label:hover { background: #252349; border-color: #3d3b7a; }
+    .param-mode-options label.active { background: #1e1b4b; border-color: #6366f1; }
+    .param-mode-options input[type=radio] { accent-color: #6366f1; cursor: pointer; flex-shrink: 0; }
+    .param-mode-note {
+      font-size: 9.5px;
+      color: #818cf8;
+      margin-top: 1px;
+      line-height: 1.3;
+    }
+
+    /* File upload widget */
+    .file-upload-wrapper {
+      position: relative;
+      background: #252349;
+      border: 1.5px dashed #3d3b7a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+    }
+
+    .file-upload-wrapper:hover { border-color: #818cf8; background: #2d2a5a; }
+
+    .file-upload-wrapper.loaded {
+      border-color: #34d399;
+      border-style: solid;
+      background: #132d22;
+    }
+
+    .file-upload-wrapper .file-icon { font-size: 15px; flex-shrink: 0; }
+
+    .file-upload-wrapper input[type=\"file\"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-upload-wrapper .file-name {
+      font-size: 11px;
+      color: #94a3b8;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-upload-wrapper.loaded .file-name { color: #6ee7b7; }
+
+    /* Run button */
+    #run-btn {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: 0.03em;
+      width: 100%;
+    }
+
+    #run-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+    }
+
+    #run-btn:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+    #run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Data preview */
+    #data-preview {
+      background: #252349;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 11px;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #data-preview .preview-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6366f1;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1px 8px;
+    }
+
+    .preview-grid .pk { color: #94a3b8; padding: 1px 0; }
+    .preview-grid .pv { color: #a5f3fc; font-weight: 700; text-align: right; padding: 1px 0; }
+
+    .preview-grid .divider {
+      grid-column: 1 / -1;
+      border-top: 1px solid #3d3b7a;
+      margin: 4px 0;
+    }
+
+    /* Collapsible details */
+    #config-panel details {
+      background: #1e1c44;
+      border-radius: 6px;
+      border: 1px solid #2d2b6b;
+      overflow: hidden;
+    }
+
+    #config-panel summary {
+      cursor: pointer;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #config-panel summary::-webkit-details-marker { display: none; }
+
+    #config-panel summary::before {
+      content: '▶';
+      font-size: 8px;
+      transition: transform 0.15s;
+      color: #6366f1;
+    }
+
+    #config-panel details[open] summary::before { transform: rotate(90deg); }
+
+    #config-panel details .details-body { padding: 6px 10px 10px; }
+
+    .size-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .size-table th {
+      color: #6366f1;
+      font-weight: 600;
+      text-align: left;
+      padding: 3px 4px;
+      border-bottom: 1px solid #3d3b7a;
+    }
+
+    .size-table td { padding: 2px 4px; color: #c7d2fe; }
+    .size-table td:not(:first-child) { text-align: right; color: #94a3b8; }
+
+    pre.debug-pre {
+      font-size: 10px;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       RESULTS PANEL
+       ===================================================== */
+    #results-panel {
+      background: #f8fafc;
+      position: relative;
+      overflow-y: auto;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Spinner overlay */
+    #spinner-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(248,250,252,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+
+    #spinner-overlay p { color: #6b7280; font-size: 13px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Empty state */
+    #empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 14px;
+      color: #9ca3af;
+    }
+
+    #empty-state .empty-icon { font-size: 52px; opacity: 0.35; }
+
+    #empty-state p {
+      font-size: 14px;
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    #empty-state strong { color: #4f46e5; }
+
+    /* Results content */
+    #results-content {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    #results-content h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e1b4b;
+    }
+
+    #results-content h2 .sub {
+      font-size: 13px;
+      font-weight: 400;
+      color: #6b7280;
+      margin-left: 8px;
+    }
+
+    /* Chart container */
+    #chart-container {
+      position: relative;
+      height: 526px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 4px 12px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Stats table */
+    .stats-section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    #stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    #stats-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: #6b7280;
+      border-bottom: 2px solid #f1f5f9;
+      background: #f9fafb;
+    }
+
+    #stats-table th.col-ms  { color: #4f46e5; }
+    #stats-table th.col-m   { color: #ea7c2c; }
+    #stats-table th.col-msc { color: #059669; } /* emerald green — Must+Should+Could */
+
+    #stats-table td {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f8fafc;
+      color: #374151;
+    }
+
+    #stats-table tr:last-child td { border-bottom: none; font-weight: 700; }
+    #stats-table td.val { font-variant-numeric: tabular-nums; text-align: right; }
+
+    .warn    { color: #ef4444 !important; }
+    .caution { color: #f97316 !important; }
+    .ok      { color: #10b981 !important; }
+
+    /* Error state */
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #b91c1c;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* =====================================================
+       TABS
+       ===================================================== */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 4px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #4f46e5; }
+    .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+
+    /* Tab panels */
+    .tab-panel { display: flex; flex-direction: column; gap: 22px; }
+
+    /* Initiatives table */
+    #initiatives-table-wrap { overflow-x: auto; }
+    #initiatives-table-wrap table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    #initiatives-table-wrap th { background: #f1f5f9; padding: 7px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; font-weight: 600; color: #374151; }
+    #initiatives-table-wrap td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    #initiatives-table-wrap tr:hover td { background: #f8fafc; }
+    #initiatives-table-wrap select { font-size: 12px; border: 1px solid #d1d5db; border-radius: 4px; padding: 2px 20px 2px 6px; background: #fff; cursor: pointer; max-width: 180px; }
+    #initiatives-table-wrap select:focus { outline: 2px solid #4f46e5; outline-offset: 1px; }
+    .init-readonly-cell { color: #374151; font-size: 12px; }
+    .initiatives-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
+    /* Team sections */
+    #teams-container { display: flex; flex-direction: column; gap: 36px; }
+
+    .team-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .team-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e1b4b;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .team-hist-selector {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #374151;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+    }
+    .team-hist-selector .selector-label {
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      margin-right: 4px;
+    }
+    .team-hist-selector label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .team-hist-selector input[type=radio] { accent-color: #4f46e5; cursor: pointer; }
+    .team-hist-rec {
+      font-size: 11px;
+      color: #d97706;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 5px;
+      padding: 3px 8px;
+    }
+
+    .team-chart-wrapper {
+      position: relative;
+      height: 420px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 4px 12px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .team-stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .team-stats-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: #6b7280;
+      border-bottom: 2px solid #f1f5f9;
+      background: #f9fafb;
+    }
+    .team-stats-table th.col-ms  { color: #4f46e5; }
+    .team-stats-table th.col-m   { color: #ea7c2c; }
+    .team-stats-table th.col-msc { color: #059669; }
+    .team-stats-table td {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f8fafc;
+      color: #374151;
+    }
+    .team-stats-table tr:last-child td { border-bottom: none; font-weight: 700; }
+    .team-stats-table td.val { font-variant-numeric: tabular-nums; text-align: right; }
+
+    /* =====================================================
+       TEAM PROJECTIONS TAB
+       ===================================================== */
+
+    /* MoSCoW badges — shared across projections tab */
+    .mb { display:inline-block; padding:1px 7px; border-radius:4px;
+          font-size:11px; font-weight:600; white-space:nowrap; }
+    .mb-must     { background:#fef2f2; color:#ef4444; }
+    .mb-should   { background:#fffbeb; color:#d97706; }
+    .mb-could    { background:#eff6ff; color:#3b82f6; }
+    .mb-wont     { background:#f9fafb; color:#9ca3af; }
+    .mb-constant { background:#f0fdf4; color:#16a34a; font-size:13px; padding:1px 3px; }
+    .mb-unknown { background:#f9fafb; color:#9ca3af; }
+    /* ── Marker dialog ───────────────────────────────────────────── */
+    .marker-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .marker-dialog {
+      background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      width: 360px; max-width: 96vw; padding: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .marker-dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px; border-bottom: 1px solid #f1f5f9;
+    }
+    .marker-dialog-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+    .marker-close-btn {
+      background: none; border: none; font-size: 20px; color: #94a3b8;
+      cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;
+    }
+    .marker-close-btn:hover { background: #f1f5f9; color: #475569; }
+    .marker-dialog-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .marker-field-label {
+      font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .marker-text-input {
+      width: 100%; padding: 7px 10px; border: 1.5px solid #e5e7eb; border-radius: 6px;
+      font-size: 13px; color: #1e293b; box-sizing: border-box; outline: none;
+    }
+    .marker-text-input:focus { border-color: #6366f1; }
+    .marker-text-input:disabled { background: #f9fafb; color: #9ca3af; cursor: not-allowed; }
+    .color-palette-grid {
+      display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;
+    }
+    .color-swatch {
+      width: 100%; aspect-ratio: 1; border-radius: 4px; border: 2px solid transparent;
+      cursor: pointer; transition: transform 0.1s, border-color 0.1s;
+    }
+    .color-swatch:hover { transform: scale(1.2); border-color: rgba(0,0,0,0.3); }
+    .color-swatch.selected { border-color: #1e293b; transform: scale(1.15); outline: 2px solid #6366f1; outline-offset: 1px; }
+    .marker-dialog-footer {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px 16px; border-top: 1px solid #f1f5f9;
+    }
+    .marker-btn { padding: 7px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .marker-btn-save  { background: #6366f1; color: #fff; }
+    .marker-btn-save:hover  { background: #4f46e5; }
+    .marker-btn-cancel { background: #f1f5f9; color: #475569; }
+    .marker-btn-cancel:hover { background: #e2e8f0; }
+    .marker-btn-delete { background: #fef2f2; color: #ef4444; margin-right: auto; }
+    .marker-btn-delete:hover { background: #fee2e2; }
+    .add-marker-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 20px; border: 1.5px dashed #c7d2fe;
+      background: #eef2ff; color: #6366f1; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .add-marker-btn:hover { background: #e0e7ff; }
+    .marker-stats-row td:first-child { font-size: 12px; }
+
+    /* Count chips used in the summary table cells */
+    .mc-chip { display:inline-flex; align-items:center; gap:3px;
+               padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; }
+    .mc-must   { background:#fef2f2; color:#ef4444; }
+    .mc-should { background:#fffbeb; color:#d97706; }
+    .mc-could  { background:#eff6ff; color:#3b82f6; }
+
+    /* Summary table (teams × quarters) */
+    #proj-summary-wrap { overflow-x: auto; }
+    .proj-summary-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); min-width: 600px;
+    }
+    .proj-summary-table th {
+      padding: 8px 12px; text-align: center;
+      font-weight: 600; color: #6b7280;
+      border-bottom: 2px solid #f1f5f9; background: #f9fafb;
+      font-size: 11px; white-space: nowrap;
+    }
+    .proj-summary-table th:first-child { text-align: left; min-width: 90px; }
+    .proj-summary-table td {
+      padding: 8px 12px; border-bottom: 1px solid #f8fafc;
+      text-align: center; vertical-align: middle;
+    }
+    .proj-summary-table td:first-child { text-align:left; font-weight:600; color:#1e1b4b; }
+    .proj-summary-table tr:last-child td { border-bottom: none; }
+    .proj-cell-chips { display:flex; flex-direction:column; gap:2px; align-items:center; }
+
+    /* Per-team projection sections */
+    #proj-teams-container { display: flex; flex-direction: column; gap: 36px; }
+
+    .proj-team-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .proj-team-title {
+      font-size: 15px; font-weight: 700; color: #1e1b4b;
+      padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;
+    }
+
+    .proj-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .proj-chart-card {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .proj-chart-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6b7280;
+    }
+    .proj-chart-wrapper {
+      position: relative; height: 252px;
+      background: white; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: 4px 10px 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Initiative matrix table */
+    .proj-init-wrap { overflow-x: auto; }
+    .proj-init-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .proj-init-table th {
+      padding: 7px 10px; text-align: left;
+      font-weight: 600; font-size: 11px; color: #6b7280;
+      border-bottom: 2px solid #f1f5f9; background: #f9fafb;
+      white-space: nowrap;
+    }
+    .proj-init-table th.qcol { text-align: center; min-width: 76px; }
+    .proj-init-table td {
+      padding: 5px 10px; border-bottom: 1px solid #f8fafc;
+      color: #374151; white-space: nowrap;
+    }
+    .proj-init-table td.jira-key {
+      font-family: ui-monospace, monospace; font-size: 11px;
+      color: #6366f1; min-width: 92px;
+    }
+    .proj-init-table td.init-name {
+      color: #1e1b4b; max-width: 260px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .proj-init-table td.moscow-td { min-width: 86px; }
+    .proj-init-table td.qcol { text-align: center; }
+    .proj-init-table tr:last-child td { border-bottom: none; }
+
+    @media (max-width: 760px) {
+      .proj-charts-row { grid-template-columns: 1fr; }
+    }
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 260px 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      body { overflow: auto; }
+      #app { height: auto; }
+      main { grid-template-columns: 1fr; }
+      #results-panel { padding: 18px; }
+      #chart-container { height: 420px; }
+    }
+  "
+
+ ❯ tests/acceptance/phase-1-engine.test.js:361:29
+    359|     const html = fs.readFileSync(INDEX_HTML_PATH, 'utf8');
+    360|     const styleBlocks = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/st…
+    361|     expect(styleBlocks).not.toMatch(/\.col-m\b/);
+       |                             ^
+    362|     expect(styleBlocks).not.toMatch(/\.col-ms\b/);
+    363|     expect(styleBlocks).not.toMatch(/\.col-msc\b/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
+AssertionError: expected '\n        📋  Data Preview\n        \…' to match /\bA\b[\s\S]*K\s*=\s*5/
+
+- Expected: 
+/\bA\b[\s\S]*K\s*=\s*5/
+
++ Received: 
+"
+        📋  Data Preview
+        
+    Hist. quarterQ1 2026
+    Initiatives (hist.)0
+    Poisson λ1.00
+    Epic samples9
+    M×9
+    
+    Target quarterQ2 2026
+    Must + Should (K)5
+    Must only (K)3
+    Must+Should+Could (K)9
+  
+      "
+
+ ❯ tests/acceptance/phase-1-engine.test.js:393:18
+    391|     expect(preview).toBeTruthy();
+    392|     const text = preview.textContent;
+    393|     expect(text).toMatch(/\bA\b[\s\S]*K\s*=\s*5/);
+       |                  ^
+    394|     expect(text).toMatch(/\bB\b[\s\S]*K\s*=\s*4/);
+    395|     expect(text).not.toMatch(/K_must\b|K_must\+should\b|K_must\+should…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-17: Initiative matrix neutral grey category badges > categoryBadge does not apply mb-must/mb-should/mb-could/mb-wont/mb-unknown classes
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ tests/acceptance/phase-1-engine.test.js:405:20
+    403|     const badges = ['Must', 'Should', 'Could', "Won't"].map(c => evalI…
+    404|     for (const html of badges) {
+    405|       expect(html).toMatch(/Must|Should|Could|Won't/);
+       |                    ^
+    406|       expect(html).not.toMatch(/\bmb-must\b/);
+    407|       expect(html).not.toMatch(/\bmb-should\b/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-18: (Blank) badge is italic grey > categoryBadge(BLANK) renders italic styling and the literal "(Blank)"
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ tests/acceptance/phase-1-engine.test.js:420:18
+    418|     const win = loadSimulator();
+    419|     const html = evalIn(win, 'categoryBadge(BLANK)');
+    420|     expect(html).toMatch(/\(Blank\)/);
+       |                  ^
+    421|     expect(html.toLowerCase()).toMatch(/italic|font-style\s*:\s*italic…
+    422|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-19: Initiatives tab category cell is input list datalist combo > renders <input list="category-options" …> per row and emits one <datalist> once
+AssertionError: expected  to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-1-engine.test.js:439:23
+    437| 
+    438|     const datalists = wrap.querySelectorAll('datalist#category-options…
+    439|     expect(datalists).toHaveLength(1);
+       |                       ^
+    440| 
+    441|     const categoryInputs = wrap.querySelectorAll('input[list="category…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-20: free-text Category typed in datalist combo writes through > after onchange fires, editedInitiatives[idx][categoryCol] === typed string
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-1-engine.test.js:460:19
+    458| 
+    459|     const input = win.document.querySelector('#initiatives-table-wrap …
+    460|     expect(input).toBeTruthy();
+       |                   ^
+    461|     input.value = 'Project ABC';
+    462|     input.dispatchEvent(new win.Event('change', { bubbles: true }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-21: Constant Work CSV cascade category→moscow→emoji > getConstantWorkEpics resolves the row's category via the cascade
+AssertionError: expected '{"key":"CW-1","name":"","kr":"","mosc…' to match /KR1/
+
+- Expected: 
+/KR1/
+
++ Received: 
+"{\"key\":\"CW-1\",\"name\":\"\",\"kr\":\"\",\"moscow\":\"unknown\",\"effort\":2.200382139383515,\"tshirt\":\"M\",\"isConstant\":true}"
+
+ ❯ tests/acceptance/phase-1-engine.test.js:491:23
+    489|     // against any value-bearing field.
+    490|     const flattened = JSON.stringify(epics[0]);
+    491|     expect(flattened).toMatch(/KR1/);
+       |                       ^
+    492|   });
+    493| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-22: auto-default All Group includes (Blank) sentinel > members contains BLANK when any Initiative has an empty category cell
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/acceptance/phase-1-engine.test.js:506:20
+    504| 
+    505|     const groups = read(win, 'groupsStore');
+    506|     expect(groups).toHaveLength(1);
+       |                    ^
+    507|     expect(new Set(groups[0].members)).toEqual(new Set(['Must', 'Could…
+    508|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-23: auto-default All Group → single Scenario covering all > kPerGroup[0] === total target-quarter initiative count
+AssertionError: expected undefined to deeply equal [ 10 ]
+
+- Expected: 
+Array [
+  10,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:524:30
+    522| 
+    523|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    524|     expect(result.kPerGroup).toEqual([10]);
+       |                              ^
+    525|     const groups = read(win, 'groupsStore');
+    526|     expect(groups).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-24: unreferenced Category buckets are excluded > initiatives in Categories absent from any Group.members do not influence any Scenario
+AssertionError: expected undefined to deeply equal [ 3 ]
+
+- Expected: 
+Array [
+  3,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:545:30
+    543| 
+    544|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    545|     expect(result.kPerGroup).toEqual([3]);
+       |                              ^
+    546|   });
+    547| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-25: Team Level tab stats table has one column per Group > renderStatsTableInto emits 1 + groupsStore.length headers for a team tbody
+AssertionError: expected <td></td>
+<td class="val"></td>
+…(2) to have a length of 3 but got 4
+
+- Expected
++ Received
+
+- 3
++ 4
+
+ ❯ tests/acceptance/phase-1-engine.test.js:577:45
+    575|     const firstRow = win.document.querySelector('#team-stats-tbody-0 t…
+    576|     expect(firstRow).toBeTruthy();
+    577|     expect(firstRow.querySelectorAll('td')).toHaveLength(1 + groups.le…
+       |                                             ^
+    578|   });
+    579| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-26: buildTeamProjections drives band from the Projection Group > a zero-member Projection Group collapses the band to cwEffort even when MSC has non-zero count
+AssertionError: expected 16.72442399935212 to be 27.10205961947658 // Object.is equality
+
+- Expected
++ Received
+
+- 27.10205961947658
++ 16.72442399935212
+
+ ❯ tests/acceptance/phase-1-engine.test.js:603:22
+    601|     expect(cell).toBeTruthy();
+    602|     // Flat band invariant: p25 === p50 === p75 === cwEffort (0 here).
+    603|     expect(cell.p25).toBe(cell.p75);
+       |                      ^
+    604|     expect(cell.p50).toBe(cell.p25);
+    605|     expect(cell.p50).toBe(cell.cwEffort);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === []
+AssertionError: expected 19.477096413704096 to be 2.200382139383515 // Object.is equality
+
+- Expected
++ Received
+
+- 2.200382139383515
++ 19.477096413704096
+
+ ❯ tests/acceptance/phase-1-engine.test.js:634:22
+    632|     const cell = proj[0].byQuarter['Q2 2026'];
+    633|     expect(cell).toBeTruthy();
+    634|     expect(cell.p25).toBe(cell.cwEffort);
+       |                      ^
+    635|     expect(cell.p50).toBe(cell.cwEffort);
+    636|     expect(cell.p75).toBe(cell.cwEffort);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-28: overlapping Group membership counts in every match > an Initiative in a Category present in multiple Groups contributes to each K
+AssertionError: expected undefined to deeply equal [ 1, 1 ]
+
+- Expected: 
+Array [
+  1,
+  1,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-engine.test.js:654:30
+    652| 
+    653|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    654|     expect(result.kPerGroup).toEqual([1, 1]);
+       |                              ^
+    655|   });
+    656| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-29: subsequent CSV (re)load does NOT re-sync the existing All Group > the auto-default fires once; later loads leave the existing Group untouched
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-1-engine.test.js:666:76
+    664|     ], ['jira_key', 'name', 'category', 'teams', 'quarter']);
+    665| 
+    666|     const firstMembers = JSON.parse(JSON.stringify(read(win, 'groupsSt…
+       |                                                                            ^
+    667|     expect(firstMembers).toEqual(['Must']);
+    668| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/30]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-30: resetInitiativesFile leaves groupsStore intact > CSV reset clears parsedInitiatives but not Groups
+SyntaxError: "undefined" is not valid JSON
+ ❯ tests/acceptance/phase-1-engine.test.js:691:31
+    689|     ], ['jira_key', 'name', 'category', 'teams', 'quarter']);
+    690| 
+    691|     const beforeGroups = JSON.parse(JSON.stringify(read(win, 'groupsSt…
+       |                               ^
+    692|     expect(beforeGroups.length).toBeGreaterThan(0);
+    693| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/30]⎯
+
+ Test Files  1 failed (1)
+      Tests  30 failed (30)
+   Start at  11:04:03
+   Duration  1.21s (transform 21ms, setup 0ms, collect 371ms, tests 535ms, environment 0ms, prepare 50ms)
+
