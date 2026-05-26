@@ -138,6 +138,13 @@ export function loadSimulator(opts = {}) {
     virtualConsole,
   });
 
+  // Bridge typed-array primordials from Node's realm into the JSDOM realm so
+  // test assertions like `expect(arr).toBeInstanceOf(Float64Array)` succeed
+  // when `arr` was constructed inside the page. JSDOM's `js-globals.json`
+  // installs its own typed-array constructors on the window by default, which
+  // would otherwise make cross-realm `instanceof` checks return false.
+  dom.window.Float64Array = Float64Array;
+
   return dom.window;
 }
 
