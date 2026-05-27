@@ -553,6 +553,8 @@
     .group-row-btn:hover { background:#e5e7eb; }
     .group-row-btn.danger:hover { background:#fee2e2; color:#b91c1c; border-color:#fca5a5; }
     .groups-toolbar { display:flex; gap:8px; margin-bottom:10px; }
+    .groups-load-error { background:#fef2f2; color:#b91c1c; border:1px solid #fca5a5; border-radius:6px; padding:8px 12px; margin-bottom:10px; font-size:13px; }
+    .groups-load-confirm-message { font-size:13px; color:#374151; line-height:1.4; }
     .members-popover { position:absolute; z-index:1100; background:#fff; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.18); padding:8px; min-width:220px; max-height:360px; overflow-y:auto; }
     .members-popover label { display:flex; align-items:center; gap:6px; padding:3px 4px; font-size:12px; cursor:pointer; border-radius:4px; }
     .members-popover label:hover { background:#f3f4f6; }
@@ -1053,8 +1055,14 @@
           <div id="initiatives-table-wrap"></div>
         </div>
 
-        <!-- Groups tab panel (feature 0020 Phase 2) -->
+        <!-- Groups tab panel (feature 0020 Phase 2 + Phase 3 toolbar) -->
         <div id="tab-groups" class="tab-panel" style="display:none">
+          <div class="groups-toolbar">
+            <button class="add-marker-btn" onclick="saveGroupsJSON()" title="Save groups to JSON">↓ Save groups (JSON)</button>
+            <button class="add-marker-btn" onclick="triggerLoadGroupsJSON()" title="Load groups from JSON">↑ Load groups (JSON)</button>
+            <input type="file" id="groups-json-input" accept=".json" style="display:none">
+          </div>
+          <div id="groups-load-error" class="groups-load-error" style="display:none"></div>
           <div id="groups-table-wrap"></div>
         </div>
       </div>
@@ -1090,6 +1098,22 @@
       <button class="marker-btn marker-btn-delete" id="marker-delete-btn" onclick="handleMarkerDelete()">Delete</button>
       <button class="marker-btn marker-btn-cancel" onclick="closeMarkerDialog()">Cancel</button>
       <button class="marker-btn marker-btn-save" onclick="handleMarkerSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Groups load confirmation modal (feature 0020 Phase 3) ─── -->
+<div id="groups-load-confirm-overlay" class="marker-overlay" style="display:none">
+  <div class="marker-dialog">
+    <div class="marker-dialog-header">
+      <span class="marker-dialog-title">Replace current Groups?</span>
+    </div>
+    <div class="marker-dialog-body">
+      <div id="groups-load-confirm-message" class="groups-load-confirm-message"></div>
+    </div>
+    <div class="marker-dialog-footer">
+      <button class="marker-btn marker-btn-cancel" onclick="_cancelLoadGroups()">Cancel</button>
+      <button class="marker-btn marker-btn-save" onclick="_confirmLoadGroups()">Replace</button>
     </div>
   </div>
 </div>
@@ -3870,6 +3894,175 @@ document.getElementById('marker-load-input').addEventListener('change', e => {
     }
 
     rerenderContext(contextKey);
+  };
+  reader.readAsText(file);
+});
+
+// ── Groups JSON save / load (feature 0020 Phase 3) ─────────────────
+// `saveGroupsJSON` serialises `groupsStore` as { schemaVersion: 1, groups: [...] }
+// and triggers a download of `groups.json`. The (Blank) sentinel — the JS
+// `null` value — serialises natively as the JSON `null` literal; no mapping
+// function is invoked. `loadGroupsJSON(text)` parses + validates + normalises
+// the `isProjection` invariant, returning either { ok:true, groups } or
+// { ok:false, error }. `confirmLoadGroupsReplacement` interposes a modal when
+// the current store is non-trivial (length > 1); otherwise it replaces
+// immediately. None of these paths fire `runSimulation` — commit-on-Run
+// discipline per ADR-0029 / ADR-0030.
+
+let _pendingLoadedGroups = null;
+
+function saveGroupsJSON() {
+  const payload = {
+    schemaVersion: 1,
+    groups: groupsStore.map(g => ({
+      name:         g.name,
+      color:        g.color,
+      members:      g.members.slice(),
+      isProjection: g.isProjection,
+    })),
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'groups.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function triggerLoadGroupsJSON() {
+  const input = document.getElementById('groups-json-input');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+function loadGroupsJSON(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (e) {
+    return { ok: false, error: String((e && e.message) || e) };
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return { ok: false, error: "Invalid groups.json: expected an object with a 'groups' array." };
+  }
+  const sv = parsed.schemaVersion;
+  if (sv !== undefined) {
+    if (typeof sv !== 'number' || !Number.isInteger(sv)) {
+      return { ok: false, error: 'Invalid groups.json: schemaVersion must be an integer.' };
+    }
+    if (sv > 1) {
+      return { ok: false, error: 'This file was saved by a newer version of the simulator.' };
+    }
+    if (sv < 1) {
+      return { ok: false, error: 'Invalid groups.json: schemaVersion must be 1.' };
+    }
+  }
+  if (!Array.isArray(parsed.groups)) {
+    return { ok: false, error: "Invalid groups.json: expected an object with a 'groups' array." };
+  }
+  const groups = [];
+  for (let i = 0; i < parsed.groups.length; i++) {
+    const g = parsed.groups[i];
+    if (g === null || typeof g !== 'object' || Array.isArray(g)) {
+      return { ok: false, error: `Invalid groups.json: groups[${i}] must be an object.` };
+    }
+    if (typeof g.name !== 'string') {
+      return { ok: false, error: `Invalid groups.json: groups[${i}].name must be a string.` };
+    }
+    if (typeof g.color !== 'string') {
+      return { ok: false, error: `Invalid groups.json: groups[${i}].color must be a string.` };
+    }
+    if (!Array.isArray(g.members)) {
+      return { ok: false, error: `Invalid groups.json: groups[${i}].members must be an array.` };
+    }
+    for (let m = 0; m < g.members.length; m++) {
+      const v = g.members[m];
+      if (v !== null && typeof v !== 'string') {
+        return { ok: false, error: `Invalid groups.json: groups[${i}].members[${m}] must be a string or null.` };
+      }
+    }
+    if (typeof g.isProjection !== 'boolean') {
+      return { ok: false, error: `Invalid groups.json: groups[${i}].isProjection must be a boolean.` };
+    }
+    groups.push({
+      name:         g.name,
+      color:        g.color,
+      members:      g.members.slice(),
+      isProjection: g.isProjection,
+    });
+  }
+  // Enforce the exactly-one isProjection invariant at load time:
+  //   • multiple flags  → first-wins; the rest demoted
+  //   • zero flags      → first-by-default; promote groups[0]
+  if (groups.length > 0) {
+    const firstFlagged = groups.findIndex(g => g.isProjection);
+    const winningIdx   = firstFlagged === -1 ? 0 : firstFlagged;
+    for (let i = 0; i < groups.length; i++) {
+      groups[i].isProjection = (i === winningIdx);
+    }
+  }
+  return { ok: true, groups };
+}
+
+function confirmLoadGroupsReplacement(loadedGroups) {
+  const errEl = document.getElementById('groups-load-error');
+  if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+
+  if (groupsStore.length <= 1) {
+    _applyGroupsReplacement(loadedGroups);
+    return;
+  }
+  _pendingLoadedGroups = loadedGroups;
+  const overlay = document.getElementById('groups-load-confirm-overlay');
+  if (!overlay) {
+    _applyGroupsReplacement(loadedGroups);
+    return;
+  }
+  const msgEl = document.getElementById('groups-load-confirm-message');
+  if (msgEl) {
+    msgEl.textContent =
+      `This will replace your current ${groupsStore.length} group(s). Continue?`;
+  }
+  overlay.style.display = 'flex';
+}
+
+function _applyGroupsReplacement(loadedGroups) {
+  groupsStore.length = 0;
+  for (const g of loadedGroups) groupsStore.push(g);
+  if (typeof renderGroupsTab === 'function') renderGroupsTab();
+}
+
+function _cancelLoadGroups() {
+  const overlay = document.getElementById('groups-load-confirm-overlay');
+  if (overlay) overlay.style.display = 'none';
+  _pendingLoadedGroups = null;
+}
+
+function _confirmLoadGroups() {
+  const overlay = document.getElementById('groups-load-confirm-overlay');
+  if (overlay) overlay.style.display = 'none';
+  if (_pendingLoadedGroups) {
+    _applyGroupsReplacement(_pendingLoadedGroups);
+    _pendingLoadedGroups = null;
+  }
+}
+
+document.getElementById('groups-json-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text   = ev.target.result;
+    const result = loadGroupsJSON(text);
+    const errEl  = document.getElementById('groups-load-error');
+    if (!result.ok) {
+      if (errEl) { errEl.textContent = result.error; errEl.style.display = 'block'; }
+      return;
+    }
+    confirmLoadGroupsReplacement(result.groups);
   };
   reader.readAsText(file);
 });
