@@ -578,8 +578,11 @@ describe('AT-18: loaded Groups commit immediately but chart waits for Run', () =
 describe('AT-19: a loaded Group flagged isProjection becomes the Projection group', () => {
   it('after replace, exactly one Group has isProjection===true and it is the loaded one', () => {
     const win = loadSimulator();
+    // Setup must be a trivial store (single auto-default `All`) so the
+    // confirmation modal does not interpose; the focus of this scenario is the
+    // load-time isProjection normalisation, not the modal flow (AT-11..AT-14).
     setGroups(win, [
-      { name: 'OldProj', color: '#a', members: [], isProjection: true },
+      { name: 'All', color: '#a', members: [], isProjection: true },
     ]);
     renderGroups(win);
 
@@ -606,10 +609,18 @@ describe('AT-20: two consecutive loads are each wholesale-replace', () => {
     ]);`);
     expect(read(win, 'groupsStore').map(g => g.name)).toEqual(['A1']);
 
+    // After the first load the store holds a single non-`All` Group, so the
+    // second load is non-trivial per the plan and the confirmation modal
+    // interposes. Simulate the user clicking Replace to drive the actual
+    // wholesale-replace path the scenario is verifying.
     execIn(win, `confirmLoadGroupsReplacement([
       { name: 'B1', color: '#111', members: ['Should'], isProjection: true },
       { name: 'B2', color: '#222', members: ['Could'], isProjection: false },
     ]);`);
+    const overlay = win.document.getElementById('groups-load-confirm-overlay');
+    const replaceBtn = Array.from(overlay.querySelectorAll('button'))
+      .find(b => /replace/i.test(b.textContent));
+    replaceBtn.click();
     expect(read(win, 'groupsStore').map(g => g.name)).toEqual(['B1', 'B2']);
   });
 });
