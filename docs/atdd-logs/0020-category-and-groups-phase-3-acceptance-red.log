@@ -1,0 +1,729 @@
+command: npx vitest run tests/acceptance/phase-3-json-persistence.test.js
+run_at: 2026-05-27T05:39:42Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-3-json-persistence.test.js > AT-16: loaded members referencing absent Categories are preserved verbatim > a Group whose members reference a CSV-absent Category loads cleanly and silently matches zero at Run
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js (41 tests | 41 failed) 754ms
+   × AT-1: Groups tab toolbar has Save and Load JSON buttons > two buttons mount inside #tab-groups labelled with Save groups (JSON) and Load groups (JSON) 88ms
+     → expected undefined to be truthy
+   × AT-2: saveGroupsJSON serialises the documented schema > happy path: two Groups serialise as { schemaVersion: 1, groups: [...] } with the documented fields 28ms
+     → expected undefined to be truthy
+   × AT-2: saveGroupsJSON serialises the documented schema > serialised text uses two-space indentation from JSON.stringify(..., null, 2) 24ms
+     → .toMatch() expects to receive a string, but got undefined
+   × AT-2: saveGroupsJSON serialises the documented schema > the download anchor element targets the filename groups.json (property-style: matches across runs) 21ms
+     → expected undefined to be 'groups.json' // Object.is equality
+   × AT-3: the (Blank) sentinel survives save as the JSON null literal > a member equal to null parses back to null (not "null" or "(Blank)") 18ms
+     → expected undefined to be truthy
+   × AT-4: saving an empty groupsStore writes an empty groups array > groupsStore === [] produces { schemaVersion: 1, groups: [] } 16ms
+     → expected undefined to be truthy
+   × AT-5: the hidden JSON file input exists and the Load button triggers it > there is a single <input type="file" accept=".json"> in the DOM 16ms
+     → expected 0 to be greater than or equal to 1
+   × AT-5: the hidden JSON file input exists and the Load button triggers it > clicking the Load groups (JSON) button calls click() on the hidden file input 17ms
+     → expected null to be truthy
+   × AT-6: loadGroupsJSON with schemaVersion:1 returns a valid groups array > happy path: parses the documented schema and returns groups[] 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-6: loadGroupsJSON with schemaVersion:1 returns a valid groups array > wholesale replace: confirmLoadGroupsReplacement on a trivial store writes the new groups verbatim 19ms
+     → expected [ Object{ name: 'All', …(3) } ] to have a length of 2 but got 1
+   × AT-7: a schemaVersion > 1 file is rejected > loadGroupsJSON returns { ok:false, error contains "newer version" } 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-7: a schemaVersion > 1 file is rejected > groupsStore is unchanged when a v2 file is processed by the full handler-equivalent flow 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-8: a file without schemaVersion loads as schemaVersion 1 > missing schemaVersion → ok:true with the documented fields parsed 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-9: malformed JSON surfaces a parse error > a file with invalid JSON returns ok:false with a parse-error string 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-10: top-level shape that is not an object with "groups" array is rejected > an array at the top level returns ok:false with a shape error 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-10: top-level shape that is not an object with "groups" array is rejected > a string at the top level returns ok:false (negative: bare-string is not an object) 14ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-10: top-level shape that is not an object with "groups" array is rejected > a number at the top level returns ok:false (negative) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-11: non-trivial groupsStore interposes the confirmation modal > confirmLoadGroupsReplacement opens #groups-load-confirm-overlay when groupsStore is non-trivial 31ms
+     → expected null to be truthy
+   × AT-11: non-trivial groupsStore interposes the confirmation modal > groupsStore is not yet replaced while the modal is open 16ms
+     → expected null to be truthy
+   × AT-12: trivial groupsStore skips the confirmation modal > a single auto-default `All` Group → no modal, replace is immediate 17ms
+     → expected 'All' to be 'NewG' // Object.is equality
+   × AT-12: trivial groupsStore skips the confirmation modal > an empty groupsStore also skips the modal (negative: nothing to confirm) 16ms
+     → expected [] to have a length of 1 but got +0
+   × AT-13: cancelling the confirmation modal aborts the load > clicking the modal Cancel button leaves groupsStore unchanged 17ms
+     → expected null to be truthy
+   × AT-14: confirming the modal performs the wholesale replace > clicking the Replace button writes the loaded groups to groupsStore 16ms
+     → expected null to be truthy
+   × AT-15: a JSON null in members deserialises to the (Blank) sentinel > members ["Must", null, "Should"] preserves null in the returned groups 14ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-16: loaded members referencing absent Categories are preserved verbatim > a Group whose members reference a CSV-absent Category loads cleanly and silently matches zero at Run 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-17: unknown fields inside a Group entry are silently ignored > a Group with an extra futureField parses with only the four documented fields surviving 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-18: loaded Groups commit immediately but chart waits for Run > confirmLoadGroupsReplacement does not change chartInstance (no Run fired) 15ms
+     → expected [] to have a length of 1 but got +0
+   × AT-19: a loaded Group flagged isProjection becomes the Projection group > after replace, exactly one Group has isProjection===true and it is the loaded one 16ms
+     → expected 'OldProj' to be 'NewProj' // Object.is equality
+   × AT-20: two consecutive loads are each wholesale-replace > second load wins; first load is gone 15ms
+     → expected [] to deeply equal [ 'A1' ]
+   × AT-21: Save works even when groupsStore is empty > saveGroupsJSON on empty store writes { groups: [] } without error 15ms
+     → "undefined" is not valid JSON
+   × AT-22: Load is reachable before any Initiatives CSV has been loaded > loadGroupsJSON returns ok:true with no CSV loaded and no editedInitiatives 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-23: a file with no `groups` field is rejected > { schemaVersion:1 } returns ok:false and the error mentions "groups" 14ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-24: a Group with members of the wrong type is rejected > members: "not an array" returns ok:false 14ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-24: a Group with members of the wrong type is rejected > members: 42 also returns ok:false (negative: number is not array) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-25: a file with multiple isProjection:true normalises to exactly one > three groups all flagged true → first survives, rest demoted 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-26: a file with zero isProjection:true normalises to first-by-default > three groups all flagged false → first promoted to true 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-27: a file with empty groups array empties the store > loading { groups: [] } and confirming sets groupsStore = [] 14ms
+     → Cannot read properties of undefined (reading 'ok')
+   × AT-28: save-then-load round-trip preserves groupsStore semantically > mixed members (strings + BLANK) and varied colors / projection flag survive round-trip 14ms
+     → expected undefined to be truthy
+   × AT-29: a successful load clears any pre-existing inline error > after a parse error followed by a success, #groups-load-error is hidden 15ms
+     → expected null to be truthy
+   × AT-30: Save and Load actions never trigger a Run > saveGroupsJSON does not invoke runSimulation, and the save still happens 15ms
+     → expected undefined to be truthy
+   × AT-30: Save and Load actions never trigger a Run > confirmLoadGroupsReplacement does not invoke runSimulation, and the replace still happens 15ms
+     → expected [] to have a length of 1 but got +0
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 41 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-1: Groups tab toolbar has Save and Load JSON buttons > two buttons mount inside #tab-groups labelled with Save groups (JSON) and Load groups (JSON)
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:96:21
+     94|     const saveBtn = findToolbarBtn(win, 'Save groups (JSON)');
+     95|     const loadBtn = findToolbarBtn(win, 'Load groups (JSON)');
+     96|     expect(saveBtn).toBeTruthy();
+       |                     ^
+     97|     expect(loadBtn).toBeTruthy();
+     98|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-2: saveGroupsJSON serialises the documented schema > happy path: two Groups serialise as { schemaVersion: 1, groups: [...] } with the documented fields
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:112:18
+    110| 
+    111|     const text = captureSaveText(win);
+    112|     expect(text).toBeTruthy();
+       |                  ^
+    113|     const parsed = JSON.parse(text);
+    114|     expect(parsed.schemaVersion).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-2: saveGroupsJSON serialises the documented schema > serialised text uses two-space indentation from JSON.stringify(..., null, 2)
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:131:18
+    129|     const text = captureSaveText(win);
+    130|     // Two-space indent puts top-level keys on indented lines.
+    131|     expect(text).toMatch(/\n  "schemaVersion"/);
+       |                  ^
+    132|     expect(text).toMatch(/\n  "groups"/);
+    133|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-2: saveGroupsJSON serialises the documented schema > the download anchor element targets the filename groups.json (property-style: matches across runs)
+AssertionError: expected undefined to be 'groups.json' // Object.is equality
+
+- Expected: 
+"groups.json"
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:166:26
+    164|       return _name;
+    165|     `);
+    166|     expect(downloadName).toBe('groups.json');
+       |                          ^
+    167|   });
+    168| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-3: the (Blank) sentinel survives save as the JSON null literal > a member equal to null parses back to null (not "null" or "(Blank)")
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:178:18
+    176| 
+    177|     const text = captureSaveText(win);
+    178|     expect(text).toBeTruthy();
+       |                  ^
+    179|     const parsed = JSON.parse(text);
+    180|     expect(parsed.groups[0].members).toEqual([null]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-4: saving an empty groupsStore writes an empty groups array > groupsStore === [] produces { schemaVersion: 1, groups: [] }
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:196:18
+    194| 
+    195|     const text = captureSaveText(win);
+    196|     expect(text).toBeTruthy();
+       |                  ^
+    197|     const parsed = JSON.parse(text);
+    198|     expect(parsed).toEqual({ schemaVersion: 1, groups: [] });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-5: the hidden JSON file input exists and the Load button triggers it > there is a single <input type="file" accept=".json"> in the DOM
+AssertionError: expected 0 to be greater than or equal to 1
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:207:27
+    205|     const win = loadSimulator();
+    206|     const inputs = win.document.querySelectorAll('input[type="file"][a…
+    207|     expect(inputs.length).toBeGreaterThanOrEqual(1);
+       |                           ^
+    208|   });
+    209| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-5: the hidden JSON file input exists and the Load button triggers it > clicking the Load groups (JSON) button calls click() on the hidden file input
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:216:19
+    214| 
+    215|     const input = win.document.querySelector('input[type="file"][accep…
+    216|     expect(input).toBeTruthy();
+       |                   ^
+    217|     let clicks = 0;
+    218|     input.click = function () { clicks++; };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-6: loadGroupsJSON with schemaVersion:1 returns a valid groups array > happy path: parses the documented schema and returns groups[]
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:239:19
+    237|     });
+    238|     const result = loadResult(win, fileText);
+    239|     expect(result.ok).toBe(true);
+       |                   ^
+    240|     expect(result.groups).toHaveLength(2);
+    241|     expect(result.groups[0]).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-6: loadGroupsJSON with schemaVersion:1 returns a valid groups array > wholesale replace: confirmLoadGroupsReplacement on a trivial store writes the new groups verbatim
+AssertionError: expected [ Object{ name: 'All', …(3) } ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:261:20
+    259|     ]);`);
+    260|     const groups = read(win, 'groupsStore');
+    261|     expect(groups).toHaveLength(2);
+       |                    ^
+    262|     expect(groups[0].name).toBe('NewA');
+    263|     expect(groups.find(g => g.name === 'All')).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-7: a schemaVersion > 1 file is rejected > loadGroupsJSON returns { ok:false, error contains "newer version" }
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:272:19
+    270|     const win = loadSimulator();
+    271|     const result = loadResult(win, JSON.stringify({ schemaVersion: 2, …
+    272|     expect(result.ok).toBe(false);
+       |                   ^
+    273|     expect(String(result.error)).toMatch(/newer version/i);
+    274|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-7: a schemaVersion > 1 file is rejected > groupsStore is unchanged when a v2 file is processed by the full handler-equivalent flow
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:285:19
+    283| 
+    284|     const result = loadResult(win, JSON.stringify({ schemaVersion: 2, …
+    285|     expect(result.ok).toBe(false);
+       |                   ^
+    286| 
+    287|     // Even if a caller mistakenly invoked confirmLoadGroupsReplacemen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-8: a file without schemaVersion loads as schemaVersion 1 > missing schemaVersion → ok:true with the documented fields parsed
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:302:19
+    300|     });
+    301|     const result = loadResult(win, text);
+    302|     expect(result.ok).toBe(true);
+       |                   ^
+    303|     expect(result.groups).toHaveLength(1);
+    304|     expect(result.groups[0]).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-9: malformed JSON surfaces a parse error > a file with invalid JSON returns ok:false with a parse-error string
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:315:19
+    313|     const win = loadSimulator();
+    314|     const result = loadResult(win, '{ "schemaVersion": 1, "groups": [u…
+    315|     expect(result.ok).toBe(false);
+       |                   ^
+    316|     expect(result.error).toBeTruthy();
+    317|     // The error must look like a parse error (SyntaxError text from J…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-10: top-level shape that is not an object with "groups" array is rejected > an array at the top level returns ok:false with a shape error
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:327:19
+    325|     const win = loadSimulator();
+    326|     const result = loadResult(win, JSON.stringify([1, 2, 3]));
+    327|     expect(result.ok).toBe(false);
+       |                   ^
+    328|     expect(result.error).toBeTruthy();
+    329|     expect(String(result.error)).toMatch(/groups/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-10: top-level shape that is not an object with "groups" array is rejected > a string at the top level returns ok:false (negative: bare-string is not an object)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:335:19
+    333|     const win = loadSimulator();
+    334|     const result = loadResult(win, JSON.stringify('hello'));
+    335|     expect(result.ok).toBe(false);
+       |                   ^
+    336|   });
+    337| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-10: top-level shape that is not an object with "groups" array is rejected > a number at the top level returns ok:false (negative)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:341:19
+    339|     const win = loadSimulator();
+    340|     const result = loadResult(win, JSON.stringify(42));
+    341|     expect(result.ok).toBe(false);
+       |                   ^
+    342|   });
+    343| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-11: non-trivial groupsStore interposes the confirmation modal > confirmLoadGroupsReplacement opens #groups-load-confirm-overlay when groupsStore is non-trivial
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:361:21
+    359| 
+    360|     const overlay = win.document.getElementById('groups-load-confirm-o…
+    361|     expect(overlay).toBeTruthy();
+       |                     ^
+    362|     // The overlay must be visible (not display:none).
+    363|     expect(overlay.style.display).not.toBe('none');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-11: non-trivial groupsStore interposes the confirmation modal > groupsStore is not yet replaced while the modal is open
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:383:21
+    381|     // modal pathway is engaged.
+    382|     const overlay = win.document.getElementById('groups-load-confirm-o…
+    383|     expect(overlay).toBeTruthy();
+       |                     ^
+    384|     expect(overlay.style.display).not.toBe('none');
+    385| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-12: trivial groupsStore skips the confirmation modal > a single auto-default `All` Group → no modal, replace is immediate
+AssertionError: expected 'All' to be 'NewG' // Object.is equality
+
+Expected: "NewG"
+Received: "All"
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:410:28
+    408|     const groups = read(win, 'groupsStore');
+    409|     expect(groups).toHaveLength(1);
+    410|     expect(groups[0].name).toBe('NewG');
+       |                            ^
+    411|   });
+    412| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-12: trivial groupsStore skips the confirmation modal > an empty groupsStore also skips the modal (negative: nothing to confirm)
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:425:20
+    423|     if (overlay) expect(overlay.style.display).toBe('none');
+    424|     const groups = read(win, 'groupsStore');
+    425|     expect(groups).toHaveLength(1);
+       |                    ^
+    426|     expect(groups[0].name).toBe('NewG');
+    427|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-13: cancelling the confirmation modal aborts the load > clicking the modal Cancel button leaves groupsStore unchanged
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:445:21
+    443| 
+    444|     const overlay = win.document.getElementById('groups-load-confirm-o…
+    445|     expect(overlay).toBeTruthy();
+       |                     ^
+    446|     // Find the Cancel button inside the overlay.
+    447|     const cancelBtn = Array.from(overlay.querySelectorAll('button'))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-14: confirming the modal performs the wholesale replace > clicking the Replace button writes the loaded groups to groupsStore
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:474:21
+    472| 
+    473|     const overlay = win.document.getElementById('groups-load-confirm-o…
+    474|     expect(overlay).toBeTruthy();
+       |                     ^
+    475|     const replaceBtn = Array.from(overlay.querySelectorAll('button'))
+    476|       .find(b => /replace/i.test(b.textContent));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-15: a JSON null in members deserialises to the (Blank) sentinel > members ["Must", null, "Should"] preserves null in the returned groups
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:501:19
+    499|     });
+    500|     const result = loadResult(win, text);
+    501|     expect(result.ok).toBe(true);
+       |                   ^
+    502|     expect(result.groups[0].members).toEqual(['Must', null, 'Should']);
+    503|     // null at index 1, not the string "(Blank)" or "null".
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-16: loaded members referencing absent Categories are preserved verbatim > a Group whose members reference a CSV-absent Category loads cleanly and silently matches zero at Run
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:526:19
+    524|       }],
+    525|     }));
+    526|     expect(result.ok).toBe(true);
+       |                   ^
+    527|     expect(result.groups[0].members).toEqual(['Must']);
+    528|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-17: unknown fields inside a Group entry are silently ignored > a Group with an extra futureField parses with only the four documented fields surviving
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:546:19
+    544|     });
+    545|     const result = loadResult(win, text);
+    546|     expect(result.ok).toBe(true);
+       |                   ^
+    547|     expect(result.groups[0]).toMatchObject({
+    548|       name: 'A', color: '#000', members: [], isProjection: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-18: loaded Groups commit immediately but chart waits for Run > confirmLoadGroupsReplacement does not change chartInstance (no Run fired)
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:569:38
+    567|     // invariant ("no Run") is vacuously true — strengthen by assertin…
+    568|     // replace happened first.
+    569|     expect(read(win, 'groupsStore')).toHaveLength(1);
+       |                                      ^
+    570|     expect(read(win, 'groupsStore')[0].name).toBe('X');
+    571| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-19: a loaded Group flagged isProjection becomes the Projection group > after replace, exactly one Group has isProjection===true and it is the loaded one
+AssertionError: expected 'OldProj' to be 'NewProj' // Object.is equality
+
+Expected: "NewProj"
+Received: "OldProj"
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:594:29
+    592|     const flagged = groups.filter(g => g.isProjection);
+    593|     expect(flagged).toHaveLength(1);
+    594|     expect(flagged[0].name).toBe('NewProj');
+       |                             ^
+    595|   });
+    596| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-20: two consecutive loads are each wholesale-replace > second load wins; first load is gone
+AssertionError: expected [] to deeply equal [ 'A1' ]
+
+- Expected
++ Received
+
+- Array [
+-   "A1",
+- ]
++ Array []
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:607:55
+    605|       { name: 'A1', color: '#000', members: ['Must'], isProjection: tr…
+    606|     ]);`);
+    607|     expect(read(win, 'groupsStore').map(g => g.name)).toEqual(['A1']);
+       |                                                       ^
+    608| 
+    609|     execIn(win, `confirmLoadGroupsReplacement([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-21: Save works even when groupsStore is empty > saveGroupsJSON on empty store writes { groups: [] } without error
+SyntaxError: "undefined" is not valid JSON
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:625:25
+    623| 
+    624|     const text = captureSaveText(win);
+    625|     const parsed = JSON.parse(text);
+       |                         ^
+    626|     expect(parsed.groups).toEqual([]);
+    627|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-22: Load is reachable before any Initiatives CSV has been loaded > loadGroupsJSON returns ok:true with no CSV loaded and no editedInitiatives
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:642:19
+    640|       ],
+    641|     }));
+    642|     expect(result.ok).toBe(true);
+       |                   ^
+    643|     expect(result.groups[0].name).toBe('PreCsv');
+    644|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-23: a file with no `groups` field is rejected > { schemaVersion:1 } returns ok:false and the error mentions "groups"
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:652:19
+    650|     const win = loadSimulator();
+    651|     const result = loadResult(win, JSON.stringify({ schemaVersion: 1 }…
+    652|     expect(result.ok).toBe(false);
+       |                   ^
+    653|     expect(String(result.error)).toMatch(/groups/i);
+    654|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-24: a Group with members of the wrong type is rejected > members: "not an array" returns ok:false
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:667:19
+    665|       ],
+    666|     }));
+    667|     expect(result.ok).toBe(false);
+       |                   ^
+    668|     expect(result.error).toBeTruthy();
+    669|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-24: a Group with members of the wrong type is rejected > members: 42 also returns ok:false (negative: number is not array)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:679:19
+    677|       ],
+    678|     }));
+    679|     expect(result.ok).toBe(false);
+       |                   ^
+    680|   });
+    681| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-25: a file with multiple isProjection:true normalises to exactly one > three groups all flagged true → first survives, rest demoted
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:695:19
+    693|       ],
+    694|     }));
+    695|     expect(result.ok).toBe(true);
+       |                   ^
+    696|     expect(result.groups.map(g => g.isProjection)).toEqual([true, fals…
+    697|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-26: a file with zero isProjection:true normalises to first-by-default > three groups all flagged false → first promoted to true
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:712:19
+    710|       ],
+    711|     }));
+    712|     expect(result.ok).toBe(true);
+       |                   ^
+    713|     expect(result.groups.map(g => g.isProjection)).toEqual([true, fals…
+    714|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-27: a file with empty groups array empties the store > loading { groups: [] } and confirming sets groupsStore = []
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:726:19
+    724| 
+    725|     const result = loadResult(win, JSON.stringify({ schemaVersion: 1, …
+    726|     expect(result.ok).toBe(true);
+       |                   ^
+    727|     expect(result.groups).toEqual([]);
+    728| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-28: save-then-load round-trip preserves groupsStore semantically > mixed members (strings + BLANK) and varied colors / projection flag survive round-trip
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:747:18
+    745| 
+    746|     const text = captureSaveText(win);
+    747|     expect(text).toBeTruthy();
+       |                  ^
+    748| 
+    749|     // Reset state and load.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-29: a successful load clears any pre-existing inline error > after a parse error followed by a success, #groups-load-error is hidden
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:773:19
+    771|     // Confirm setup worked.
+    772|     const errEl = win.document.getElementById('groups-load-error');
+    773|     expect(errEl).toBeTruthy();
+       |                   ^
+    774|     expect(errEl.style.display).not.toBe('none');
+    775| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-30: Save and Load actions never trigger a Run > saveGroupsJSON does not invoke runSimulation, and the save still happens
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:806:18
+    804|     // Without this, the negative invariant is vacuous when saveGroups…
+    805|     // doesn't exist.
+    806|     expect(text).toBeTruthy();
+       |                  ^
+    807|     expect(spy.get()).toBe(0);
+    808|     spy.restore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/41]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence.test.js > AT-30: Save and Load actions never trigger a Run > confirmLoadGroupsReplacement does not invoke runSimulation, and the replace still happens
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-3-json-persistence.test.js:826:38
+    824|     ]);`);
+    825|     // Positive precondition: the replace happened.
+    826|     expect(read(win, 'groupsStore')).toHaveLength(1);
+       |                                      ^
+    827|     expect(spy.get()).toBe(0);
+    828|     spy.restore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/41]⎯
+
+ Test Files  1 failed (1)
+      Tests  41 failed (41)
+   Start at  07:39:43
+   Duration  1.38s (transform 20ms, setup 0ms, collect 342ms, tests 754ms, environment 0ms, prepare 52ms)
+

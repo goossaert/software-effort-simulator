@@ -1,0 +1,408 @@
+command: npx vitest run tests/acceptance/phase-3-json-persistence-inner.test.js
+run_at: 2026-05-27T05:40:11Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js (28 tests | 28 failed) 539ms
+   × inner: schemaVersion policy > happy: schemaVersion exactly 1 is accepted 84ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: schemaVersion policy > boundary: missing schemaVersion is treated as 1 (per ADR-0030 read-permissive within major) 26ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: schemaVersion policy > negative: schemaVersion 2 is rejected with a "newer version" error 25ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: schemaVersion policy > negative: schemaVersion as the string "1" is rejected (counterexample in plan) 18ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: schemaVersion policy > property: every schemaVersion > 1 is rejected (sample over [2, 3, 10, 999]) 21ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > happy: { schemaVersion: 1, groups: [...] } parses 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > negative: top-level array is rejected 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > negative: top-level null is rejected 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > negative: object missing groups field is rejected with "groups" in the message 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > negative: groups as an object (not array) is rejected 18ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: top-level wrapper shape > boundary: groups: [] is accepted and produces groups: [] 18ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: per-Group field-shape validation > happy: name:string, color:string, members:array, isProjection:bool all pass 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: per-Group field-shape validation > negative: members as a string is rejected (counterexample AT-24) 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: per-Group field-shape validation > negative: members as an object is rejected 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: per-Group field-shape validation > boundary: members as an empty array is allowed (zero-member Groups are lenient per ADR-0029) 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: per-Group field-shape validation > boundary: members containing both strings and null is allowed (mixed-content invariant) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > happy: exactly one isProjection:true is preserved as-is 16ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > boundary: multiple isProjection:true → only first survives (first-wins) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > boundary: zero isProjection:true → first promoted (first-by-default) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > boundary: a single Group with isProjection:false is promoted to true 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > boundary: zero Groups → no normalisation needed (invariant vacuously holds) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: isProjection invariant normalisation > property: returned groups always have exactly-one or zero isProjection:true (over sample variations) 17ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: unknown fields on a Group are silently dropped (forward-compat) > happy: a known-only Group passes through with its four documented fields 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: unknown fields on a Group are silently dropped (forward-compat) > boundary: a Group with one extra field still parses cleanly; the field is dropped 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: unknown fields on a Group are silently dropped (forward-compat) > boundary: a Group with several extra fields still parses (multiple unknowns ignored together) 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: malformed JSON returns a parse error > boundary: empty string is rejected 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: malformed JSON returns a parse error > negative: truncated JSON is rejected 15ms
+     → Cannot read properties of undefined (reading 'ok')
+   × inner: malformed JSON returns a parse error > property: every input that fails JSON.parse returns ok:false (no throw escapes) 14ms
+     → Cannot read properties of undefined (reading 'ok')
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 28 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: schemaVersion policy > happy: schemaVersion exactly 1 is accepted
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:39:51
+     37|   it('happy: schemaVersion exactly 1 is accepted', () => {
+     38|     const win = loadSimulator();
+     39|     expect(loadResult(win, wrap([VALID_GROUP], 1)).ok).toBe(true);
+       |                                                   ^
+     40|   });
+     41| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: schemaVersion policy > boundary: missing schemaVersion is treated as 1 (per ADR-0030 read-permissive within major)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:45:19
+     43|     const win = loadSimulator();
+     44|     const result = loadResult(win, { groups: [VALID_GROUP] });
+     45|     expect(result.ok).toBe(true);
+       |                   ^
+     46|   });
+     47| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: schemaVersion policy > negative: schemaVersion 2 is rejected with a "newer version" error
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:51:19
+     49|     const win = loadSimulator();
+     50|     const result = loadResult(win, wrap([VALID_GROUP], 2));
+     51|     expect(result.ok).toBe(false);
+       |                   ^
+     52|     expect(String(result.error)).toMatch(/newer version/i);
+     53|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: schemaVersion policy > negative: schemaVersion as the string "1" is rejected (counterexample in plan)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:58:19
+     56|     const win = loadSimulator();
+     57|     const result = loadResult(win, wrap([VALID_GROUP], '1'));
+     58|     expect(result.ok).toBe(false);
+       |                   ^
+     59|   });
+     60| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: schemaVersion policy > property: every schemaVersion > 1 is rejected (sample over [2, 3, 10, 999])
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:65:21
+     63|     for (const v of [2, 3, 10, 999]) {
+     64|       const result = loadResult(win, wrap([VALID_GROUP], v));
+     65|       expect(result.ok, `schemaVersion=${v} should reject`).toBe(false…
+       |                     ^
+     66|     }
+     67|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > happy: { schemaVersion: 1, groups: [...] } parses
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:74:48
+     72|   it('happy: { schemaVersion: 1, groups: [...] } parses', () => {
+     73|     const win = loadSimulator();
+     74|     expect(loadResult(win, wrap([VALID_GROUP])).ok).toBe(true);
+       |                                                ^
+     75|   });
+     76| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > negative: top-level array is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:79:42
+     77|   it('negative: top-level array is rejected', () => {
+     78|     const win = loadSimulator();
+     79|     expect(loadResult(win, [VALID_GROUP]).ok).toBe(false);
+       |                                          ^
+     80|   });
+     81| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > negative: top-level null is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:84:35
+     82|   it('negative: top-level null is rejected', () => {
+     83|     const win = loadSimulator();
+     84|     expect(loadResult(win, 'null').ok).toBe(false);
+       |                                   ^
+     85|   });
+     86| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > negative: object missing groups field is rejected with "groups" in the message
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:90:19
+     88|     const win = loadSimulator();
+     89|     const result = loadResult(win, { schemaVersion: 1 });
+     90|     expect(result.ok).toBe(false);
+       |                   ^
+     91|     expect(String(result.error)).toMatch(/groups/i);
+     92|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > negative: groups as an object (not array) is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:96:73
+     94|   it('negative: groups as an object (not array) is rejected', () => {
+     95|     const win = loadSimulator();
+     96|     expect(loadResult(win, { schemaVersion: 1, groups: { foo: 'bar' } …
+       |                                                                         ^
+     97|   });
+     98| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: top-level wrapper shape > boundary: groups: [] is accepted and produces groups: []
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:102:19
+    100|     const win = loadSimulator();
+    101|     const result = loadResult(win, wrap([]));
+    102|     expect(result.ok).toBe(true);
+       |                   ^
+    103|     expect(result.groups).toEqual([]);
+    104|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: per-Group field-shape validation > happy: name:string, color:string, members:array, isProjection:bool all pass
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:114:19
+    112|       { name: 'G', color: '#abcdef', members: ['Must', null], isProjec…
+    113|     ]));
+    114|     expect(result.ok).toBe(true);
+       |                   ^
+    115|   });
+    116| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: per-Group field-shape validation > negative: members as a string is rejected (counterexample AT-24)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:119:80
+    117|   it('negative: members as a string is rejected (counterexample AT-24)…
+    118|     const win = loadSimulator();
+    119|     expect(loadResult(win, wrap([{ ...VALID_GROUP, members: 'not an ar…
+       |                                                                                ^
+    120|   });
+    121| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: per-Group field-shape validation > negative: members as an object is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:124:74
+    122|   it('negative: members as an object is rejected', () => {
+    123|     const win = loadSimulator();
+    124|     expect(loadResult(win, wrap([{ ...VALID_GROUP, members: { x: 1 } }…
+       |                                                                          ^
+    125|   });
+    126| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: per-Group field-shape validation > boundary: members as an empty array is allowed (zero-member Groups are lenient per ADR-0029)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:130:19
+    128|     const win = loadSimulator();
+    129|     const result = loadResult(win, wrap([{ ...VALID_GROUP, members: []…
+    130|     expect(result.ok).toBe(true);
+       |                   ^
+    131|     expect(result.groups[0].members).toEqual([]);
+    132|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: per-Group field-shape validation > boundary: members containing both strings and null is allowed (mixed-content invariant)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:139:19
+    137|       { ...VALID_GROUP, members: ['Must', null, 'Should', null, '📊 Ana…
+    138|     ]));
+    139|     expect(result.ok).toBe(true);
+       |                   ^
+    140|     expect(result.groups[0].members).toEqual(['Must', null, 'Should', …
+    141|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > happy: exactly one isProjection:true is preserved as-is
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:153:19
+    151|       { name: 'C', color: '#222', members: [], isProjection: false },
+    152|     ]));
+    153|     expect(result.ok).toBe(true);
+       |                   ^
+    154|     expect(result.groups.map(g => g.isProjection)).toEqual([false, tru…
+    155|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > boundary: multiple isProjection:true → only first survives (first-wins)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:164:19
+    162|       { name: 'C', color: '#222', members: [], isProjection: false },
+    163|     ]));
+    164|     expect(result.ok).toBe(true);
+       |                   ^
+    165|     expect(result.groups.map(g => g.isProjection)).toEqual([true, fals…
+    166|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > boundary: zero isProjection:true → first promoted (first-by-default)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:174:19
+    172|       { name: 'B', color: '#111', members: [], isProjection: false },
+    173|     ]));
+    174|     expect(result.ok).toBe(true);
+       |                   ^
+    175|     expect(result.groups.map(g => g.isProjection)).toEqual([true, fals…
+    176|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > boundary: a single Group with isProjection:false is promoted to true
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:183:19
+    181|       { name: 'Only', color: '#000', members: [], isProjection: false …
+    182|     ]));
+    183|     expect(result.ok).toBe(true);
+       |                   ^
+    184|     expect(result.groups[0].isProjection).toBe(true);
+    185|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > boundary: zero Groups → no normalisation needed (invariant vacuously holds)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:190:19
+    188|     const win = loadSimulator();
+    189|     const result = loadResult(win, wrap([]));
+    190|     expect(result.ok).toBe(true);
+       |                   ^
+    191|     expect(result.groups).toEqual([]);
+    192|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: isProjection invariant normalisation > property: returned groups always have exactly-one or zero isProjection:true (over sample variations)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:206:21
+    204|       const full = groups.map(g => ({ color: '#000', members: [], ...g…
+    205|       const result = loadResult(win, wrap(full));
+    206|       expect(result.ok, `variation=${JSON.stringify(groups)}`).toBe(tr…
+       |                     ^
+    207|       const flagged = result.groups.filter(g => g.isProjection);
+    208|       expect(flagged.length, `variation=${JSON.stringify(groups)}`).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: unknown fields on a Group are silently dropped (forward-compat) > happy: a known-only Group passes through with its four documented fields
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:224:19
+    222|     const win = loadSimulator();
+    223|     const result = loadResult(win, wrap([VALID_GROUP]));
+    224|     expect(result.ok).toBe(true);
+       |                   ^
+    225|     expect(Object.keys(result.groups[0]).sort()).toEqual(
+    226|       ['color', 'isProjection', 'members', 'name'].sort()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: unknown fields on a Group are silently dropped (forward-compat) > boundary: a Group with one extra field still parses cleanly; the field is dropped
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:235:19
+    233|       { ...VALID_GROUP, futureField: 'something' },
+    234|     ]));
+    235|     expect(result.ok).toBe(true);
+       |                   ^
+    236|     expect(result.groups[0].futureField).toBeUndefined();
+    237|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: unknown fields on a Group are silently dropped (forward-compat) > boundary: a Group with several extra fields still parses (multiple unknowns ignored together)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:244:19
+    242|       { ...VALID_GROUP, foo: 1, bar: 'b', baz: { nested: true } },
+    243|     ]));
+    244|     expect(result.ok).toBe(true);
+       |                   ^
+    245|     expect(result.groups[0].foo).toBeUndefined();
+    246|     expect(result.groups[0].bar).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: malformed JSON returns a parse error > boundary: empty string is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:255:31
+    253|   it('boundary: empty string is rejected', () => {
+    254|     const win = loadSimulator();
+    255|     expect(loadResult(win, '').ok).toBe(false);
+       |                               ^
+    256|   });
+    257| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: malformed JSON returns a parse error > negative: truncated JSON is rejected
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:260:64
+    258|   it('negative: truncated JSON is rejected', () => {
+    259|     const win = loadSimulator();
+    260|     expect(loadResult(win, '{ "schemaVersion": 1, "groups": [').ok).to…
+       |                                                                ^
+    261|   });
+    262| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯
+
+ FAIL  tests/acceptance/phase-3-json-persistence-inner.test.js > inner: malformed JSON returns a parse error > property: every input that fails JSON.parse returns ok:false (no throw escapes)
+TypeError: Cannot read properties of undefined (reading 'ok')
+ ❯ tests/acceptance/phase-3-json-persistence-inner.test.js:274:21
+    272|     for (const s of samples) {
+    273|       const result = loadResult(win, s);
+    274|       expect(result.ok, `sample=${JSON.stringify(s)}`).toBe(false);
+       |                     ^
+    275|       expect(result.error, `sample=${JSON.stringify(s)}`).toBeTruthy();
+    276|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/28]⎯
+
+ Test Files  1 failed (1)
+      Tests  28 failed (28)
+   Start at  07:40:12
+   Duration  1.12s (transform 15ms, setup 0ms, collect 306ms, tests 539ms, environment 0ms, prepare 60ms)
+
