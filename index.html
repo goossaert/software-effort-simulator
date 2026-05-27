@@ -4011,7 +4011,10 @@ function confirmLoadGroupsReplacement(loadedGroups) {
   const errEl = document.getElementById('groups-load-error');
   if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
 
-  if (groupsStore.length <= 1) {
+  const trivial =
+    groupsStore.length === 0
+    || (groupsStore.length === 1 && groupsStore[0].name === 'All');
+  if (trivial) {
     _applyGroupsReplacement(loadedGroups);
     return;
   }
