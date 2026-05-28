@@ -2442,7 +2442,10 @@ function renderChartOnCanvas(canvasId, simResults, capacity, contextKey) {
     },
   };
 
-  // One dataset per Group — ADR-0029. Order preserves groupsStore order.
+  // One dataset per Group — ADR-0029. The `order` field puts groupsStore[0]
+  // on top of the overlap stack (drawn last); `legend.reverse: true` below
+  // un-reverses the legend so its left-to-right order matches the stats-table
+  // column order (CONTEXT.md "Group order", ADR-0032).
   const datasets = groupResults.map((r, idx) => ({
     label: r.name,
     data:  r.hist.counts,
@@ -2469,6 +2472,7 @@ function renderChartOnCanvas(canvasId, simResults, capacity, contextKey) {
       plugins: {
         legend: {
           position: 'top',
+          reverse: true,
           labels: { usePointStyle: true, pointStyle: 'rect', padding: 10, font: { size: 12 } },
         },
         tooltip: {
