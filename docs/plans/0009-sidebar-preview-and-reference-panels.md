@@ -35,7 +35,7 @@ When the preview is fully populated, the **Data preview** block shows a two-colu
 
 ```
 Hist. quarter              Q2 2026
-Initiatives (hist.)        37
+Initiatives used (hist.)        37
 Poisson λ                  4.32
 Epic samples               160
                            XS×12  S×38  M×62  L×34  XL×11  XL+×3
@@ -77,7 +77,7 @@ Target MoSCoW breakdown:
 
 `Detected columns` is the live `detectedCols` object written by the **Column detectors** ([feature 0002](./0002-content-based-column-detection.md)); `Target MoSCoW breakdown` is the `moscowGroups` field of the same `preview` payload the grid above renders. Both refresh on every `tryUpdatePreview` call.
 
-There is no user-visible failure path at this layer. A CSV whose key column cannot be detected leaves the **Data preview** block hidden and the **Column-detection debug** panel hidden; pressing **Run** is the surface that will surface the failure (via the existing alert path). A perfectly-detected pair of CSVs with no quarters selected leaves the preview hidden — the user picks quarters to make it appear. Selecting quarters that contain zero in-scope initiatives produces a preview with `Initiatives (hist.) 0`, `Poisson λ 0.00`, `Epic samples 0`, and `— ` in the per-size row — the honest answer to "the selected quarter has no data", not a defect.
+There is no user-visible failure path at this layer. A CSV whose key column cannot be detected leaves the **Data preview** block hidden and the **Column-detection debug** panel hidden; pressing **Run** is the surface that will surface the failure (via the existing alert path). A perfectly-detected pair of CSVs with no quarters selected leaves the preview hidden — the user picks quarters to make it appear. Selecting quarters that contain zero in-scope initiatives produces a preview with `Initiatives used (hist.) 0`, `Poisson λ 0.00`, `Epic samples 0`, and `— ` in the per-size row — the honest answer to "the selected quarter has no data", not a defect.
 
 ## Scope
 
@@ -159,7 +159,7 @@ No persistence layer — this is a client-side-only app (ADR-0002). In-memory st
 // The shape this feature consumes; it does not own the field set.
 const preview = {
   histQuarter:       'Q2 2026',       // String. Comma-joined list of selected historical quarters.
-  histInitCount:     37,              // Integer. Count of historical Initiatives in scope.
+  histInitCount:     37,              // Integer. Size of the Poisson λ denominator — the number of Initiatives the engine actually averages over. Counts both initiatives-CSV rows whose quarter is in scope AND initiative keys discovered only via the standalone-epics path. Equals `countArray.length` inside `prepareSimulationData`.
   lambda:            4.32,            // Float. Poisson λ over historical Initiatives.
   epicSizingCount:   160,             // Integer. Size of the Bootstrap pool.
   sizeDist:          { XS: 12, S: 38, M: 62, L: 34, XL: 11, 'XL+': 3 }, // Per-Recognised-t-shirt-size counts.
@@ -224,7 +224,7 @@ And its `preview` payload is passed to `renderPreview`
 And `#data-preview` becomes visible (`style.display === 'flex'`)
 And `#preview-grid.innerHTML` contains nine grid cells in the documented order:
   - `Hist. quarter` / `Q2 2026`
-  - `Initiatives (hist.)` / `<histInitCount>`
+  - `Initiatives used (hist.)` / `<histInitCount>`
   - `Poisson λ` / `<lambda.toFixed(2)>`
   - `Epic samples` / `<epicSizingCount>`
   - the per-size breakdown row spanning both columns
@@ -264,7 +264,7 @@ Then `ms-change` fires on `#target-ms`
 And `tryUpdatePreview` re-runs the fit with the new selection
 And the `Target quarter` cell now shows `Q4 2026`
 And the three `K` cells reflect the new target quarter's **MoSCoW** counts
-And the `Hist. quarter`, `Initiatives (hist.)`, `Poisson λ`, `Epic samples`, and per-size row are unchanged
+And the `Hist. quarter`, `Initiatives used (hist.)`, `Poisson λ`, `Epic samples`, and per-size row are unchanged
 
 Scenario AT-10: Re-paint on epics reset
 Given a preview is currently rendered
@@ -341,7 +341,7 @@ Stable seams a future test suite may target:
 - The contract that `renderPreview` is the *only* writer of `#data-preview.style.display` (besides the initial `display: none` in the markup).
 
 Do NOT lock in:
-- The exact label strings (`Hist. quarter`, `Initiatives (hist.)`, `Poisson λ`, `Epic samples`, `Target quarter`, `Must + Should (K)`, `Must only (K)`, `Must+Should+Could (K)`). They are human-readable and may be re-worded. The *fact* that there are nine cells in the documented order is the contract.
+- The exact label strings (`Hist. quarter`, `Initiatives used (hist.)`, `Poisson λ`, `Epic samples`, `Target quarter`, `Must + Should (K)`, `Must only (K)`, `Must+Should+Could (K)`). They are human-readable and may be re-worded. The *fact* that there are nine cells in the documented order is the contract.
 - The `toFixed(2)` precision on `lambda` — a future revision could lift it to three decimals if real fits warrant. The contract is "a fixed precision, not raw float".
 - The two-space separator between per-size tokens (`2XS×5  XS×12`) — that is purely visual.
 - The colours (`#94a3b8` for `.pk`, `#a5f3fc` for `.pv`, `#6366f1` for the title and divider, `#252349` for the panel background). They follow the broader sidebar palette; recolouring is a global theme change, not a contract.

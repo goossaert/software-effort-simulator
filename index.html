@@ -1932,7 +1932,7 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   for (const s of epicSizingDist) sizeDist[s] = (sizeDist[s] || 0) + 1;
 
   const preview = {
-    histQuarter: histQuarters.join(', '), histInitCount: histInits.length,
+    histQuarter: histQuarters.join(', '), histInitCount: countArray.length,
     lambda, epicSizingCount: epicSizingDist.length, sizeDist,
     epicCountMin: countArray.length ? Math.min(...countArray) : 0,
     epicCountMax: countArray.length ? Math.max(...countArray) : 0,
@@ -3012,7 +3012,7 @@ function renderPreview(preview) {
 
   document.getElementById('preview-grid').innerHTML = `
     <span class="pk">Hist. quarter</span><span class="pv">${escapeHtml(preview.histQuarter)}</span>
-    <span class="pk">Initiatives (hist.)</span><span class="pv">${preview.histInitCount}</span>
+    <span class="pk">Initiatives used (hist.)</span><span class="pv">${preview.histInitCount}</span>
     <span class="pk">Poisson λ</span><span class="pv">${preview.lambda.toFixed(2)}</span>
     <span class="pk">Epic samples</span><span class="pv">${preview.epicSizingCount}</span>
     <span class="pk" style="grid-column:1/-1;color:#6366f1;font-size:10px;padding-top:2px">${sizeStr || '—'}</span>
