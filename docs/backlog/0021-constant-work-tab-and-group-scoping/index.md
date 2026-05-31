@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 4
+current_phase: 5
 retry_count: 0
 max_retries: 3
-next_handover: handover-14-implement-p4.md
-updated_at: 2026-05-31T22:04:51Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T22:12:07Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -23,6 +23,7 @@ artifacts:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-1-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-2-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-3-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-4-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -193,3 +194,26 @@ bootstrap pool. GREEN confirmed: targeted acceptance 6/6 pass (exit 0); combined
 (183 passed / 1 skipped). No test file edited; the only production change is `index.html`.
 Advanced to **Phase 4 review** (`stage: review`); next handover
 `handover-14-implement-p4.md`.
+
+**Phase 4 review done** (this commit): verdict **PASS**. Independent verification
+(diff `90f41cd..475296a`) confirmed the general Projection-group Category-scoping rule
+(`index.html`-only, confined to `buildTeamProjections`): the new local `scopedCwEpics`
+filters `getConstantWorkEpics(q, teamName)`'s output by the **Projection group**'s
+membership using the **same** `projGroup` / `projLcMembers` / `projHasBlank` sets the
+`kProj` count consumes (trim + case-fold via `normalizeCategory` + the **(Blank)
+sentinel**, ADR-0028) — so the scoping is literally identical to the initiative side.
+Both sinks (the `cwEffort` band floor and the appended constant-work **Initiative
+matrix** rows) are driven off `scopedCwEpics`; the projection `runSimulation` call
+passes the scoped `fixedEffortPerGroup: [cwEffort]` with no scalar `fixedEffort`. The
+degenerate fallback (no Projection group / empty `groupsStore` → `projGroup === null` →
+**all** constant work, not first-Group) is preserved; a zero-member Projection group
+scopes to `0`. All 5 invariants hold; none of the 4 counterexamples is realizable
+(each pinned by a positive+negative assertion pair); no fixture literals / test-keyed
+branches / env checks / `tests/` imports; no test file drifted across
+`test_commit..impl_commit`. Two-branch negative control: disabling scoping
+(`scopedCwEpics = cwEpics`) fails AT-1/AT-2/AT-3/AT-5 (exit 1); dropping the `projGroup`
+guard fails AT-4 (exit 1); both reverted → 6/6 GREEN. Targeted (6 pass), combined with
+`phase-1-engine.test.js` (36 pass, AT-26/AT-27 green), and `npm run verify`
+(183 passed / 1 skipped) all exit 0. Review:
+`docs/reviews/0021-…-phase-4-review-01.md`. Advanced to **Phase 5 atdd**
+(`current_phase: 5`, `retry_count: 0`); next handover `handover-03-plan.md`.
