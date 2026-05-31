@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 2
+current_phase: 3
 retry_count: 0
 max_retries: 3
-next_handover: handover-08-implement-p2.md
-updated_at: 2026-05-31T21:19:00Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T21:26:54Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -21,6 +21,7 @@ artifacts:
   impl_commit: ""
   reviews:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-1-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-2-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -90,3 +91,18 @@ preserves AT-29 fires-once-for-initiatives by only re-deriving on first load or 
 work is present. GREEN confirmed: targeted 47/47 pass (1 skipped sanity-check); `npm run verify`
 exits 0 (172 passed / 1 skipped). No test file edited. Advanced to **Phase 2 review**
 (`stage: review`); next handover `handover-08-implement-p2.md`.
+
+**Phase 2 review done** (this commit): verdict **PASS**. Independent verification
+(diff `59744d9..54563ab`) confirmed the general per-Group rule (`index.html`-only):
+the scalar `fixedEffort` is gone from `runSimulation`'s parameter **and** return;
+`getConstantWorkEffortPerGroup` buckets `editedConstantWork` by Category with
+`bucketRowsByGroups`' exact `trim`+case-fold+BLANK semantics and never feeds
+`kPerGroup`/λ/the bootstrap pool; `globalMin = min(...)` (empty-safe); the auto-default
+`All` unions both sources via the existing `confirmLoadGroupsReplacement` pristine
+heuristic and freezes on user modification (AT-29 fires-once preserved). None of the 7
+counterexamples present; all 7 invariants hold; no test file drifted across
+`test_commit..impl_commit`. Negative control: uniform shift (`shifts[0]`) fails
+AT-5/AT-11; `globalMin`→max fails AT-6 (`[8,3]`); both reverted → GREEN. Targeted
+(47 pass/1 skip) + `npm run verify` (172 pass/1 skip) both exit 0. Review:
+`docs/reviews/0021-…-phase-2-review-01.md`. Advanced to **Phase 3 atdd**
+(`current_phase: 3`, `retry_count: 0`); next handover `handover-03-plan.md`.
