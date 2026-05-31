@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-04-atdd-p1.md
-updated_at: 2026-05-31T20:29:59Z
+next_handover: handover-05-implement-p1.md
+updated_at: 2026-05-31T20:38:35Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -38,8 +38,16 @@ written (commit `e3dc6be`). This task enters the loop at `stage: atdd`, `current
 with `total_phases: 8` set authoritatively from the plan. Authoritative per-phase trail =
 the handover files + git log.
 
-**Phase 1 atdd done** (this commit): authored `tests/acceptance/phase-1-constant-work-substrate.test.js`
+**Phase 1 atdd done**: authored `tests/acceptance/phase-1-constant-work-substrate.test.js`
 (AT-1…AT-9 for the `editedConstantWork` substrate) and migrated `phase-1-engine.test.js`
 AT-21/AT-27 onto `editedConstantWork`. RED gate confirmed (11 failed / 28 passed, exit 1);
-logs under `docs/atdd-logs/0021-…-phase-1-{acceptance,inner}-red.log`. Stage advanced to
-`implement`; next handover `handover-04-atdd-p1.md`.
+logs under `docs/atdd-logs/0021-…-phase-1-{acceptance,inner}-red.log`.
+
+**Phase 1 implement done** (this commit): implemented the `editedConstantWork` substrate
+inline in `index.html` — declared `let editedConstantWork = null;` beside `parsedConstantWork`,
+cloned per-row (`parsedConstantWork.map(r => ({ ...r }))`) in `loadConstantWorkCSV`, nulled it
+in `resetConstantWorkFile`, and migrated the three production readers (`getConstantWorkEffort`,
+`getConstantWorkEpics`, `buildTeamProjections`' `cwQuarters`) to read it. GREEN confirmed:
+targeted run 39/39 pass; `npm run verify` exits 0 (160 passed / 1 skipped). No test file
+touched. Diff is `index.html` only. Stage advanced to `review`; next handover
+`handover-05-implement-p1.md`.

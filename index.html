@@ -1556,7 +1556,8 @@ let parsedInitiatives = null;
 let editedInitiatives = null; // user-editable copy of parsedInitiatives
 let parsedEpics       = null;
 let epicFile          = null; // { name, rows } — single loaded epic file
-let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort)
+let parsedConstantWork = null; // constant-work epics (guaranteed, deterministic effort) — immutable parse output, retained as the datalist option-pool substrate
+let editedConstantWork = null; // per-row shallow clone of parsedConstantWork; the simulation source of truth (mirrors editedInitiatives)
 let detectedCols      = null; // { initKeyCol, categoryCol, teamCol, nameCol, krCol, epicLinkCol }
 
 // Module-scoped ordered array of Group records:
@@ -1732,6 +1733,7 @@ function resetInitiativesFile() {
 
 function resetConstantWorkFile() {
   parsedConstantWork = null;
+  editedConstantWork = null;
   document.getElementById('constant-work-file').value = '';
   document.getElementById('constant-work-file-name').textContent = 'Click to upload…';
   const wrap = document.getElementById('constant-work-upload');
@@ -1742,6 +1744,7 @@ function resetConstantWorkFile() {
 
 function loadConstantWorkCSV(text) {
   parsedConstantWork = parseCSV(text);
+  editedConstantWork = parsedConstantWork.map(r => ({ ...r }));
   console.log(`[ConstantWork] ${parsedConstantWork.length} rows`);
 }
 
@@ -1750,10 +1753,10 @@ function loadConstantWorkCSV(text) {
  * the given quarters and (optionally) a specific team name.
  */
 function getConstantWorkEffort(quarters, teamName = null) {
-  if (!parsedConstantWork || !parsedConstantWork.length) return 0;
+  if (!editedConstantWork || !editedConstantWork.length) return 0;
   const qSet = new Set(quarters.map(q => q.trim()));
   let total = 0;
-  for (const r of parsedConstantWork) {
+  for (const r of editedConstantWork) {
     const rowQ    = (r.quarter || '').trim();
     const rowTeam = (r.team    || '').trim().toLowerCase();
     if (!qSet.has(rowQ)) continue;
@@ -1768,10 +1771,10 @@ function getConstantWorkEffort(quarters, teamName = null) {
  * formatted for display in the Team Projections initiative table.
  */
 function getConstantWorkEpics(quarter, teamName) {
-  if (!parsedConstantWork || !parsedConstantWork.length) return [];
+  if (!editedConstantWork || !editedConstantWork.length) return [];
   const q   = quarter.trim();
   const key = teamName.toLowerCase();
-  return parsedConstantWork
+  return editedConstantWork
     .filter(r =>
       (r.quarter || '').trim() === q &&
       (r.team    || '').trim().toLowerCase() === key
@@ -2106,8 +2109,8 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
     const byQuarter = {};
 
     // Collect all quarters that have either initiatives or constant work for this team
-    const cwQuarters = parsedConstantWork
-      ? [...new Set(parsedConstantWork
+    const cwQuarters = editedConstantWork
+      ? [...new Set(editedConstantWork
           .filter(r => (r.team || '').trim().toLowerCase() === teamKey)
           .map(r => (r.quarter || '').trim())
           .filter(Boolean))]
