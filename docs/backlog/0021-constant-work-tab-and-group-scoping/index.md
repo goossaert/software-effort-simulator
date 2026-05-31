@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 4
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T21:52:01Z
+next_handover: handover-13-atdd-p4.md
+updated_at: 2026-05-31T22:00:20Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -153,3 +153,23 @@ fails AT-2/AT-5 (exit 1); revert → 5/5 GREEN. Targeted (5 pass) + `npm run ver
 (177 pass / 1 skip) both exit 0. Review:
 `docs/reviews/0021-…-phase-3-review-01.md`. Advanced to **Phase 4 atdd**
 (`current_phase: 4`, `retry_count: 0`); next handover `handover-03-plan.md`.
+
+**Phase 4 atdd done** (this commit): authored
+`tests/acceptance/phase-4-projections-constant-work-scoping.test.js` (AT-1…AT-5,
+6 `it`s incl. one case-insensitive/trim property test) for the **Team Projections
+tab** — each (team, quarter) cell scopes its constant work to the **Projection
+group**'s members (scoped `cwEffort` band floor + scoped constant-work
+**Initiative matrix** rows), with the degenerate fallback (no Projection group /
+empty `groupsStore` → all constant work) preserved per ADR-0023. Seam: the
+plan-named `buildTeamProjections(...)` entry point; cells read at
+`proj[i].byQuarter[q]` (`cwEffort`, `p25/p50/p75`, `initiatives.filter(isConstant)`).
+No legacy migration was needed this phase — `phase-1-engine.test.js` AT-26
+(zero-member Projection group) and AT-27 (empty-`groupsStore` fallback) were
+migrated onto the vector in Phase 2 and stay GREEN under the degenerate-fallback
+decision. RED gate confirmed: acceptance run 5 failed / 1 passed, exit 1 (AT-4,
+the degenerate-fallback guard, is GREEN on the current build — the fallback
+already holds); combined run 5 failed / 31 passed, exit 1 (RED confined to the
+new file, AT-26/AT-27 GREEN); full suite 5 failed / 178 passed / 1 skipped, exit
+1. Logs under `docs/atdd-logs/0021-…-phase-4-{acceptance-red,inner-red,verify-ci}.log`.
+Advanced to **Phase 4 implement** (`stage: implement`); next handover
+`handover-13-atdd-p4.md`.

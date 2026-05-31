@@ -1,0 +1,118 @@
+command: npx vitest run tests/acceptance/phase-4-projections-constant-work-scoping.test.js
+run_at: 2026-05-31T21:59:44Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-1: a projection cell shows only constant work whose Category is in the Projection group's members > appends the Backend constant-work row to the cell and omits the Ops row when the Projection group's members are ['Backend']
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > sets cwEffort to the Backend row's person-months only, not the Backend+Ops total, and flattens the band to that scoped floor
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > scopes by Category case-insensitively and after trimming surrounding whitespace
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-3: a zero-member Projection group collapses the band to a scoped cwEffort of 0 > scopes cwEffort to 0 and flattens the Effort projection band to (0, 0, 0) even when the cell has constant work
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-4: with no Projection group (empty groupsStore) the cell falls back to all constant work for that (team, quarter) > sums every constant-work row into cwEffort, flattens the band to that total, and keeps all rows in the matrix (ADR-0023 degenerate fallback)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-5: a Projection group whose members include the (Blank) sentinel includes blank-Category constant work in the cell > scopes cwEffort to the blank-Category row and excludes a non-blank-Category row when members === [BLANK]
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js (6 tests | 5 failed) 169ms
+   × AT-1: a projection cell shows only constant work whose Category is in the Projection group's members > appends the Backend constant-work row to the cell and omits the Ops row when the Projection group's members are ['Backend'] 75ms
+     → expected [ Object{ key: 'CW-BE', …(6) }, …(1) ] to have a length of 1 but got 2
+   × AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > sets cwEffort to the Backend row's person-months only, not the Backend+Ops total, and flattens the band to that scoped floor 25ms
+     → expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+   × AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > scopes by Category case-insensitively and after trimming surrounding whitespace 19ms
+     → expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+   × AT-3: a zero-member Projection group collapses the band to a scoped cwEffort of 0 > scopes cwEffort to 0 and flattens the Effort projection band to (0, 0, 0) even when the cell has constant work 18ms
+     → expected 2.200382139383515 to be +0 // Object.is equality
+   × AT-5: a Projection group whose members include the (Blank) sentinel includes blank-Category constant work in the cell > scopes cwEffort to the blank-Category row and excludes a non-blank-Category row when members === [BLANK] 17ms
+     → expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-1: a projection cell shows only constant work whose Category is in the Projection group's members > appends the Backend constant-work row to the cell and omits the Ops row when the Projection group's members are ['Backend']
+AssertionError: expected [ Object{ key: 'CW-BE', …(6) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js:113:20
+    111| 
+    112|     const cwRows = constantWorkMatrixRows(cell);
+    113|     expect(cwRows).toHaveLength(1);
+       |                    ^
+    114|     expect(cwRows[0].category).toBe('Backend');
+    115|     // Negative: the Ops row, whose Category is in no member of the Pr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > sets cwEffort to the Backend row's person-months only, not the Backend+Ops total, and flattens the band to that scoped floor
+AssertionError: expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js:136:27
+    134|     expect(cell).toBeTruthy();
+    135|     // Scoped to the Backend row alone …
+    136|     expect(cell.cwEffort).toBeCloseTo(pm(win, 'M'), 10);
+       |                           ^
+    137|     // … explicitly NOT the unscoped Backend+Ops total.
+    138|     expect(cell.cwEffort).not.toBeCloseTo(pm(win, 'M') + pm(win, 'L'),…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > scopes by Category case-insensitively and after trimming surrounding whitespace
+AssertionError: expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js:160:27
+    158|     const cell = cellFor(buildProjections(win, ['Q3 2026']), 'Platform…
+    159|     expect(cell).toBeTruthy();
+    160|     expect(cell.cwEffort).toBeCloseTo(pm(win, 'M'), 10);
+       |                           ^
+    161|     expect(constantWorkMatrixRows(cell)).toHaveLength(1);
+    162|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-3: a zero-member Projection group collapses the band to a scoped cwEffort of 0 > scopes cwEffort to 0 and flattens the Effort projection band to (0, 0, 0) even when the cell has constant work
+AssertionError: expected 2.200382139383515 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2.200382139383515
+
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js:179:27
+    177|     const cell = cellFor(buildProjections(win, ['Q3 2026']), 'Platform…
+    178|     expect(cell).toBeTruthy();
+    179|     expect(cell.cwEffort).toBe(0);
+       |                           ^
+    180|     expect(cell.p25).toBe(0);
+    181|     expect(cell.p50).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-5: a Projection group whose members include the (Blank) sentinel includes blank-Category constant work in the cell > scopes cwEffort to the blank-Category row and excludes a non-blank-Category row when members === [BLANK]
+AssertionError: expected 6.60093879252567 to be close to 2.200382139383515, received difference is 4.400556653142155, but expected 5e-11
+ ❯ tests/acceptance/phase-4-projections-constant-work-scoping.test.js:228:27
+    226|     const cell = cellFor(buildProjections(win, ['Q3 2026']), 'Platform…
+    227|     expect(cell).toBeTruthy();
+    228|     expect(cell.cwEffort).toBeCloseTo(pm(win, 'M'), 10);
+       |                           ^
+    229| 
+    230|     const cwRows = constantWorkMatrixRows(cell);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  23:59:45
+   Duration  621ms (transform 13ms, setup 0ms, collect 211ms, tests 169ms, environment 0ms, prepare 57ms)
+
