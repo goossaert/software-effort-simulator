@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 3
 retry_count: 0
 max_retries: 3
-next_handover: handover-10-atdd-p3.md
-updated_at: 2026-05-31T21:38:30Z
+next_handover: handover-11-implement-p3.md
+updated_at: 2026-05-31T21:43:49Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -119,3 +119,17 @@ fail because `prepareTeamSimulationData` returns no `fixedEffortPerGroup` (scala
 uniformly (Frontend wrongly lifted to `4.4` instead of `0.0`). Logs under
 `docs/atdd-logs/0021-…-phase-3-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
 **Phase 3 implement** (`stage: implement`); next handover `handover-10-atdd-p3.md`.
+
+**Phase 3 implement done** (this commit): implemented the per-team `fixedEffortPerGroup`
+inline in `index.html` (two edits, reusing the Phase 2 helper). `prepareTeamSimulationData`
+now returns `fixedEffortPerGroup: getConstantWorkEffortPerGroup(targetQuarters, groupsStore,
+teamName)` per team entry (team AND Category scoped, aligned with `kPerGroup`); the per-team
+scalar `fixedEffort` is **gone**. `renderTeamSection` passes the team's own
+`td.fixedEffortPerGroup` to `runSimulation`, replacing the Phase-2 interim uniform broadcast.
+The org headline (Phase 2) and the Team Projections projection-cell call (Phase 4,
+`index.html:2271`) were left untouched; constant work remains a purely additive post-sort
+shift (never enters any team's `kPerGroup` / λ / bootstrap pool). The scalar helper
+`getConstantWorkEffort` is retained — still exercised by Phase 1's substrate tests. GREEN
+confirmed: targeted 5/5 pass (exit 0); `npm run verify` exits 0 (177 passed / 1 skipped).
+No test file edited; the only production change is `index.html`. Advanced to **Phase 3
+review** (`stage: review`); next handover `handover-11-implement-p3.md`.

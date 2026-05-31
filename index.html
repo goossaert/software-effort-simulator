@@ -2158,8 +2158,12 @@ function prepareTeamSimulationData(histQuarters, targetQuarters, orgLambda, orgE
       // Target K values (always team-scoped) — one entry per Group in groupsStore order
       kPerGroup,
       categoryBreakdown,
-      // Deterministic constant-work effort for this team's target quarters
-      fixedEffort: getConstantWorkEffort(targetQuarters, teamName),
+      // Per-Group, team- AND Category-scoped constant-work shift for this team's
+      // target quarters: one PM sum per Group in groupsStore order, so it is
+      // aligned index-for-index with kPerGroup (ADR-0033). The helper applies the
+      // same case-insensitive team match and ADR-0028 Category semantics
+      // (trim + case-fold + the (Blank) sentinel) as the org headline.
+      fixedEffortPerGroup: getConstantWorkEffortPerGroup(targetQuarters, groupsStore, teamName),
     };
   });
 }
@@ -2728,17 +2732,19 @@ function renderTeamSection(idx, useOrg) {
   const lambda        = useOrg ? td.orgLambda        : td.teamLambda;
   const epicSizingDist = useOrg ? td.orgEpicSizingDist : td.teamEpicSizingDist;
 
-  // Phase 2 shape change only: runSimulation now takes a per-Group vector.
-  // Preserve the existing (uniform) team behaviour by broadcasting this team's
-  // scalar constant-work effort across every Group — Phase 3 replaces this with
-  // a per-team, Category-scoped fixedEffortPerGroup.
+  // Consume this team's per-Group, Category-scoped constant-work shift, computed
+  // by prepareTeamSimulationData against groupsStore order — the same order this
+  // snapshot uses for `groups`, so the vector and kPerGroup stay index-aligned as
+  // long as groupsStore is not mutated between prepare and render (it is not,
+  // within a Run). Constant work is a purely additive post-sort shift here
+  // (ADR-0033): it never enters the team's kPerGroup / λ / bootstrap pool.
   const teamGroupsSnapshot = groupsStore.slice();
   const results = runSimulation({
     lambda, epicSizingDist,
     kPerGroup: td.kPerGroup,
     groups:    teamGroupsSnapshot,
     capacity: lastCapacity, iterations: lastIterations,
-    fixedEffortPerGroup: teamGroupsSnapshot.map(() => td.fixedEffort || 0),
+    fixedEffortPerGroup: td.fixedEffortPerGroup,
   });
 
   const teamCtxKey = `team-${idx}`;
