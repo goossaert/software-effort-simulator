@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 4
 retry_count: 0
 max_retries: 3
-next_handover: handover-13-atdd-p4.md
-updated_at: 2026-05-31T22:00:20Z
+next_handover: handover-14-implement-p4.md
+updated_at: 2026-05-31T22:04:51Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -173,3 +173,23 @@ new file, AT-26/AT-27 GREEN); full suite 5 failed / 178 passed / 1 skipped, exit
 1. Logs under `docs/atdd-logs/0021-…-phase-4-{acceptance-red,inner-red,verify-ci}.log`.
 Advanced to **Phase 4 implement** (`stage: implement`); next handover
 `handover-13-atdd-p4.md`.
+
+**Phase 4 implement done** (this commit): implemented the Projection-group Category
+scoping inline in `index.html` — confined to `buildTeamProjections`. Each (team,
+quarter) cell now derives `scopedCwEpics` from `getConstantWorkEpics(q, teamName)` by
+filtering on the **Projection group**'s membership (reusing the already-computed
+`projLcMembers` / `projHasBlank` — trim + case-fold + the **(Blank) sentinel**, ADR-0028
+semantics shared with the `kProj` count); the appended constant-work **Initiative matrix**
+rows and the `cwEffort` band floor are both driven off `scopedCwEpics`. The projection
+`runSimulation` call's `fixedEffortPerGroup: [cwEffort]` is now the scoped sum. **Degenerate
+fallback (ADR-0023):** when no Projection group exists (incl. empty `groupsStore`),
+`scopedCwEpics === cwEpics` → all constant work for the cell. A zero-member Projection group
+scopes to `0` (empty `projLcMembers` + `projHasBlank` false → empty `scopedCwEpics`).
+Untouched: the org headline (Phase 2), the per-team Team Level surface (Phase 3), and the
+initiative side of the cell (`kProj`, `bucketRowsByGroups`, the `kProj > 0` band) — constant
+work stays a purely additive deterministic floor, never entering `kPerGroup` / λ / the
+bootstrap pool. GREEN confirmed: targeted acceptance 6/6 pass (exit 0); combined run with
+`phase-1-engine.test.js` 36/36 (AT-26/AT-27 stay green); `npm run verify` exits 0
+(183 passed / 1 skipped). No test file edited; the only production change is `index.html`.
+Advanced to **Phase 4 review** (`stage: review`); next handover
+`handover-14-implement-p4.md`.

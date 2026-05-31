@@ -2227,6 +2227,16 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
       const qInits = teamAll.filter(r => (r.quarter || '').trim() === q);
       const cwEpics = getConstantWorkEpics(q, teamName);
 
+      // Scope this cell's constant work to the Projection group's members
+      // (trim + case-fold + (Blank) sentinel — same membership semantics the
+      // kProj count uses). Degenerate fallback (ADR-0023): no Projection group
+      // (incl. empty groupsStore) → all constant work for this (team, quarter).
+      const scopedCwEpics = projGroup
+        ? cwEpics.filter(e => e.category === BLANK
+            ? projHasBlank
+            : projLcMembers.has(e.category.toLowerCase()))
+        : cwEpics;
+
       if (!qInits.length && !cwEpics.length) continue;
 
       // Per-Group counts for this quarter (one K per Group in groupsStore order).
@@ -2248,11 +2258,13 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
         const bc = b.category === BLANK ? '￿' : b.category.toLowerCase();
         return ac.localeCompare(bc) || a.key.localeCompare(b.key);
       });
-      // Append constant-work epics at the end (already labelled isConstant)
-      for (const cw of cwEpics) initiatives.push(cw);
+      // Append the Projection-group-scoped constant-work epics at the end
+      // (already labelled isConstant)
+      for (const cw of scopedCwEpics) initiatives.push(cw);
 
-      // Total deterministic constant-work effort for this team/quarter
-      const cwEffort = cwEpics.reduce((s, e) => s + e.effort, 0);
+      // Total deterministic constant-work effort for this team/quarter,
+      // scoped to the Projection group's members.
+      const cwEffort = scopedCwEpics.reduce((s, e) => s + e.effort, 0);
 
       // Effort projection band — driven by the Projection group's K only
       // (ADR-0029). Fall back to flat (cwEffort, cwEffort, cwEffort) when no
@@ -2271,7 +2283,8 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
           lambda: orgLambda, epicSizingDist: orgEpicSizingDist,
           kPerGroup: [kProj], groups: [projGroup],
           capacity: 0, iterations: projIterations,
-          // Single-group cell, unscoped: Phase 4 owns Projection-group Category scoping.
+          // Single-group cell: cwEffort is already scoped to the Projection
+          // group's members (the additive deterministic band floor).
           fixedEffortPerGroup: [cwEffort],
         });
         p25 = sim.results[0].stats.p25;
