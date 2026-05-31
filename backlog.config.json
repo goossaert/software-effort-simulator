@@ -1,0 +1,28 @@
+{
+  "schema": "backlog-config/v1",
+  "models": {
+    "default": "sonnet",
+    "apply-docs": "sonnet",
+    "plan": "sonnet",
+    "atdd": "sonnet",
+    "implement": "sonnet",
+    "review": "opus"
+  },
+  "max_retries": 3,
+  "stop_on_flag": false,
+  "poll_interval_seconds": 10,
+  "usage": { "reprobe_interval_seconds": 600 },
+  "notify_hook": "",
+  "logs_dir": ".backlog-logs",
+  "submodule_autoupdate": true,
+  "sandbox": { "backend": "ai-jail", "command": "ai-jail" },
+  "paths": {
+    "backlog_dir": "docs/backlog",
+    "plans_dir": "docs/plans",
+    "adr_dir": "docs/adr",
+    "reviews_dir": "docs/reviews",
+    "atdd_logs_dir": "docs/atdd-logs",
+    "context_file": "CONTEXT.md"
+  },
+  "verify_command": "npm run verify"
+}
