@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
-status: ready
+stage: done
+status: done
 priority: normal
 flagged_for_human: false
 total_phases: 8
 current_phase: 8
 retry_count: 0
 max_retries: 3
-next_handover: handover-26-implement-p8.md
-updated_at: 2026-05-31T23:48:05Z
+next_handover: handover-27-review-p8.md
+updated_at: 2026-05-31T23:55:15Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -27,6 +27,7 @@ artifacts:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-5-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-6-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-7-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-8-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -471,3 +472,23 @@ RED tests flipped; `npm run verify` exits 0 (**226 passed / 1 skipped** — the 
 self-skipping `sanity-check-engine-mean.test.js`). No test file edited; the only production change
 is `index.html`. Advanced to **Phase 8 review** (`stage: review`); next handover
 `handover-26-implement-p8.md`.
+
+**Phase 8 review done** (this commit): verdict **PASS** — **the final feature-phase; the task is
+complete**. Independent verification (diff `a67340c..19689fa`, `index.html`-only, confined to
+`_observedCategoriesForPopover()`) confirmed the general union rule: the Groups **Members popover**
+option list is the **case-insensitive union of `editedInitiatives` ∪ `editedConstantWork`**
+Categories, computed at **popover-open time** (`openMembersPopover` calls it inline each open —
+nothing memoised), built by iterating `[...initCats, ...cwCats]` (both via the shared
+`collectObservedCategories` — same trim + case-fold + (Blank)-sentinel semantics as
+`syncAutoDefaultGroup`) and deduping by lowercase so **Initiative casing wins** on a merge while a
+constant-work-only Category keeps its own casing; the **BLANK** sentinel is excluded from the
+option list (the dedicated `(Blank)` row + free-text input remain untouched). The engine, the
+per-Group scoping helpers (`getConstantWorkEffortPerGroup` / `getConstantWorkExcluded`), and the
+Constant work tab are untouched — AT-4 only *reads* those seams. All 4 invariants hold; none of the
+4 counterexamples is realizable; no fixture literals / test-keyed branches / env checks / `tests/`
+imports; no test file drifted across `test_commit..impl_commit`. Two negative controls each flipped
+exactly the predicted ATs to RED and reverted to 45/45 GREEN: (1) drop the `cwCats` union → AT-1
+(×2), AT-3 (×2), AT-4, AT-6 (×2), AT-28 fail (8); (2) seed the casing map from constant work first
+→ AT-2 (×2) fail. Targeted (45 pass) + `npm run verify` (226 passed / 1 skipped) both exit 0;
+working tree clean. Review: `docs/reviews/0021-…-phase-8-review-01.md`. Transitioned to
+**`stage: done`, `status: done`** (k = N = 8). 🎉 **Feature 0021 complete.**
