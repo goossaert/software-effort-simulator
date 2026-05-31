@@ -1,3 +1,100 @@
+---
+schema: backlog-handover/v1
+task_id: "0021"
+produced_by_phase: grill
+feature_phase: null
+for_next_phase: apply-docs
+outcome: success
+reason: ""
+produced_at: 2026-05-29T23:11:00Z
+produced_commit: e3dc6be
+---
+## Summary
+
+A design-grilling session sharpened feature 0021: make **Constant work** a first-class,
+editable, Category-addressable body of work in `index.html`. It resolved the engine
+semantics (per-**Group** deterministic shift scoped by **Category**, replacing the single
+global `fixedEffort` scalar) and the editable-tab behaviour (new `editedConstantWork`
+substrate, a sixth **Constant work tab** with add/delete/from-scratch/export). The session
+prepared two new ADRs (0033, 0034), an amendment to ADR-0023, and ~20 CONTEXT.md glossary
+edits. Outcome: success — ready for `apply-docs` to apply the prepared documentation.
+
+> **Note for the reader:** This handover is the renamed/aligned form of the original
+> `handover-feature-0021.md`. The prepared CONTEXT.md edits and ADRs below were
+> **already applied** in commit `7bf19a0` (see `handover-02-apply-docs.md`); they are
+> retained here verbatim as the grill design record.
+
+## Instructions for the next phase
+
+`apply-docs`: apply the **CONTEXT.md edits to apply** and create the **ADRs to create**
+listed below, then advance to `plan`. (Already done in `7bf19a0` — `apply-docs` is a
+no-op confirmation; see `handover-02-apply-docs.md`.)
+
+## Files the next phase MUST read
+
+- `handover-feature-0021.md` design record (now this file) — full prepared edits + plan logistics.
+- `CONTEXT.md` — glossary the edits target (constant-work / Category / Group / quarter terms).
+- `docs/adr/0023-constant-work-csv-deterministic-shift.md` — the ADR being amended.
+
+## CONTEXT.md edits to apply
+
+Updated terms: **Constant work**, **Constant Work CSV**, **Category**, **Group**,
+**Scenario**, **Target quarter**, **Quarter selector**, **Tab**, **Groups tab**,
+**Data preview**, **Quick projection Monte Carlo**, **Effort projection band**,
+**Global histogram range**, **Initiative matrix**, **Projection group**; **added** the new
+term *Constant work tab*; added two *Flagged ambiguities* and updated the *Relationships*
+constant-work bullets. Keep `CONTEXT.md` a pure glossary (no implementation detail).
+**Status: applied in `7bf19a0`.**
+
+## ADRs to create
+
+- `docs/adr/0033-constant-work-scoped-to-groups-by-category.md` — **created** (`7bf19a0`).
+  Core semantics change; amends ADR-0023. Per-Group `fixedEffort` vector scoped by Category
+  membership; never affects K/Poisson; honored on all three surfaces; case-insensitive
+  match (ADR-0028); unassigned constant work excluded but surfaced; safe `All`-default;
+  constant-work quarters in target selector only.
+- `docs/adr/0034-editable-constant-work-tab.md` — **created** (`7bf19a0`). Editable tab +
+  add/delete + from-scratch + export; `editedConstantWork` as simulation source of truth
+  (commit-on-Run); parallels ADR-0027.
+- `docs/adr/0023-constant-work-csv-deterministic-shift.md` — **amended** (`7bf19a0`): added
+  an "Amended by 0033/0034" note at the top; body left intact as historical record.
+
+> Numbering note (kept as-is per project decision): ADRs run their **own** sequence
+> (next was 0033) independent of the feature/plan number (0021). The two sequences do not
+> conflate — the backlog loop never parses ADR numbers; `apply-docs` numbers ADRs against
+> `docs/adr/` contents only.
+
+## Plan logistics
+
+- **slug:** `constant-work-tab-and-group-scoping`
+- **relevant files/dirs:** `index.html` (single-file app), `tests/acceptance/`,
+  `tests/verification/`, `tests/harness.js`, the four cited ADRs, `CONTEXT.md`.
+- **acceptance tests:** `tests/acceptance/` (jsdom via `tests/harness.js`).
+- **inner tests:** same harness; per-phase verification tests under `tests/verification/`.
+- **verify command:** `npm run verify`.
+- **phase-count estimate:** ~7–8 (the plan set the authoritative count to **8**).
+- **user-visible goal:** edit/author constant work in-app and have category-/quarter-scoped
+  constant work feed each Group's deterministic shift on every simulation surface.
+- **out of scope:** Duplicate-row action, browser-storage persistence, Run-time blocking
+  validation.
+- **entry point:** the new `#tab-constant-work` Tab + the `runSimulation` per-Group shift.
+
+## Context the next phase needs
+
+The grilling resolved every design branch (see the full design record below). The engine
+stays deterministic and never feeds K/Poisson; the scalar `fixedEffort` becomes a per-Group
+vector; constant work is editable via `editedConstantWork` under commit-on-Run; quarters
+surface in the target selector only; unassigned constant work is excluded but surfaced.
+
+## Definition of done (for apply-docs)
+
+CONTEXT.md edits applied, ADR-0033 + ADR-0034 created, ADR-0023 amended, index advanced to
+`stage: plan`. **All satisfied by `7bf19a0`.**
+
+---
+
+# Original design record (verbatim from `handover-feature-0021.md`)
+
 # Handover — Feature 0021: Editable Constant Work tab + Group-/Quarter-scoped constant work
 
 **Status:** Design grilling complete. **Planning NOT started** (no phases, no task breakdown). This document is the design record for a fresh session that will plan the feature (e.g. via `plan-feature`) and produce `docs/plans/0021-*.md`.
