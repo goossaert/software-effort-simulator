@@ -1,11 +1,11 @@
 {
   "schema": "backlog-config/v1",
   "models": {
-    "default": "sonnet",
-    "apply-docs": "sonnet",
-    "plan": "sonnet",
-    "atdd": "sonnet",
-    "implement": "sonnet",
+    "default": "opus",
+    "apply-docs": "opus",
+    "plan": "opus",
+    "atdd": "opus",
+    "implement": "opus",
     "review": "opus"
   },
   "max_retries": 3,
