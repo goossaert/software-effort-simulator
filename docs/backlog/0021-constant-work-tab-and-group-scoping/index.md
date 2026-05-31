@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 7
+current_phase: 8
 retry_count: 0
 max_retries: 3
-next_handover: handover-23-implement-p7.md
-updated_at: 2026-05-31T23:29:12Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T23:35:49Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -26,6 +26,7 @@ artifacts:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-4-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-5-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-6-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-7-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -402,3 +403,22 @@ Category→**(Blank) sentinel**) are left to the engine — no coercion added. G
 (**215 passed / 1 skipped** — the pre-existing self-skipping `sanity-check-engine-mean.test.js`).
 No test file edited; the only production change is `index.html`. Advanced to **Phase 7 review**
 (`stage: review`); next handover `handover-23-implement-p7.md`.
+
+**Phase 7 review done** (this commit): verdict **PASS**. Independent verification
+(diff `be17a60..942b458`, `index.html`-only) confirmed the general ADR-0034 rule: a `+ Add row`
+toolbar control (always rendered, in a `<div class="constant-work-toolbar">` — never a `<tbody>`
+row, never gated behind a CSV) plus a per-row **Delete** `<button>` (the single button in each data
+row) that splices `editedConstantWork` immediately with **no `confirm()`**; `addConstantWorkRow`
+inits `[]`-from-`null` (leaving `parsedConstantWork` `null`) and keys the new row on the structural
+predicate `parsedConstantWork === null` → **canonical schema** else the **imported header set**
+(`Object.keys(editedConstantWork[0] || parsedConstantWork[0] || {})`); reuses the unchanged smart
+editors (seven-size `<select>`, datalist combos), `exportConstantWorkCSV()`, and the Phase-2
+`getConstantWorkEffortPerGroup` seam with **no blank coercion**. All 5 invariants hold by
+construction; none of the 4 counterexamples is realizable; `CW_CANONICAL_SCHEMA` is the plan's
+contract (not a fixture literal); no test file drifted across `test_commit..impl_commit`; no gaming
+pattern. Three negative controls each flipped exactly the predicted AT(s) to RED and reverted to
+11/11 GREEN: (a) gate add behind CSV → 8 fail (every from-scratch `it`); (b) always canonical →
+AT-2 fail; (c) `confirm()` on delete → AT-3 fail. Targeted (11 pass) + `npm run verify`
+(215 passed / 1 skipped) both exit 0; working tree clean. Review:
+`docs/reviews/0021-…-phase-7-review-01.md`. Advanced to **Phase 8 atdd**
+(`current_phase: 8`, `retry_count: 0`); next handover `handover-03-plan.md`.
