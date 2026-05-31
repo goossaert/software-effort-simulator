@@ -1,0 +1,385 @@
+command: npx vitest run tests/acceptance/phase-6-constant-work-tab.test.js tests/acceptance/phase-2-groups-tab.test.js
+run_at: 2026-05-31T22:49:25Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > seeds the category datalist from the union of initiative and constant-work Categories
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > renders team and quarter as datalist combos seeded from the union of initiative and constant-work values
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-6-constant-work-tab.test.js > AT-8: ↓ Export CSV downloads constant-work-edited.csv preserving the imported header set > triggers a constant-work-edited.csv download whose header row is exactly the imported headers (aliases + extras, original order)
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-6-constant-work-tab.test.js > AT-9: the exported Constant Work CSV round-trips through re-import > reproduces the edited model (same columns and edited values) when the export is re-imported
+[ConstantWork] 1 rows
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js (15 tests | 15 failed) 340ms
+   × AT-1: a sixth Constant work tab button appears after Initiatives and before Groups > renders six .tab-btn elements in order with Constant work fifth (data-tab="constant-work") and Groups sixth 81ms
+     → expected [ HTMLButtonElement{ …(1) }, …(4) ] to have a length of 6 but got 5
+   × AT-2: the #tab-constant-work panel is hidden after a Run with Organization Level active > the panel exists, is display:none, and the active tab button is Organization Level 25ms
+     → expected null to be truthy
+   × AT-3: clicking the Constant work tab reveals the table with one row per editedConstantWork row > switches #tab-constant-work to display:flex and renders one tbody <tr> per row 21ms
+     → expected null to be truthy
+   × AT-3: clicking the Constant work tab reveals the table with one row per editedConstantWork row > renders a single tbody <tr> when editedConstantWork has exactly one row (boundary) 18ms
+     → expected  to have a length of 1 but got +0
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > renders a <select> whose options are exactly 2XS,XS,S,M,L,XL,XL+ with the row value M selected 19ms
+     → expected null to be truthy
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > treats the t_shirt_size alias column as a size <select> too 17ms
+     → expected null to be truthy
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > keeps the seven canonical sizes present even when the imported value is unrecognised (boundary) 17ms
+     → expected null to be truthy
+   × AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > seeds the category datalist from the union of initiative and constant-work Categories 20ms
+     → expected null to be truthy
+   × AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > renders team and quarter as datalist combos seeded from the union of initiative and constant-work values 20ms
+     → expected null to be truthy
+   × AT-6: the jira_key, epic_name, key_result, and unknown extra columns are free-text inputs > renders each as a plain text input (no <select>, no datalist list attribute) 18ms
+     → column jira_key should be present: expected -1 to be greater than or equal to 0
+   × AT-7: editing the tshirt_size <select> writes through to editedConstantWork and flows into the next Run > updates editedConstantWork immediately, lags the chart, and contributes the new size PM to its Group on the next Run 17ms
+     → expected null to be truthy
+   × AT-8: ↓ Export CSV downloads constant-work-edited.csv preserving the imported header set > triggers a constant-work-edited.csv download whose header row is exactly the imported headers (aliases + extras, original order) 17ms
+     → an ↓ Export CSV toolbar button should exist: expected undefined to be truthy
+   × AT-9: the exported Constant Work CSV round-trips through re-import > reproduces the edited model (same columns and edited values) when the export is re-imported 16ms
+     → Cannot read properties of undefined (reading 'text')
+   × AT-10: editing a Constant work cell triggers a preview refresh but not a Run > invokes tryUpdatePreview on change and never calls runSimulation (chart/stats stay put) 16ms
+     → expected null to be truthy
+   × AT-11: Constant work cell values are escaped (escapeHtml / escapeAttr) > renders a script-injection payload as inert text with no <script> element added 16ms
+     → expected null to be truthy
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr>
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:10176)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives Categories > an edit to editedInitiatives appears in the popover even before Run
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js (34 tests | 1 failed) 700ms
+   × AT-1: Groups tab button is sixth, after the Constant work tab > the tab bar contains exactly 6 .tab-btn elements with Constant work fifth and Groups sixth 81ms
+     → expected [ HTMLButtonElement{ …(1) }, …(4) ] to have a length of 6 but got 5
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-1: Groups tab button is sixth, after the Constant work tab > the tab bar contains exactly 6 .tab-btn elements with Constant work fifth and Groups sixth
+AssertionError: expected [ HTMLButtonElement{ …(1) }, …(4) ] to have a length of 6 but got 5
+
+- Expected
++ Received
+
+- 6
++ 5
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:53:21
+     51|     const win = loadSimulator();
+     52|     const buttons = Array.from(win.document.querySelectorAll('.tab-btn…
+     53|     expect(buttons).toHaveLength(6);
+       |                     ^
+     54|     expect(buttons.map(b => b.dataset.tab)).toEqual([
+     55|       'org', 'teams', 'projections', 'initiatives', 'constant-work', '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-1: a sixth Constant work tab button appears after Initiatives and before Groups > renders six .tab-btn elements in order with Constant work fifth (data-tab="constant-work") and Groups sixth
+AssertionError: expected [ HTMLButtonElement{ …(1) }, …(4) ] to have a length of 6 but got 5
+
+- Expected
++ Received
+
+- 6
++ 5
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:145:21
+    143|     const win = loadSimulator();
+    144|     const buttons = Array.from(win.document.querySelectorAll('.tab-btn…
+    145|     expect(buttons).toHaveLength(6);
+       |                     ^
+    146|     expect(buttons.map(b => b.dataset.tab)).toEqual([
+    147|       'org', 'teams', 'projections', 'initiatives', 'constant-work', '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-2: the #tab-constant-work panel is hidden after a Run with Organization Level active > the panel exists, is display:none, and the active tab button is Organization Level
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:162:19
+    160|     const win = loadSimulator();
+    161|     const panel = win.document.getElementById('tab-constant-work');
+    162|     expect(panel).toBeTruthy();
+       |                   ^
+    163|     expect(panel.classList.contains('tab-panel')).toBe(true);
+    164|     expect(panel.style.display).toBe('none');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-3: clicking the Constant work tab reveals the table with one row per editedConstantWork row > switches #tab-constant-work to display:flex and renders one tbody <tr> per row
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:184:17
+    182| 
+    183|     const btn = win.document.querySelector('.tab-btn[data-tab="constan…
+    184|     expect(btn).toBeTruthy();
+       |                 ^
+    185|     btn.click();
+    186| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-3: clicking the Constant work tab reveals the table with one row per editedConstantWork row > renders a single tbody <tr> when editedConstantWork has exactly one row (boundary)
+AssertionError: expected  to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:197:27
+    195|     ]);
+    196|     renderTable(win);
+    197|     expect(bodyRows(win)).toHaveLength(1);
+       |                           ^
+    198|   });
+    199| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > renders a <select> whose options are exactly 2XS,XS,S,M,L,XL,XL+ with the row value M selected
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:211:20
+    209| 
+    210|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    211|     expect(select).toBeTruthy();
+       |                    ^
+    212|     const optionValues = [...select.querySelectorAll('option')].map(o …
+    213|     expect(optionValues).toEqual(SEVEN_SIZES);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > treats the t_shirt_size alias column as a size <select> too
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:225:20
+    223| 
+    224|     const select = cellEl(win, 0, 't_shirt_size', 'select');
+    225|     expect(select).toBeTruthy();
+       |                    ^
+    226|     expect([...select.querySelectorAll('option')].map(o => o.value)).t…
+    227|     expect(select.value).toBe('L');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > keeps the seven canonical sizes present even when the imported value is unrecognised (boundary)
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:238:20
+    236| 
+    237|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    238|     expect(select).toBeTruthy();
+       |                    ^
+    239|     const optionValues = [...select.querySelectorAll('option')].map(o …
+    240|     // Property: the seven canonical sizes are always present …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > seeds the category datalist from the union of initiative and constant-work Categories
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:263:22
+    261| 
+    262|     const catInput = cellEl(win, 0, 'category', 'input[list]');
+    263|     expect(catInput).toBeTruthy();
+       |                      ^
+    264|     const opts = datalistOptions(win, catInput);
+    265|     // Happy + property: the union of both sources is offered.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > renders team and quarter as datalist combos seeded from the union of initiative and constant-work values
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:282:23
+    280| 
+    281|     const teamInput = cellEl(win, 0, 'team', 'input[list]');
+    282|     expect(teamInput).toBeTruthy();
+       |                       ^
+    283|     const teamOpts = datalistOptions(win, teamInput);
+    284|     expect(teamOpts).toContain('Mobile');   // constant-work value
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-6: the jira_key, epic_name, key_result, and unknown extra columns are free-text inputs > renders each as a plain text input (no <select>, no datalist list attribute)
+AssertionError: column jira_key should be present: expected -1 to be greater than or equal to 0
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:310:54
+    308|     for (const col of ['jira_key', 'epic_name', 'key_result', 'notes']…
+    309|       const idx = headerIndex(win, col);
+    310|       expect(idx, `column ${col} should be present`).toBeGreaterThanOr…
+       |                                                      ^
+    311|       const td = bodyRows(win)[0].querySelectorAll('td')[idx];
+    312|       const input = td.querySelector('input');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-7: editing the tshirt_size <select> writes through to editedConstantWork and flows into the next Run > updates editedConstantWork immediately, lags the chart, and contributes the new size PM to its Group on the next Run
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:338:20
+    336| 
+    337|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    338|     expect(select).toBeTruthy();
+       |                    ^
+    339|     select.value = 'XL';
+    340|     select.dispatchEvent(new win.Event('change', { bubbles: true }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-8: ↓ Export CSV downloads constant-work-edited.csv preserving the imported header set > triggers a constant-work-edited.csv download whose header row is exactly the imported headers (aliases + extras, original order)
+AssertionError: an ↓ Export CSV toolbar button should exist: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:372:70
+    370|       win.document.querySelectorAll('#tab-constant-work button, #const…
+    371|     ).find(b => /export csv/i.test(b.textContent));
+    372|     expect(exportBtn, 'an ↓ Export CSV toolbar button should exist').t…
+       |                                                                      ^
+    373| 
+    374|     const out = captureExport(win, 'document.querySelector(".tab-btn")…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-9: the exported Constant Work CSV round-trips through re-import > reproduces the edited model (same columns and edited values) when the export is re-imported
+TypeError: Cannot read properties of undefined (reading 'text')
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:398:16
+    396| 
+    397|     const out = captureExport(win, 'exportConstantWorkCSV();');
+    398|     expect(out.text).toBeTruthy();
+       |                ^
+    399| 
+    400|     // Re-import the exported text.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-10: editing a Constant work cell triggers a preview refresh but not a Run > invokes tryUpdatePreview on change and never calls runSimulation (chart/stats stay put)
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:424:20
+    422| 
+    423|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    424|     expect(select).toBeTruthy();
+       |                    ^
+    425|     select.value = 'L';
+    426|     select.dispatchEvent(new win.Event('change', { bubbles: true }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-11: Constant work cell values are escaped (escapeHtml / escapeAttr) > renders a script-injection payload as inert text with no <script> element added
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:448:18
+    446| 
+    447|     const wrap = win.document.getElementById('constant-work-table-wrap…
+    448|     expect(wrap).toBeTruthy();
+       |                  ^
+    449|     // No live <script> element was injected by the render.
+    450|     expect(wrap.querySelectorAll('script')).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯
+
+ Test Files  2 failed (2)
+      Tests  16 failed | 33 passed (49)
+   Start at  00:49:38
+   Duration  1.16s (transform 27ms, setup 0ms, collect 446ms, tests 1.04s, environment 0ms, prepare 104ms)
+

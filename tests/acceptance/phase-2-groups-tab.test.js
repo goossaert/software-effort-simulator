@@ -42,12 +42,21 @@ function renderGroups(win) {
   execIn(win, 'renderGroupsTab();');
 }
 
-// ─── AT-1: fifth tab button ─────────────────────────────────────────
-describe('AT-1: fifth Groups tab button in the tab bar', () => {
-  it('the tab bar contains exactly 5 .tab-btn elements ending with Groups', () => {
+// ─── AT-1: Groups tab button (migrated for feature 0021 Phase 6) ────
+// Feature 0021 Phase 6 inserts a sixth Constant work tab BETWEEN Initiatives
+// and Groups, so the tab bar now has six buttons with Constant work fifth and
+// Groups sixth. Migrated during the Phase 6 ATDD session and frozen.
+describe('AT-1: Groups tab button is sixth, after the Constant work tab', () => {
+  it('the tab bar contains exactly 6 .tab-btn elements with Constant work fifth and Groups sixth', () => {
     const win = loadSimulator();
     const buttons = Array.from(win.document.querySelectorAll('.tab-btn'));
-    expect(buttons).toHaveLength(5);
+    expect(buttons).toHaveLength(6);
+    expect(buttons.map(b => b.dataset.tab)).toEqual([
+      'org', 'teams', 'projections', 'initiatives', 'constant-work', 'groups',
+    ]);
+    const fifth = buttons[4];
+    expect(fifth.dataset.tab).toBe('constant-work');
+    expect(fifth.textContent.trim()).toBe('Constant work');
     const last = buttons[buttons.length - 1];
     expect(last.dataset.tab).toBe('groups');
     expect(last.textContent.trim()).toBe('Groups');

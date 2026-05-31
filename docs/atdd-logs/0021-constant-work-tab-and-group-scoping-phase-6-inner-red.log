@@ -1,0 +1,79 @@
+command: npx vitest run tests/acceptance/phase-6-constant-work-tab.test.js -t "AT-4:"
+run_at: 2026-05-31T22:49:45Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js (15 tests | 3 failed | 12 skipped) 113ms
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > renders a <select> whose options are exactly 2XS,XS,S,M,L,XL,XL+ with the row value M selected 71ms
+     → expected null to be truthy
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > treats the t_shirt_size alias column as a size <select> too 23ms
+     → expected null to be truthy
+   × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > keeps the seven canonical sizes present even when the imported value is unrecognised (boundary) 18ms
+     → expected null to be truthy
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > renders a <select> whose options are exactly 2XS,XS,S,M,L,XL,XL+ with the row value M selected
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:211:20
+    209| 
+    210|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    211|     expect(select).toBeTruthy();
+       |                    ^
+    212|     const optionValues = [...select.querySelectorAll('option')].map(o …
+    213|     expect(optionValues).toEqual(SEVEN_SIZES);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > treats the t_shirt_size alias column as a size <select> too
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:225:20
+    223| 
+    224|     const select = cellEl(win, 0, 't_shirt_size', 'select');
+    225|     expect(select).toBeTruthy();
+       |                    ^
+    226|     expect([...select.querySelectorAll('option')].map(o => o.value)).t…
+    227|     expect(select.value).toBe('L');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/acceptance/phase-6-constant-work-tab.test.js > AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > keeps the seven canonical sizes present even when the imported value is unrecognised (boundary)
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-6-constant-work-tab.test.js:238:20
+    236| 
+    237|     const select = cellEl(win, 0, 'tshirt_size', 'select');
+    238|     expect(select).toBeTruthy();
+       |                    ^
+    239|     const optionValues = [...select.querySelectorAll('option')].map(o …
+    240|     // Property: the seven canonical sizes are always present …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 12 skipped (15)
+   Start at  00:49:59
+   Duration  562ms (transform 15ms, setup 0ms, collect 206ms, tests 113ms, environment 0ms, prepare 56ms)
+

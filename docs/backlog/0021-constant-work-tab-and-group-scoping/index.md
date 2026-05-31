@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 6
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T22:40:04Z
+next_handover: handover-19-atdd-p6.md
+updated_at: 2026-05-31T22:50:30Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -282,3 +282,26 @@ working tree clean. Targeted (6 pass) + `npm run verify` (189 passed / 1 skipped
 both exit 0. Review: `docs/reviews/0021-…-phase-5-review-01.md`. Advanced to
 **Phase 6 atdd** (`current_phase: 6`, `retry_count: 0`); next handover
 `handover-03-plan.md`.
+
+**Phase 6 atdd done** (this commit): authored
+`tests/acceptance/phase-6-constant-work-tab.test.js` (AT-1…AT-11, 15 `it`s) for the
+sixth **Constant work tab** — editable table modelled on the Initiatives tab with the
+`tshirt_size`/`t_shirt_size` cell as a `<select>` of exactly the seven **Recognised
+t-shirt sizes**, `category`/`team`/`quarter` as `<input list>` datalist combos seeded
+from the `editedInitiatives ∪ editedConstantWork` union, keys/name/kr/extra columns as
+free text, inline `onchange` write-through + `tryUpdatePreview` (no Run, commit-on-Run),
+and `exportConstantWorkCSV()` → `constant-work-edited.csv` preserving the imported header
+set verbatim (round-trips). **Migrated** `tests/acceptance/phase-2-groups-tab.test.js`
+AT-1 (five tabs → six; `Constant work` fifth, `Groups` sixth) — frozen. Seams (autonomously
+chosen): the plan-named `data-tab="constant-work"` / `#tab-constant-work` /
+`#constant-work-table-wrap` ids + `renderConstantWorkTable()` / `exportConstantWorkCSV()`
+functions; datalist ids/classes left unlocked (resolved via each input's `list` attr); tab
+reveal driven through the real generic tab-switch handler; AT-2 verified via the panel's
+default/after-Run hidden state (sibling Groups-tab AT-2 seam) rather than the async Run
+path. RED confirmed: combined acceptance run (Phase 6 + Phase 2) exits **1** (16 failed /
+33 passed); focused inner run (`-t "AT-4:"`, the size-`<select>` seam) exits **1** (3
+failed / 12 skipped); full suite (`npm run verify`) exits **1** with **16 failed / 188
+passed / 1 skipped** — RED confined to the new Phase 6 file (15) + the migrated Phase 2
+AT-1 (1). Logs under
+`docs/atdd-logs/0021-…-phase-6-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
+**Phase 6 implement** (`stage: implement`); next handover `handover-19-atdd-p6.md`.
