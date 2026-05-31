@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 7
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T23:10:20Z
+next_handover: handover-22-atdd-p7.md
+updated_at: 2026-05-31T23:21:39Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -350,3 +350,31 @@ to GREEN: size set `.slice(0,6)` → AT-4 (3 fail); datalist CW-only → AT-5 (2
 exit 0; working tree clean. Review:
 `docs/reviews/0021-…-phase-6-review-01.md`. Advanced to **Phase 7 atdd**
 (`current_phase: 7`, `retry_count: 0`); next handover `handover-03-plan.md`.
+
+**Phase 7 atdd done** (this commit): authored
+`tests/acceptance/phase-7-constant-work-add-delete.test.js` (AT-1…AT-7, 11 `it`s) for
+**Add row / delete row / from-scratch authoring** on the **Constant work tab** — the
+ADR-0034 delta over the read-only-shaped Initiatives tab: `+ Add row` appends a blank
+**canonical-schema** row (`jira_key, epic_name, key_result, category, team, quarter,
+tshirt_size`) when nothing was imported (`parsedConstantWork === null`, incl. the
+`editedConstantWork === []` boundary) and the **imported header set** otherwise (all rows
+share columns); per-row delete splices immediately with **no confirmation**, preserving
+order; from-scratch rows feed the simulation (`getConstantWorkEffortPerGroup` shift) while
+`parsedConstantWork` stays `null`; lenient blanks (blank size → 0 PM, blank quarter →
+excluded, blank Category → **(Blank) sentinel**); added rows render the same smart editors
+(seven-size `<select>`, datalist combos) and export via `exportConstantWorkCSV()`. **No
+legacy migration needed** (the plan concentrates migrations in Phases 1/2/6/8). Seams
+(autonomously chosen): the `+ Add row` and per-row delete controls are reached through the
+**rendered UI** (a clickable element matching `/add row/i` inside `#tab-constant-work`; the
+single `<button>` in a data row) — clicked via `.click()` (inline-`onclick` fires in the
+jsdom harness, as the Groups-tab tests already prove) — deliberately NOT locking the handler
+function names or the delete glyph (`×`/`Delete`); authored-row behaviour asserted through
+the Phase-2 engine seam `getConstantWorkEffortPerGroup`. RED confirmed: acceptance run
+11 failed / 11, exit 1 (every AT fails on the absent add/delete controls — AT-1 "no + Add
+row", AT-3 "no per-row delete", exactly the plan's RED gate); focused inner run
+(`-t "AT-1:"`) 2 failed / 9 skipped, exit 1; full suite (`npm run verify`)
+11 failed / 204 passed / 1 skipped, exit 1 — RED confined to the new file (the 204 passed =
+the post-Phase-6 baseline; the 1 skipped is the pre-existing self-skipping
+`sanity-check-engine-mean.test.js`). Logs under
+`docs/atdd-logs/0021-…-phase-7-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
+**Phase 7 implement** (`stage: implement`); next handover `handover-22-atdd-p7.md`.

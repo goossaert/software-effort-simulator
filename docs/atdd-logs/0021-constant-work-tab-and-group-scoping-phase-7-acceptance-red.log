@@ -1,0 +1,255 @@
+command: npx vitest run tests/acceptance/phase-7-constant-work-add-delete.test.js
+run_at: 2026-05-31T23:21:28Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-2: + Add row appends a blank row carrying the imported header set, not the canonical schema > gives the new row exactly the imported headers (blank) so all rows share columns
+[ConstantWork] 1 rows
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js (11 tests | 11 failed) 257ms
+   × AT-1: + Add row appends a blank canonical-schema row when nothing was imported > appends exactly one canonical-schema row (all cells blank) to editedConstantWork and re-renders 73ms
+     → a + Add row control should exist even with nothing imported: expected null to be truthy
+   × AT-1: + Add row appends a blank canonical-schema row when nothing was imported > initialises an empty-array model to one canonical row on the first add (boundary) 25ms
+     → a + Add row control should exist for an empty model: expected null to be truthy
+   × AT-2: + Add row appends a blank row carrying the imported header set, not the canonical schema > gives the new row exactly the imported headers (blank) so all rows share columns 23ms
+     → expected null to be truthy
+   × AT-3: per-row delete removes the targeted row immediately with no confirmation > splices exactly the targeted row, preserves the order of the rest, and never prompts for confirmation 19ms
+     → each data row should have a delete control: expected null to be truthy
+   × AT-3: per-row delete removes the targeted row immediately with no confirmation > removing the only row leaves an empty model and an empty table (boundary) 19ms
+     → expected null to be truthy
+   × AT-4: an authored-from-scratch row feeds its Group fixedEffortPerGroup shift > lifts only the Group whose members include the authored Category, with parsedConstantWork staying null 17ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+   × AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > contributes 0 PM for a blank tshirt_size even when Category and Target quarter match a Group 16ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+   × AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > excludes a blank-quarter row from every Target-quarter sum 16ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+   × AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > treats a blank Category as the (Blank) sentinel, matching only Groups whose members include BLANK 16ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+   × AT-6: an added row renders the same smart editors as imported rows > renders the size cell as the seven-size <select> and category/team/quarter as datalist combos 16ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+   × AT-7: ↓ Export CSV includes added-and-edited rows > exports constant-work-edited.csv containing every added row with its edited values 16ms
+     → a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-1: + Add row appends a blank canonical-schema row when nothing was imported > appends exactly one canonical-schema row (all cells blank) to editedConstantWork and re-renders
+AssertionError: a + Add row control should exist even with nothing imported: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:200:83
+    198| 
+    199|     const addBtn = addRowControl(win);
+    200|     expect(addBtn, 'a + Add row control should exist even with nothing…
+       |                                                                                   ^
+    201|     addBtn.click();
+    202| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-1: + Add row appends a blank canonical-schema row when nothing was imported > initialises an empty-array model to one canonical row on the first add (boundary)
+AssertionError: a + Add row control should exist for an empty model: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:224:75
+    222| 
+    223|     const addBtn = addRowControl(win);
+    224|     expect(addBtn, 'a + Add row control should exist for an empty mode…
+       |                                                                           ^
+    225|     addBtn.click();
+    226| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-2: + Add row appends a blank row carrying the imported header set, not the canonical schema > gives the new row exactly the imported headers (blank) so all rows share columns
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:245:20
+    243| 
+    244|     const addBtn = addRowControl(win);
+    245|     expect(addBtn).toBeTruthy();
+       |                    ^
+    246|     addBtn.click();
+    247| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-3: per-row delete removes the targeted row immediately with no confirmation > splices exactly the targeted row, preserves the order of the rest, and never prompts for confirmation
+AssertionError: each data row should have a delete control: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:277:66
+    275| 
+    276|     const delBtn = rowDeleteControl(win, 1); // delete the MIDDLE row
+    277|     expect(delBtn, 'each data row should have a delete control').toBeT…
+       |                                                                  ^
+    278|     delBtn.click();
+    279| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-3: per-row delete removes the targeted row immediately with no confirmation > removing the only row leaves an empty model and an empty table (boundary)
+AssertionError: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:298:20
+    296| 
+    297|     const delBtn = rowDeleteControl(win, 0);
+    298|     expect(delBtn).toBeTruthy();
+       |                    ^
+    299|     delBtn.click();
+    300| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-4: an authored-from-scratch row feeds its Group fixedEffortPerGroup shift > lifts only the Group whose members include the authored Category, with parsedConstantWork staying null
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:319:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > contributes 0 PM for a blank tshirt_size even when Category and Target quarter match a Group
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:341:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > excludes a blank-quarter row from every Target-quarter sum
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:356:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-5: lenient blanks on an authored row (blank size → 0 PM, blank quarter → excluded, blank Category → BLANK) > treats a blank Category as the (Blank) sentinel, matching only Groups whose members include BLANK
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:375:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-6: an added row renders the same smart editors as imported rows > renders the size cell as the seven-size <select> and category/team/quarter as datalist combos
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:392:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-7: ↓ Export CSV includes added-and-edited rows > exports constant-work-edited.csv containing every added row with its edited values
+AssertionError: a + Add row control should exist on the Constant work tab: expected null to be truthy
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ❯ clickAddRow tests/acceptance/phase-7-constant-work-add-delete.test.js:127:76
+    125| function clickAddRow(win) {
+    126|   const btn = addRowControl(win);
+    127|   expect(btn, 'a + Add row control should exist on the Constant work t…
+       |                                                                            ^
+    128|   btn.click();
+    129| }
+ ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js:425:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  01:21:29
+   Duration  703ms (transform 16ms, setup 0ms, collect 203ms, tests 257ms, environment 0ms, prepare 51ms)
