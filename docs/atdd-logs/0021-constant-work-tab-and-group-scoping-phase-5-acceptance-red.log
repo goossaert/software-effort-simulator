@@ -1,0 +1,90 @@
+command: npx vitest run tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js
+run_at: 2026-05-31T22:24:45Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-1: a constant-work-only quarter is selectable as a Target quarter but not a Historical quarter > lists constant-work-only quarters in the Target selector, omits them from the Historical selector, and the Target⊇Historical difference is exactly the constant-work-only quarters
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-2: selecting a constant-work-only Target quarter yields a pure-constant-work forecast > produces kPerGroup all-zero (no Initiatives in the quarter) and sits each Group flat at its own fixedEffortPerGroup entry
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-3: the Historical quarter selector source is unchanged (initiatives ∪ epics) > lists exactly the initiative ∪ epic quarters in the Historical selector, with no constant-work-only quarter added
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-6: the Data preview shows no non-zero excluded line when all constant work is in a Group > reports zero excluded PM and rows, and renders no positive "excluded" line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js (6 tests | 3 failed) 172ms
+   × AT-1: a constant-work-only quarter is selectable as a Target quarter but not a Historical quarter > lists constant-work-only quarters in the Target selector, omits them from the Historical selector, and the Target⊇Historical difference is exactly the constant-work-only quarters 76ms
+     → expected [ 'Q2 2026', 'Q3 2026' ] to include 'Q4 2026'
+   × AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview 18ms
+     → expected false to be true // Object.is equality
+   × AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line 16ms
+     → expected undefined to be 1 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-1: a constant-work-only quarter is selectable as a Target quarter but not a Historical quarter > lists constant-work-only quarters in the Target selector, omits them from the Historical selector, and the Target⊇Historical difference is exactly the constant-work-only quarters
+AssertionError: expected [ 'Q2 2026', 'Q3 2026' ] to include 'Q4 2026'
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js:138:20
+    136| 
+    137|     // Happy path: the constant-work-only quarter is a selectable Targ…
+    138|     expect(target).toContain('Q4 2026');
+       |                    ^
+    139|     expect(target).toContain('Q1 2027');
+    140|     // Negative: the Historical selector does not list a constant-work…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js:247:56
+    245|     // Stable seam: the per-Group constant-work PM vector, aligned ind…
+    246|     // with the per-Group K rows.
+    247|     expect(Array.isArray(preview.fixedEffortPerGroup)).toBe(true);
+       |                                                        ^
+    248|     expect(preview.fixedEffortPerGroup).toHaveLength(preview.kPerGroup…
+    249|     expect(preview.fixedEffortPerGroup).toHaveLength(preview.groupName…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected: 
+1
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js:280:36
+    278|     const preview = previewOf(win, ['Q2 2026'], ['Q3 2026']);
+    279|     // Only the single in-Target-quarter, in-no-Group row is excluded.
+    280|     expect(preview.cwExcludedRows).toBe(1);
+       |                                    ^
+    281|     expect(preview.cwExcludedPM).toBeCloseTo(pm(win, 'L'), 10);
+    282|     // The in-Group Backend row's effort is NOT folded into the exclud…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  00:24:46
+   Duration  626ms (transform 15ms, setup 0ms, collect 203ms, tests 172ms, environment 0ms, prepare 66ms)
+

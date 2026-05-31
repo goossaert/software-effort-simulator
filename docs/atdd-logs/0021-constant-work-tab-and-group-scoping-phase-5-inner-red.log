@@ -1,0 +1,67 @@
+command: npx vitest run tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js -t "Data preview"
+run_at: 2026-05-31T22:24:46Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-6: the Data preview shows no non-zero excluded line when all constant work is in a Group > reports zero excluded PM and rows, and renders no positive "excluded" line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js (6 tests | 2 failed | 3 skipped) 120ms
+   × AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview 75ms
+     → expected false to be true // Object.is equality
+   × AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line 24ms
+     → expected undefined to be 1 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js:247:56
+    245|     // Stable seam: the per-Group constant-work PM vector, aligned ind…
+    246|     // with the per-Group K rows.
+    247|     expect(Array.isArray(preview.fixedEffortPerGroup)).toBe(true);
+       |                                                        ^
+    248|     expect(preview.fixedEffortPerGroup).toHaveLength(preview.kPerGroup…
+    249|     expect(preview.fixedEffortPerGroup).toHaveLength(preview.groupName…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected: 
+1
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js:280:36
+    278|     const preview = previewOf(win, ['Q2 2026'], ['Q3 2026']);
+    279|     // Only the single in-Target-quarter, in-no-Group row is excluded.
+    280|     expect(preview.cwExcludedRows).toBe(1);
+       |                                    ^
+    281|     expect(preview.cwExcludedPM).toBeCloseTo(pm(win, 'L'), 10);
+    282|     // The in-Group Backend row's effort is NOT folded into the exclud…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed | 3 skipped (6)
+   Start at  00:24:47
+   Duration  559ms (transform 15ms, setup 0ms, collect 190ms, tests 120ms, environment 0ms, prepare 59ms)
+

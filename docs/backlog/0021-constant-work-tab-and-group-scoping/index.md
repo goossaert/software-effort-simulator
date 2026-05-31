@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 5
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T22:12:07Z
+next_handover: handover-16-atdd-p5.md
+updated_at: 2026-05-31T22:25:14Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -217,3 +217,22 @@ guard fails AT-4 (exit 1); both reverted → 6/6 GREEN. Targeted (6 pass), combi
 (183 passed / 1 skipped) all exit 0. Review:
 `docs/reviews/0021-…-phase-4-review-01.md`. Advanced to **Phase 5 atdd**
 (`current_phase: 5`, `retry_count: 0`); next handover `handover-03-plan.md`.
+
+**Phase 5 atdd done** (this commit): authored
+`tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js` (AT-1…AT-6, 6 `it`s)
+for the **Target quarter** selector sourcing constant-work quarters and the **Data preview**
+surfacing per-Group constant-work PM + an "in no group … excluded" line. **No legacy
+migration needed** (the plan concentrates migrations in Phases 1/2/6/8; no committed test
+asserts the pre-Phase-5 selector source or preview shape). Seams (autonomously chosen):
+`refreshQuarters()` read through the rendered checkbox options under
+`#target-ms`/`#hist-ms .ms-options-wrap` (not the widget's internal field); the plan-named
+`preview.fixedEffortPerGroup` / `cwExcludedPM` / `cwExcludedRows` fields (exact values) plus
+lenient rendered-text presence checks (`/PM/i`, `/excluded/i`, and a negative
+`/[1-9]\d*\s*rows?…excluded/i` guard). RED-drivers AT-1/AT-4/AT-5 (exactly the plan's RED
+gate); AT-2 (pure-constant-work forecast), AT-3 (Historical source unchanged), AT-6
+(no positive excluded line, overlap-aware) are preserved-behavior guards GREEN on the
+post-Phase-4 build. RED confirmed: acceptance run 3 failed / 3 passed, exit 1; focused inner
+run (`-t "Data preview"`) 2 failed / 1 passed / 3 skipped, exit 1; full suite
+(`npm run verify`) 3 failed / 186 passed / 1 skipped, exit 1 — RED confined to the new file.
+Logs under `docs/atdd-logs/0021-…-phase-5-{acceptance-red,inner-red,verify-ci}.log`. Advanced
+to **Phase 5 implement** (`stage: implement`); next handover `handover-16-atdd-p5.md`.
