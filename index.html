@@ -4027,14 +4027,19 @@ let _membersPopoverIdx  = null;
 let _membersPopoverDocs = null;
 
 function _observedCategoriesForPopover() {
-  // Source from editedInitiatives (current edited state per AT-28).
+  // Source from the union of editedInitiatives AND editedConstantWork Categories,
+  // computed at popover-open time (ADR-0033, Phase 8) so it reflects the current
+  // edited state of both tabs. Initiative casing wins on a case-insensitive merge
+  // (initiatives seeded first); a constant-work-only Category keeps its own casing.
+  // Reuses the same union semantics as syncAutoDefaultGroup (trim + case-fold +
+  // (Blank) sentinel via collectObservedCategories). The BLANK sentinel is excluded
+  // here — the popover renders a dedicated `(Blank)` row separately.
   // Stable order: alphabetical (case-insensitive) by first-seen casing.
-  if (!editedInitiatives || !editedInitiatives.length) return [];
-  const categoryCol = detectedCols?.categoryCol;
-  const firstSeen = new Map();
-  for (const r of editedInitiatives) {
-    const raw = categoryCol ? r[categoryCol] : '';
-    const cat = normalizeCategory(raw);
+  const initCatCol = (detectedCols || {}).categoryCol;
+  const initCats = collectObservedCategories(editedInitiatives, initCatCol);
+  const cwCats   = collectObservedCategories(editedConstantWork, 'category');
+  const firstSeen = new Map(); // lowercase → first-seen casing (initiatives seeded first)
+  for (const cat of [...initCats, ...cwCats]) {
     if (cat === BLANK) continue;
     const lc = cat.toLowerCase();
     if (!firstSeen.has(lc)) firstSeen.set(lc, cat);

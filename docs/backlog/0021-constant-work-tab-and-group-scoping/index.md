@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 8
 retry_count: 0
 max_retries: 3
-next_handover: handover-25-atdd-p8.md
-updated_at: 2026-05-31T23:42:42Z
+next_handover: handover-26-implement-p8.md
+updated_at: 2026-05-31T23:48:05Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -448,3 +448,26 @@ post-Phase-7 build (same shape as Phases 4/5 GREEN guards). Focused inner run (`
 the 1 skipped is the pre-existing self-skipping `sanity-check-engine-mean.test.js`. Logs under
 `docs/atdd-logs/0021-…-phase-8-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
 **Phase 8 implement** (`stage: implement`); next handover `handover-25-atdd-p8.md`.
+
+**Phase 8 implement done** (this commit): implemented the **Groups Members popover** sourcing
+its observed-Categories option list from the **union of `editedInitiatives` ∪ `editedConstantWork`**
+inline in `index.html` (one production file, one function). Widened
+`_observedCategoriesForPopover()` from an `editedInitiatives`-only source to the union: it now
+calls `collectObservedCategories(editedInitiatives, detectedCols.categoryCol)` and
+`collectObservedCategories(editedConstantWork, 'category')` (the **same** helper +
+trim/case-fold/(Blank)-sentinel semantics `syncAutoDefaultGroup` uses), seeds the case-fold map
+from the **initiatives first** (Initiative casing wins on a merge), adds constant-work Categories
+not already present (constant-work-only keeps its own casing), excludes the **BLANK sentinel** (the
+popover keeps its dedicated `(Blank)` row) and sorts alphabetically (case-insensitive). Computed at
+**popover-open time** (`openMembersPopover` calls it on each open — recompute-on-reopen, not cached).
+The dropped `editedInitiatives`-empty early-return makes constant-work-only Categories appear even
+with no initiatives. `openMembersPopover`'s `(Blank)` row and free-text input are **untouched**; the
+engine, the per-Group scoping helpers (`getConstantWorkEffortPerGroup` / `getConstantWorkExcluded`),
+and the Constant work tab are **untouched** — AT-4 only *reads* those existing seams to confirm
+adding a constant-work Category to a Group scopes its work on the next Run while clearing the
+excluded line. GREEN confirmed: targeted
+`phase-8-groups-popover-union.test.js` + `phase-2-groups-tab.test.js` 45/45 pass (exit 0); the 8
+RED tests flipped; `npm run verify` exits 0 (**226 passed / 1 skipped** — the pre-existing
+self-skipping `sanity-check-engine-mean.test.js`). No test file edited; the only production change
+is `index.html`. Advanced to **Phase 8 review** (`stage: review`); next handover
+`handover-26-implement-p8.md`.
