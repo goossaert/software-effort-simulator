@@ -585,6 +585,15 @@
     #initiatives-table-wrap select:focus { outline: 2px solid #4f46e5; outline-offset: 1px; }
     .init-readonly-cell { color: #374151; font-size: 12px; }
     .initiatives-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    #constant-work-table-wrap { overflow-x: auto; }
+    #constant-work-table-wrap table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    #constant-work-table-wrap th { background: #f1f5f9; padding: 7px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; font-weight: 600; color: #374151; }
+    #constant-work-table-wrap td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    #constant-work-table-wrap tr:hover td { background: #f8fafc; }
+    #constant-work-table-wrap input, #constant-work-table-wrap select { font-size: 12px; border: 1px solid #d1d5db; border-radius: 4px; padding: 2px 6px; background: #fff; }
+    #constant-work-table-wrap select { padding: 2px 20px 2px 6px; cursor: pointer; max-width: 180px; }
+    #constant-work-table-wrap input:focus, #constant-work-table-wrap select:focus { outline: 2px solid #4f46e5; outline-offset: 1px; }
+    .constant-work-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 
     /* Team sections */
     #teams-container { display: flex; flex-direction: column; gap: 36px; }
@@ -1017,6 +1026,7 @@
           <button class="tab-btn" data-tab="teams">Team Level</button>
           <button class="tab-btn" data-tab="projections">Team Projections</button>
           <button class="tab-btn" data-tab="initiatives">Initiatives</button>
+          <button class="tab-btn" data-tab="constant-work">Constant work</button>
           <button class="tab-btn" data-tab="groups">Groups</button>
         </div>
 
@@ -1053,6 +1063,11 @@
         <!-- Initiatives tab panel -->
         <div id="tab-initiatives" class="tab-panel" style="display:none">
           <div id="initiatives-table-wrap"></div>
+        </div>
+
+        <!-- Constant work tab panel (feature 0021 Phase 6) -->
+        <div id="tab-constant-work" class="tab-panel" style="display:none">
+          <div id="constant-work-table-wrap"></div>
         </div>
 
         <!-- Groups tab panel (feature 0020 Phase 2 + Phase 3 toolbar) -->
@@ -3619,6 +3634,118 @@ function renderInitiativesTable() {
   container.innerHTML = html;
 }
 
+// ── Constant work tab — feature 0021 Phase 6 (ADR-0034) ───────────
+//
+// Renders `editedConstantWork` into #constant-work-table-wrap as a fully
+// editable table modelled on renderInitiativesTable, but with NO read-only
+// cells (constant work has no Epics join to protect). Per-column editor rule:
+//   • tshirt_size / t_shirt_size → <select> of exactly the seven Recognised
+//     t-shirt sizes (closing the silent-0-PM footgun); an unrecognised imported
+//     size is preserved as an extra selected option so no data is lost.
+//   • category / moscow / emoji, team, quarter → <input list> datalist combos
+//     seeded from the observed UNION of editedInitiatives ∪ editedConstantWork
+//     values for that field (ADR-0023 aliases; the union covers the merge path).
+//   • everything else (jira_key/epic_key, epic_name/building_block, key_result,
+//     notes, any unknown extra column) → free-text <input type="text">.
+// Inline onchange handlers commit `this.value` to editedConstantWork[rowIdx][col]
+// and call tryUpdatePreview() — no Run fires (commit-on-Run; ADR-0027/0034).
+// Cell values use escapeHtml so a script-injection payload renders inert AND the
+// value round-trips exactly (escapeAttr's \'-escaping would corrupt the value).
+
+// Constant-work field → datalist column-key recognisers (ADR-0023 aliases).
+const CW_SIZE_COLS     = new Set(['tshirt_size', 't_shirt_size']);
+const CW_CATEGORY_COLS = new Set(['category', 'moscow', 'emoji']);
+const CW_TEAM_COLS     = new Set(['team']);
+const CW_QUARTER_COLS  = new Set(['quarter']);
+
+// Observed non-empty, trimmed values for the given candidate columns across a
+// rows array — de-duplicated in first-seen order. Used to seed the
+// category/team/quarter datalists from the editedInitiatives ∪ editedConstantWork
+// union (the initiative team column is `teams`; constant work uses `team`).
+function _cwObservedValues(rows, candidateCols) {
+  const seen = new Set();
+  const out  = [];
+  for (const r of (rows || [])) {
+    if (!r) continue;
+    for (const col of candidateCols) {
+      if (r[col] == null) continue;
+      const v = String(r[col]).trim();
+      if (!v || seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+    }
+  }
+  return out;
+}
+
+function renderConstantWorkTable() {
+  const container = document.getElementById('constant-work-table-wrap');
+  if (!container) return;
+  if (!editedConstantWork || !editedConstantWork.length) {
+    container.innerHTML = '<p style="color:#6b7280;padding:16px">No constant work loaded.</p>';
+    return;
+  }
+
+  const sizes = Object.keys(T_SHIRT_PARAMS); // the seven Recognised t-shirt sizes
+
+  // Datalist options: union of observed values across BOTH editedInitiatives and
+  // editedConstantWork. The initiative team column is `teams` (plural); the
+  // constant-work team column is `team` — both naming conventions are covered.
+  const catCols  = ['category', 'moscow', 'emoji'];
+  const teamCols = ['team', 'teams'];
+  const qCols    = ['quarter'];
+  const catList  = [...new Set([..._cwObservedValues(editedInitiatives, catCols),  ..._cwObservedValues(editedConstantWork, catCols)])];
+  const teamList = [...new Set([..._cwObservedValues(editedInitiatives, teamCols), ..._cwObservedValues(editedConstantWork, teamCols)])];
+  const qList    = [...new Set([..._cwObservedValues(editedInitiatives, qCols),    ..._cwObservedValues(editedConstantWork, qCols)])];
+
+  const datalistHtml =
+    `<datalist id="cw-category-options">${catList.map(v => `<option value="${escapeHtml(v)}"></option>`).join('')}</datalist>` +
+    `<datalist id="cw-team-options">${teamList.map(v => `<option value="${escapeHtml(v)}"></option>`).join('')}</datalist>` +
+    `<datalist id="cw-quarter-options">${qList.map(v => `<option value="${escapeHtml(v)}"></option>`).join('')}</datalist>`;
+
+  const cols = Object.keys(editedConstantWork[0]);
+
+  let html = `
+    <div class="constant-work-toolbar">
+      <button class="add-marker-btn" onclick="exportConstantWorkCSV()">↓ Export CSV</button>
+    </div>
+    ${datalistHtml}
+    <table>
+      <thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+      <tbody>`;
+
+  editedConstantWork.forEach((row, rowIdx) => {
+    html += '<tr>';
+    cols.forEach(col => {
+      const val      = row[col] != null ? row[col] : '';
+      const current  = String(val);
+      const safeCol  = escapeAttr(col);
+      const onchange = `editedConstantWork[${rowIdx}]['${safeCol}'] = this.value; tryUpdatePreview()`;
+      if (CW_SIZE_COLS.has(col)) {
+        // Size <select>: the seven canonical sizes always present; an
+        // unrecognised current value is appended (and selected) so it is not lost.
+        const opts = (sizes.includes(current) || !current) ? sizes : [...sizes, current];
+        html += `<td><select onchange="${onchange}">`;
+        opts.forEach(s => {
+          html += `<option value="${escapeHtml(s)}"${s === current ? ' selected' : ''}>${escapeHtml(s)}</option>`;
+        });
+        html += '</select></td>';
+      } else if (CW_CATEGORY_COLS.has(col) || CW_TEAM_COLS.has(col) || CW_QUARTER_COLS.has(col)) {
+        const listId = CW_CATEGORY_COLS.has(col) ? 'cw-category-options'
+                     : CW_TEAM_COLS.has(col)     ? 'cw-team-options'
+                     :                             'cw-quarter-options';
+        html += `<td><input list="${listId}" type="text" value="${escapeHtml(current)}" onchange="${onchange}"></td>`;
+      } else {
+        html += `<td><input type="text" value="${escapeHtml(current)}" onchange="${onchange}"></td>`;
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
 // ── Groups tab — feature 0020 Phase 2 ─────────────────────────────
 //
 // Renders the editable Groups table from `groupsStore` into #groups-table-wrap.
@@ -4062,6 +4189,23 @@ function exportInitiativesCSV() {
   URL.revokeObjectURL(url);
 }
 
+// Export the edited constant work to CSV (feature 0021 Phase 6, ADR-0034).
+// No-op when nothing is loaded. Papa.unparse derives the header from the first
+// row's keys, so the imported header set is preserved verbatim — no alias
+// normalisation, no column reorder — and the file round-trips through
+// loadConstantWorkCSV.
+function exportConstantWorkCSV() {
+  if (!editedConstantWork || !editedConstantWork.length) return;
+  const csv  = Papa.unparse(editedConstantWork);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'constant-work-edited.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ── Save markers to CSV ───────────────────────────────────────────
 function saveMarkersToCSV(contextKey) {
   const markers = getMarkers(contextKey);
@@ -4403,6 +4547,9 @@ document.getElementById('run-btn').addEventListener('click', () => {
       // ── Render initiatives table ──────────────────────────────
       renderInitiativesTable();
 
+      // ── Render constant work table (feature 0021 Phase 6) ─────
+      renderConstantWorkTable();
+
       // ── Render Groups tab (feature 0020 Phase 2) ──────────────
       renderGroupsTab();
 
@@ -4413,11 +4560,12 @@ document.getElementById('run-btn').addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.tab === 'org')
       );
-      document.getElementById('tab-org').style.display          = 'flex';
-      document.getElementById('tab-teams').style.display        = 'none';
-      document.getElementById('tab-projections').style.display  = 'none';
-      document.getElementById('tab-initiatives').style.display  = 'none';
-      document.getElementById('tab-groups').style.display       = 'none';
+      document.getElementById('tab-org').style.display            = 'flex';
+      document.getElementById('tab-teams').style.display          = 'none';
+      document.getElementById('tab-projections').style.display    = 'none';
+      document.getElementById('tab-initiatives').style.display    = 'none';
+      document.getElementById('tab-constant-work').style.display  = 'none';
+      document.getElementById('tab-groups').style.display         = 'none';
       document.getElementById('results-content').style.display  = 'flex';
 
     } catch (err) {

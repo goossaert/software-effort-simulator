@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 6
 retry_count: 0
 max_retries: 3
-next_handover: handover-19-atdd-p6.md
-updated_at: 2026-05-31T22:50:30Z
+next_handover: handover-20-implement-p6.md
+updated_at: 2026-05-31T23:04:00Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -305,3 +305,27 @@ passed / 1 skipped** — RED confined to the new Phase 6 file (15) + the migrate
 AT-1 (1). Logs under
 `docs/atdd-logs/0021-…-phase-6-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
 **Phase 6 implement** (`stage: implement`); next handover `handover-19-atdd-p6.md`.
+
+**Phase 6 implement done** (this commit): implemented the sixth **Constant work tab** inline in
+`index.html` (one production file). Added the `data-tab="constant-work"` tab button (fifth, between
+Initiatives and Groups) and the `#tab-constant-work` panel (`class="tab-panel"`,
+`style="display:none"`) wrapping `#constant-work-table-wrap`; new `renderConstantWorkTable()`
+(modelled on `renderInitiativesTable`, all cells editable — `tshirt_size`/`t_shirt_size` →
+`<select>` of exactly the seven Recognised t-shirt sizes from `Object.keys(T_SHIRT_PARAMS)`, with an
+unrecognised imported size preserved as an extra selected option; `category`/`moscow`/`emoji`,
+`team`, `quarter` → `<input list>` datalist combos seeded from the observed **union** of
+`editedInitiatives` ∪ `editedConstantWork` via the new `_cwObservedValues` helper, covering the
+initiative `teams`/constant-work `team` naming split; all other columns → free-text `<input>`),
+writing `#constant-work-table-wrap.innerHTML` once; inline `onchange` handlers commit `this.value` to
+`editedConstantWork[rowIdx][col]` and call `tryUpdatePreview()` (no Run — commit-on-Run). New
+`exportConstantWorkCSV()` (`Papa.unparse(editedConstantWork)` → `constant-work-edited.csv`, imported
+header set verbatim, round-trips). Cell values use `escapeHtml` (not `escapeAttr`) so the
+`<script>` payload renders inert **and** the value round-trips exactly (recorded decision —
+`escapeAttr`'s `\'`-escaping would corrupt the value). `renderConstantWorkTable()` wired into the Run
+handler; `#tab-constant-work` added to the visibility-reset block. CSS for `#constant-work-table-wrap`
+mirrors `#initiatives-table-wrap`. GREEN confirmed: combined acceptance
+(`phase-6-constant-work-tab.test.js` + `phase-2-groups-tab.test.js`) 49/49 pass (exit 0); focused
+inner run (`-t "AT-4:"`) 3 pass / 12 skip (exit 0); `npm run verify` exits 0 (204 passed / 1 skipped —
+the 16 RED tests flipped, no regression). No test file edited; the only production change is
+`index.html`. Advanced to **Phase 6 review** (`stage: review`); next handover
+`handover-20-implement-p6.md`.
