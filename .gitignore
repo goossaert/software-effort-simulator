@@ -3,3 +3,4 @@ package-lock.json
 .vitest-cache/
 .backlog-logs/
 .ai-jail
+.agent/
