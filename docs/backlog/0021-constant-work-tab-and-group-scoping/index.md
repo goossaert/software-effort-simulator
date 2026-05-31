@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T20:45:15Z
+next_handover: handover-07-atdd-p2.md
+updated_at: 2026-05-31T21:01:54Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -59,3 +59,17 @@ residual `parsedConstantWork` references are lifecycle-only), and no test file d
 `parsedConstantWork` fails AT-4 (exit 1); revert → 39/39 GREEN. Targeted + `npm run verify`
 both exit 0. Review: `docs/reviews/0021-…-phase-1-review-01.md`. Advanced to **Phase 2 atdd**
 (`current_phase: 2`); next handover `handover-03-plan.md`.
+
+**Phase 2 atdd done** (this commit): authored
+`tests/acceptance/phase-2-constant-work-org-scoping.test.js` (AT-1…AT-11 for the
+per-Group `fixedEffortPerGroup` org-headline shift) and migrated the scalar-contract
+tests onto the vector: `phase-1-engine.test.js` AT-11/13/14/25 (mechanical
+`fixedEffort: 0` → `fixedEffortPerGroup: [0,…]`), AT-12 (rewritten — a zero-member
+Group's shift is now its own `0`, not a shared scalar), plus
+`tests/verification/phase-1-2-review-01.test.js` and the self-skipping
+`sanity-check-engine-mean.test.js` (per-Group engine-mean identity). RED gate
+confirmed: acceptance run 11 failed / 1 passed (AT-10 is the auto-default-freeze guard,
+green on both builds), exit 1; full suite 12 failed / 160 passed / 1 skipped, exit 1 —
+targeted (only the new file + AT-12 fail). Logs under
+`docs/atdd-logs/0021-…-phase-2-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
+**Phase 2 implement** (`stage: implement`); next handover `handover-07-atdd-p2.md`.

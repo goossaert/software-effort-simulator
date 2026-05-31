@@ -252,7 +252,7 @@ describe('AT-11: runSimulation results per Group', () => {
       kPerGroup: [3, 7],
       capacity: 120,
       iterations: 1000,
-      fixedEffort: 0,
+      fixedEffortPerGroup: [0, 0],
       groups: ${JSON.stringify(groups)},
     })`);
 
@@ -268,29 +268,38 @@ describe('AT-11: runSimulation results per Group', () => {
   });
 });
 
-// ─── AT-12: zero-members Group → all-fixedEffort distribution ───────
-describe('AT-12: zero-members Group yields fixedEffort-only distribution', () => {
-  it('Float64Array of all fixedEffort with p50 === fixedEffort', () => {
+// ─── AT-12: zero-member Group sits at its OWN per-Group shift (0) ────
+// Migrated + rewritten for feature 0021 Phase 2 (semantics change). The old
+// scalar `fixedEffort` lifted EVERY Group — including a zero-member one — by
+// the single global shift (here 5). Under the per-Group vector contract a
+// zero-member Group's shift is the sum of constant work over its empty member
+// set, i.e. 0; it no longer rides a shared scalar. The second, populated Group
+// proves the shift is applied PER GROUP, not uniformly.
+describe('AT-12: a zero-member Group sits at its own fixedEffortPerGroup entry (0), not a shared scalar', () => {
+  it('keeps the zero-member Group flat at 0 while a populated Group sits at its own shift', () => {
     const win = loadSimulator();
     const groups = [
-      { name: 'Empty', color: '#000', members: [], isProjection: false },
+      { name: 'Empty',   color: '#000',    members: [],          isProjection: false },
+      { name: 'Backend', color: '#ea7c2c', members: ['Backend'], isProjection: true  },
     ];
     const out = evalIn(win, `runSimulation({
       lambda: 1.0,
       epicSizingDist: ['M'],
-      kPerGroup: [0],
+      kPerGroup: [0, 0],
       capacity: 120,
       iterations: 100,
-      fixedEffort: 5,
+      fixedEffortPerGroup: [0, 5],
       groups: ${JSON.stringify(groups)},
     })`);
 
-    const empty = out.results.find(r => r.name === 'Empty');
+    const empty   = out.results.find(r => r.name === 'Empty');
+    const backend = out.results.find(r => r.name === 'Backend');
     expect(empty.sorted).toHaveLength(100);
-    for (let i = 0; i < empty.sorted.length; i++) {
-      expect(empty.sorted[i]).toBe(5);
-    }
-    expect(empty.stats.p50).toBe(5);
+    for (let i = 0; i < empty.sorted.length; i++) expect(empty.sorted[i]).toBe(0);
+    expect(empty.stats.p50).toBe(0);
+    // The populated Group sits at its OWN shift — per-Group, not uniform.
+    for (let i = 0; i < backend.sorted.length; i++) expect(backend.sorted[i]).toBe(5);
+    expect(backend.stats.p50).toBe(5);
   });
 });
 
@@ -310,7 +319,7 @@ describe('AT-13: org-level chart renders one dataset per Group', () => {
       kPerGroup: [2, 5],
       capacity: 120,
       iterations: 200,
-      fixedEffort: 0,
+      fixedEffortPerGroup: [0, 0],
       groups: ${JSON.stringify(groups)},
     })`);
 
@@ -340,7 +349,7 @@ describe('AT-14: org-level stats table renders one column per Group', () => {
       kPerGroup: [1, 2, 3],
       capacity: 120,
       iterations: 200,
-      fixedEffort: 0,
+      fixedEffortPerGroup: [0, 0, 0],
       groups: ${JSON.stringify(groups)},
     })`);
     execIn(win, `renderStatsTable(${JSON.stringify(out)}, 120);`);
@@ -569,7 +578,7 @@ describe('AT-25: Team Level tab stats table has one column per Group', () => {
       kPerGroup: [1, 2],
       capacity: 120,
       iterations: 200,
-      fixedEffort: 0,
+      fixedEffortPerGroup: [0, 0],
       groups: ${JSON.stringify(groups)},
     })`);
     execIn(win, `renderStatsTableInto('team-stats-tbody-0', ${JSON.stringify(out)}, 120, 'team-0');`);

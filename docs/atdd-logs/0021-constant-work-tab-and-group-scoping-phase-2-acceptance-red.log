@@ -1,0 +1,257 @@
+command: npx vitest run tests/acceptance/phase-2-constant-work-org-scoping.test.js
+run_at: 2026-05-31T21:01:17Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-1: a constant-work row lifts only the Groups whose members include its Category > credits the matching Group its t-shirt person-months, leaves non-matching Groups at 0, and ignores rows outside the Target quarters
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-2: a constant-work row whose Category is in no Group lifts nothing > excludes the row from every Group when its Category matches no members
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-3: per-Group Category matching is case-insensitive and trimmed > matches " backend " against the member "Backend"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-4: a blank-Category constant-work row lifts only Groups whose members include the (Blank) sentinel > credits the BLANK-member Group and leaves a string-member Group at 0
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-7: constant work changes only fixedEffortPerGroup — never kPerGroup, λ, or the epic sizing pool > keeps kPerGroup, lambda and epicSizingDist identical with and without a constant-work row
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-8: a constant-work Category present in multiple Groups lifts each of them > credits every Group whose members include the overlapping Category
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions {Analytics,Backend} (initiatives) with {Compliance} (constant work) when initiatives load first
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions the same Categories when constant work loads first
+[ConstantWork] 1 rows
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-10: the auto-default stops auto-syncing once the user has modified Groups > leaves user-defined Groups untouched when a later Constant Work CSV introduces a new Category
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-11: a Run with totalK === 0 but constant work present sits each Group at its own per-Group shift > produces a flat per-Group distribution at each Group constant-work person-months (pure constant work)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js (12 tests | 11 failed) 294ms
+   × AT-1: a constant-work row lifts only the Groups whose members include its Category > credits the matching Group its t-shirt person-months, leaves non-matching Groups at 0, and ignores rows outside the Target quarters 77ms
+     → expected false to be true // Object.is equality
+   × AT-2: a constant-work row whose Category is in no Group lifts nothing > excludes the row from every Group when its Category matches no members 25ms
+     → expected undefined to deeply equal [ +0 ]
+   × AT-3: per-Group Category matching is case-insensitive and trimmed > matches " backend " against the member "Backend" 21ms
+     → Cannot read properties of undefined (reading '0')
+   × AT-4: a blank-Category constant-work row lifts only Groups whose members include the (Blank) sentinel > credits the BLANK-member Group and leaves a string-member Group at 0 20ms
+     → Cannot read properties of undefined (reading '0')
+   × AT-5: runSimulation shifts each Group distribution by its own fixedEffortPerGroup entry > sits each Group flat at its own shift (property over a 0/positive vector) and reports fixedEffortPerGroup, not the scalar fixedEffort 19ms
+     → expected +0 to be 5 // Object.is equality
+   × AT-6: the shared Global histogram range floor (globalMin) is the minimum per-Group shift > sets globalMin === min(fixedEffortPerGroup) across several vectors and keeps bins shared 26ms
+     → expected +0 to be 3 // Object.is equality
+   × AT-7: constant work changes only fixedEffortPerGroup — never kPerGroup, λ, or the epic sizing pool > keeps kPerGroup, lambda and epicSizingDist identical with and without a constant-work row 18ms
+     → expected undefined to deeply equal [ +0 ]
+   × AT-8: a constant-work Category present in multiple Groups lifts each of them > credits every Group whose members include the overlapping Category 17ms
+     → Cannot read properties of undefined (reading '0')
+   × AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions {Analytics,Backend} (initiatives) with {Compliance} (constant work) when initiatives load first 18ms
+     → expected false to be true // Object.is equality
+   × AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions the same Categories when constant work loads first 18ms
+     → expected false to be true // Object.is equality
+   × AT-11: a Run with totalK === 0 but constant work present sits each Group at its own per-Group shift > produces a flat per-Group distribution at each Group constant-work person-months (pure constant work) 17ms
+     → expected +0 to be close to 2.200382139383515, received difference is 2.200382139383515, but expected 5e-11
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-1: a constant-work row lifts only the Groups whose members include its Category > credits the matching Group its t-shirt person-months, leaves non-matching Groups at 0, and ignores rows outside the Target quarters
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:119:32
+    117| 
+    118|     const vec = prepare(win, ['Q1 2026'], ['Q3 2026']).fixedEffortPerG…
+    119|     expect(Array.isArray(vec)).toBe(true);
+       |                                ^
+    120|     expect(vec).toHaveLength(2);
+    121|     expect(vec[0]).toBeCloseTo(pm(win, 'M'), 10); // Backend lifted by…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-2: a constant-work row whose Category is in no Group lifts nothing > excludes the row from every Group when its Category matches no members
+AssertionError: expected undefined to deeply equal [ +0 ]
+
+- Expected: 
+Array [
+  0,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:136:17
+    134| 
+    135|     const vec = prepare(win, ['Q1 2026'], ['Q3 2026']).fixedEffortPerG…
+    136|     expect(vec).toEqual([0]);
+       |                 ^
+    137|   });
+    138| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-3: per-Group Category matching is case-insensitive and trimmed > matches " backend " against the member "Backend"
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:150:15
+    148| 
+    149|     const vec = prepare(win, ['Q1 2026'], ['Q3 2026']).fixedEffortPerG…
+    150|     expect(vec[0]).toBeCloseTo(pm(win, 'S'), 10);
+       |               ^
+    151|   });
+    152| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-4: a blank-Category constant-work row lifts only Groups whose members include the (Blank) sentinel > credits the BLANK-member Group and leaves a string-member Group at 0
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:169:15
+    167| 
+    168|     const vec = prepare(win, ['Q1 2026'], ['Q3 2026']).fixedEffortPerG…
+    169|     expect(vec[0]).toBeCloseTo(pm(win, 'M'), 10); // (Blank)-member Gr…
+       |               ^
+    170|     expect(vec[1]).toBe(0);                        // string-member Gr…
+    171|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-5: runSimulation shifts each Group distribution by its own fixedEffortPerGroup entry > sits each Group flat at its own shift (property over a 0/positive vector) and reports fixedEffortPerGroup, not the scalar fixedEffort
+AssertionError: expected +0 to be 5 // Object.is equality
+
+- Expected
++ Received
+
+- 5
++ 0
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:195:65
+    193|       const sorted = out.results[gi].sorted;
+    194|       expect(sorted).toHaveLength(200);
+    195|       for (let i = 0; i < sorted.length; i++) expect(sorted[i]).toBe(s…
+       |                                                                 ^
+    196|       expect(out.results[gi].stats.p50).toBe(shifts[gi]);
+    197|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-6: the shared Global histogram range floor (globalMin) is the minimum per-Group shift > sets globalMin === min(fixedEffortPerGroup) across several vectors and keeps bins shared
+AssertionError: expected +0 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:223:29
+    221|         groups: ${JSON.stringify(groups)},
+    222|       })`);
+    223|       expect(out.globalMin).toBe(Math.min(...vec));
+       |                             ^
+    224|       expect(out.results[0].hist.binCenters).toEqual(out.results[1].hi…
+    225|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-7: constant work changes only fixedEffortPerGroup — never kPerGroup, λ, or the epic sizing pool > keeps kPerGroup, lambda and epicSizingDist identical with and without a constant-work row
+AssertionError: expected undefined to deeply equal [ +0 ]
+
+- Expected: 
+Array [
+  0,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:251:41
+    249| 
+    250|     // The only thing that moves is the per-Group constant-work vector.
+    251|     expect(without.fixedEffortPerGroup).toEqual([0]);
+       |                                         ^
+    252|     expect(wit.fixedEffortPerGroup[0]).toBeCloseTo(pm(win, 'M'), 10);
+    253|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-8: a constant-work Category present in multiple Groups lifts each of them > credits every Group whose members include the overlapping Category
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:269:15
+    267| 
+    268|     const vec = prepare(win, ['Q1 2026'], ['Q3 2026']).fixedEffortPerG…
+    269|     expect(vec[0]).toBeCloseTo(pm(win, 'M'), 10);
+       |               ^
+    270|     expect(vec[1]).toBeCloseTo(pm(win, 'M'), 10);
+    271|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions {Analytics,Backend} (initiatives) with {Compliance} (constant work) when initiatives load first
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ assertUnion tests/acceptance/phase-2-constant-work-org-scoping.test.js:282:32
+    280|     const members = new Set(groups[0].members);
+    281|     for (const cat of ['Analytics', 'Backend', 'Compliance']) {
+    282|       expect(members.has(cat)).toBe(true);
+       |                                ^
+    283|     }
+    284|   }
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:295:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions the same Categories when constant work loads first
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ assertUnion tests/acceptance/phase-2-constant-work-org-scoping.test.js:282:32
+    280|     const members = new Set(groups[0].members);
+    281|     for (const cat of ['Analytics', 'Backend', 'Compliance']) {
+    282|       expect(members.has(cat)).toBe(true);
+       |                                ^
+    283|     }
+    284|   }
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:307:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-11: a Run with totalK === 0 but constant work present sits each Group at its own per-Group shift > produces a flat per-Group distribution at each Group constant-work person-months (pure constant work)
+AssertionError: expected +0 to be close to 2.200382139383515, received difference is 2.200382139383515, but expected 5e-11
+ ❯ tests/acceptance/phase-2-constant-work-org-scoping.test.js:370:59
+    368|     const back = out.results[0].sorted;
+    369|     const front = out.results[1].sorted;
+    370|     for (let i = 0; i < back.length; i++) expect(back[i]).toBeCloseTo(…
+       |                                                           ^
+    371|     for (let i = 0; i < front.length; i++) expect(front[i]).toBeCloseT…
+    372|     // Flat band: zero variance, each Group sits exactly at its own sh…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 1 passed (12)
+   Start at  23:01:18
+   Duration  757ms (transform 17ms, setup 0ms, collect 197ms, tests 294ms, environment 0ms, prepare 63ms)

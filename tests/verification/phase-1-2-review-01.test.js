@@ -59,7 +59,7 @@ describe('Phase 1 — forbidden legacy fields are absent from engine returns', (
       lambda: 1.0,
       epicSizingDist: ['M'],
       kPerGroup: [1],
-      capacity: 120, iterations: 100, fixedEffort: 0,
+      capacity: 120, iterations: 100, fixedEffortPerGroup: [0],
       groups: ${JSON.stringify(groups)},
     })`);
     expect(Array.isArray(out.results)).toBe(true);
@@ -91,7 +91,7 @@ describe('Phase 1 — chart datasets derive translucent backgroundColor from Gro
 
     const out = evalIn(win, `runSimulation({
       lambda: 1.0, epicSizingDist: ['M'],
-      kPerGroup: [1, 1], capacity: 120, iterations: 200, fixedEffort: 0,
+      kPerGroup: [1, 1], capacity: 120, iterations: 200, fixedEffortPerGroup: [0, 0],
       groups: ${JSON.stringify(groups)},
     })`);
     execIn(win, `renderChart(${JSON.stringify(out)}, 120);`);

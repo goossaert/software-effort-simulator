@@ -1,10 +1,13 @@
 // Sanity check: the Monte Carlo engine's simulated mean per scenario should
-// equal `K × λ × E[size] + fixedEffort` within Monte Carlo noise, where:
+// equal `K_g × λ × E[size] + fixedEffortPerGroup[g]` per Group within Monte
+// Carlo noise, where:
 //   λ          — Poisson rate the engine computes from the historical epic pool
 //   E[size]    — mean of `tshirtToPersonMonths(size)` over that pool (i.e. the
 //                expected lognormal effort per epic under the active param set)
-//   K          — per-Group initiative count for the target quarters
-//   fixedEffort — sum of constant-work person-months for the target quarters
+//   K_g        — per-Group initiative count for the target quarters
+//   fixedEffortPerGroup[g] — per-Group sum of constant-work person-months,
+//                Category-scoped to that Group's members, for the target
+//                quarters (feature 0021 Phase 2 — replaces the global scalar)
 //
 // See handoff-run-sanity-check.md for the full prompt. We use the **Empirical
 // Lognormal Parameters** path (`T_SHIRT_PARAMS_EMPIRICAL`) to mirror the UI
@@ -164,7 +167,7 @@ const HIST_SELECTIONS = [
   ['Q1 2026', 'Q2 2026', 'Q3 2026'],       // case B in the bug report
 ];
 
-describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', () => {
+describe('Sanity check: simulated mean ≈ K_g × λ × E[size] + fixedEffortPerGroup[g]', () => {
   it.skipIf(SANITY_CSVS_MISSING)(
     'rel_error per scenario stays within ±1.5 % across 4 historical pools × 4 scenarios',
     () => {
@@ -237,14 +240,17 @@ describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', ()
       const rows = [];
       const aggregates = [];
       for (const histQs of HIST_SELECTIONS) {
+        // Migrated for feature 0021 Phase 2: the engine-mean identity is now
+        // per-Group. prepareSimulationData returns the org-wide per-Group
+        // constant-work vector `fixedEffortPerGroup` (Category-scoped, aligned
+        // with kPerGroup/groupsStore) — there is no global scalar shift.
         const sim = evalIn(win, `(function(){
           const p = prepareSimulationData(${JSON.stringify(histQs)}, ${JSON.stringify(TARGET_QUARTERS)});
-          const fe = getConstantWorkEffort(${JSON.stringify(TARGET_QUARTERS)});
           return {
             lambda: p.lambda,
             epicSizingDist: p.epicSizingDist,
             kPerGroup: p.kPerGroup,
-            fixedEffort: fe,
+            fixedEffortPerGroup: p.fixedEffortPerGroup,
           };
         })()`);
 
@@ -259,7 +265,7 @@ describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', ()
           groups: ${JSON.stringify(groupsSnap)},
           capacity: ${CAPACITY},
           iterations: ${ITERATIONS},
-          fixedEffort: ${sim.fixedEffort},
+          fixedEffortPerGroup: ${JSON.stringify(sim.fixedEffortPerGroup)},
         })`);
 
         aggregates.push({
@@ -268,12 +274,13 @@ describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', ()
           lambda_independent: indep.lambda,
           epicSizingCount: sim.epicSizingDist.length,
           expSize,
-          fixedEffort: sim.fixedEffort,
+          fixedEffortPerGroup: sim.fixedEffortPerGroup,
         });
 
         for (let gi = 0; gi < GROUPS.length; gi++) {
           const K = sim.kPerGroup[gi];
-          const predicted = K * sim.lambda * expSize + sim.fixedEffort;
+          const fixedEffortG = sim.fixedEffortPerGroup[gi];
+          const predicted = K * sim.lambda * expSize + fixedEffortG;
           const simulated = result.results[gi].stats.mean;
           const relErrPct = predicted === 0
             ? 0
@@ -282,7 +289,7 @@ describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', ()
             historical_pool: histQs.join(' + '),
             scenario: GROUPS[gi].name,
             K, lambda: sim.lambda, expSize,
-            fixedEffort: sim.fixedEffort,
+            fixedEffort: fixedEffortG,
             predicted, simulated,
             rel_error_pct: relErrPct,
           });
@@ -308,7 +315,7 @@ describe('Sanity check: simulated mean ≈ K × λ × E[size] + fixedEffort', ()
           a.lambda_independent.toFixed(4).padStart(10),
           String(a.epicSizingCount).padStart(7),
           a.expSize.toFixed(4).padStart(8),
-          a.fixedEffort.toFixed(2).padStart(8),
+          a.fixedEffortPerGroup.reduce((s, x) => s + x, 0).toFixed(2).padStart(8),
         ].join(' | '));
       }
 
