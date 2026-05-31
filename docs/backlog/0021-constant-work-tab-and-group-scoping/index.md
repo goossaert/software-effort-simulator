@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 3
+current_phase: 4
 retry_count: 0
 max_retries: 3
-next_handover: handover-11-implement-p3.md
-updated_at: 2026-05-31T21:43:49Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T21:52:01Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -22,6 +22,7 @@ artifacts:
   reviews:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-1-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-2-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-3-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -133,3 +134,22 @@ shift (never enters any team's `kPerGroup` / λ / bootstrap pool). The scalar he
 confirmed: targeted 5/5 pass (exit 0); `npm run verify` exits 0 (177 passed / 1 skipped).
 No test file edited; the only production change is `index.html`. Advanced to **Phase 3
 review** (`stage: review`); next handover `handover-11-implement-p3.md`.
+
+**Phase 3 review done** (this commit): verdict **PASS**. Independent verification
+(diff `aa0d576..aab5bab`) confirmed the general per-team rule (`index.html`-only):
+`prepareTeamSimulationData` reports a per-team `fixedEffortPerGroup` produced by the
+shared `getConstantWorkEffortPerGroup(targetQuarters, groupsStore, teamName)` — the
+case-insensitive team match AND-composes with ADR-0028 Category membership (trim +
+case-fold + the (Blank) sentinel), returning a vector aligned index-for-index with
+`groupsStore`/`kPerGroup`; `renderTeamSection` consumes `td.fixedEffortPerGroup`. The
+per-team scalar `fixedEffort` is gone (no uniform broadcast). None of the 4
+counterexamples is realizable; all 4 invariants hold by construction; constant work
+never enters any team's `kPerGroup` / λ / bootstrap pool. The org headline (Phase 2,
+`index.html:2033/2385`) and Team Projections (Phase 4, `index.html:2275`
+`fixedEffortPerGroup: [cwEffort]`) were left untouched; `getConstantWorkEffort` (scalar)
+is retained for Phase 1's frozen substrate tests. No test file drifted across
+`test_commit..impl_commit`. Negative control: dropping the `teamName` arg (org-wide CW)
+fails AT-2/AT-5 (exit 1); revert → 5/5 GREEN. Targeted (5 pass) + `npm run verify`
+(177 pass / 1 skip) both exit 0. Review:
+`docs/reviews/0021-…-phase-3-review-01.md`. Advanced to **Phase 4 atdd**
+(`current_phase: 4`, `retry_count: 0`); next handover `handover-03-plan.md`.
