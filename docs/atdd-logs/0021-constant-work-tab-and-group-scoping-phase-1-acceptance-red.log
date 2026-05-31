@@ -1,0 +1,367 @@
+command: npx vitest run tests/acceptance/phase-1-constant-work-substrate.test.js tests/acceptance/phase-1-engine.test.js
+run_at: 2026-05-31T20:28:57Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-1: loading a Constant Work CSV creates editedConstantWork as a per-row shallow clone of parsedConstantWork > clones every row into a new top-level array with equal length, distinct row references, equal values, and equal key order
+[ConstantWork] 3 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-2: mutating editedConstantWork[i][k] leaves parsedConstantWork[i][k] unchanged > keeps parsedConstantWork as the immutable parse output when a clone cell is reassigned
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-3: resetConstantWorkFile sets both parsedConstantWork and editedConstantWork to null > clears the constant-work substrate completely on file clear
+[ConstantWork] 2 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-4: getConstantWorkEffort reads editedConstantWork (deterministic person-months reflect edits) > returns the person-months of the EDITED t-shirt size, not the original parsed size
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-5: getConstantWorkEpics reads editedConstantWork > returns the EDITED epic name for the row's team and quarter
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-6: buildTeamProjections derives constant-work quarters from editedConstantWork > includes a team's EDITED constant-work quarter and drops the original parsed quarter
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-8: a freshly-loaded Constant Work CSV with no edits feeds the Run identically (transparent indirection) > makes editedConstantWork a structural clone of parsedConstantWork and the readers report the same effort
+[ConstantWork] 3 rows
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js (9 tests | 9 failed) 248ms
+   × AT-1: loading a Constant Work CSV creates editedConstantWork as a per-row shallow clone of parsedConstantWork > clones every row into a new top-level array with equal length, distinct row references, equal values, and equal key order 82ms
+     → expected false to be true // Object.is equality
+   × AT-2: mutating editedConstantWork[i][k] leaves parsedConstantWork[i][k] unchanged > keeps parsedConstantWork as the immutable parse output when a clone cell is reassigned 25ms
+     → Cannot read properties of undefined (reading '0')
+   × AT-3: resetConstantWorkFile sets both parsedConstantWork and editedConstantWork to null > clears the constant-work substrate completely on file clear 24ms
+     → expected undefined to be null
+   × AT-4: getConstantWorkEffort reads editedConstantWork (deterministic person-months reflect edits) > returns the person-months of the EDITED t-shirt size, not the original parsed size 20ms
+     → expected 2.200382139383515 to be 1.1001329597501839 // Object.is equality
+   × AT-5: getConstantWorkEpics reads editedConstantWork > returns the EDITED epic name for the row's team and quarter 21ms
+     → expected 'Original name' to be 'Edited name' // Object.is equality
+   × AT-6: buildTeamProjections derives constant-work quarters from editedConstantWork > includes a team's EDITED constant-work quarter and drops the original parsed quarter 21ms
+     → expected [ 'Q3 2026', 'Q4 2026' ] to include 'Q1 2027'
+   × AT-7: with no Constant Work CSV loaded the readers return their empty values > keeps both arrays null and returns 0 / [] from the readers 18ms
+     → expected undefined to be null
+   × AT-8: a freshly-loaded Constant Work CSV with no edits feeds the Run identically (transparent indirection) > makes editedConstantWork a structural clone of parsedConstantWork and the readers report the same effort 17ms
+     → expected undefined to deeply equal [ …(3) ]
+   × AT-9: re-loading a Constant Work CSV rebuilds the clone wholesale and discards prior edits > replaces editedConstantWork with a fresh clone of the new file and drops the earlier edit 19ms
+     → expected undefined to deeply equal [ Object{ jira_key: 'CW-B', …(6) } ]
+stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-9: re-loading a Constant Work CSV rebuilds the clone wholesale and discards prior edits > replaces editedConstantWork with a fresh clone of the new file and drops the earlier edit
+[ConstantWork] 1 rows
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-1: category header detection > detects the literal `category` header via detectCategoryCol
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-2: legacy moscow header detection > falls back to the `moscow` header when no `category` header is present
+[Initiatives] 1 rows | key="jira_key" | category="moscow" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-3: Quirky-format emoji header detection > falls back to the `emoji` header when neither `category` nor `moscow` is present
+[Initiatives] 1 rows | key="jira_key" | category="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-4: missing category/moscow/emoji header > yields categoryCol === null and every initiative resolves to the (Blank) sentinel
+[Initiatives] 1 rows | key="jira_key" | category="null" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-5: normalizeCategory equality semantics > buckets Automation, automation, "Automation " under one canonical Category
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-8: auto-default All Group on first CSV load > creates one Group {name:"All", color:"#4f46e5", isProjection:true, members:<observed>}
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-9: subsequent CSV load preserves user Groups > does NOT re-create the auto-default when groupsStore is non-empty
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-10: prepareSimulationData kPerGroup output > returns one count per Group in groupsStore order
+[Initiatives] 7 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:12044)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
+[Initiatives] 9 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-19: Initiatives tab category cell is input list datalist combo > renders <input list="category-options" …> per row and emits one <datalist> once
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-20: free-text Category typed in datalist combo writes through > after onchange fires, editedInitiatives[idx][categoryCol] === typed string
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-22: auto-default All Group includes (Blank) sentinel > members contains BLANK when any Initiative has an empty category cell
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-23: auto-default All Group → single Scenario covering all > kPerGroup[0] === total target-quarter initiative count
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-24: unreferenced Category buckets are excluded > initiatives in Categories absent from any Group.members do not influence any Scenario
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-26: buildTeamProjections drives band from the Projection Group > a zero-member Projection Group collapses the band to cwEffort even when MSC has non-zero count
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === []
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-28: overlapping Group membership counts in every match > an Initiative in a Category present in multiple Groups contributes to each K
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-29: subsequent CSV (re)load does NOT re-sync the existing All Group > the auto-default fires once; later loads leave the existing Group untouched
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-1-engine.test.js > AT-30: resetInitiativesFile leaves groupsStore intact > CSV reset clears parsedInitiatives but not Groups
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-1-engine.test.js (30 tests | 2 failed) 619ms
+   × AT-21: Constant Work CSV cascade category→moscow→emoji > getConstantWorkEpics resolves the row's category via the cascade 23ms
+     → expected [] to have a length of 1 but got +0
+   × AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === [] 16ms
+     → expected +0 to be 2.200382139383515 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-1: loading a Constant Work CSV creates editedConstantWork as a per-row shallow clone of parsedConstantWork > clones every row into a new top-level array with equal length, distinct row references, equal values, and equal key order
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:72:35
+     70|     const parsed = read(win, 'parsedConstantWork');
+     71| 
+     72|     expect(Array.isArray(edited)).toBe(true);
+       |                                   ^
+     73|     expect(edited).not.toBe(parsed); // a NEW top-level array
+     74|     expect(edited.length).toBe(parsed.length);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-2: mutating editedConstantWork[i][k] leaves parsedConstantWork[i][k] unchanged > keeps parsedConstantWork as the immutable parse output when a clone cell is reassigned
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:96:43
+     94|     execIn(win, "editedConstantWork[0].tshirt_size = 'XL';");
+     95| 
+     96|     expect(read(win, 'editedConstantWork')[0].tshirt_size).toBe('XL');
+       |                                           ^
+     97|     expect(read(win, 'parsedConstantWork')[0].tshirt_size).toBe('M'); …
+     98|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-3: resetConstantWorkFile sets both parsedConstantWork and editedConstantWork to null > clears the constant-work substrate completely on file clear
+AssertionError: expected undefined to be null
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:111:45
+    109| 
+    110|     expect(read(win, 'parsedConstantWork')).toBeNull();
+    111|     expect(read(win, 'editedConstantWork')).toBeNull();
+       |                                             ^
+    112|   });
+    113| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-4: getConstantWorkEffort reads editedConstantWork (deterministic person-months reflect edits) > returns the person-months of the EDITED t-shirt size, not the original parsed size
+AssertionError: expected 2.200382139383515 to be 1.1001329597501839 // Object.is equality
+
+- Expected
++ Received
+
+- 1.1001329597501839
++ 2.200382139383515
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:126:22
+    124|       const actual = evalIn(win, "getConstantWorkEffort(['Q3 2026'])");
+    125|       const expected = evalIn(win, `tshirtToPersonMonths(${JSON.string…
+    126|       expect(actual).toBe(expected);
+       |                      ^
+    127|     }
+    128| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-5: getConstantWorkEpics reads editedConstantWork > returns the EDITED epic name for the row's team and quarter
+AssertionError: expected 'Original name' to be 'Edited name' // Object.is equality
+
+Expected: "Edited name"
+Received: "Original name"
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:148:27
+    146|     expect(Array.isArray(epics)).toBe(true);
+    147|     expect(epics).toHaveLength(1);
+    148|     expect(epics[0].name).toBe('Edited name'); // edited value
+       |                           ^
+    149|     expect(read(win, 'parsedConstantWork')[0].epic_name).toBe('Origina…
+    150|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-6: buildTeamProjections derives constant-work quarters from editedConstantWork > includes a team's EDITED constant-work quarter and drops the original parsed quarter
+AssertionError: expected [ 'Q3 2026', 'Q4 2026' ] to include 'Q1 2027'
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:171:22
+    169| 
+    170|     const quarters = Object.keys(platform.byQuarter);
+    171|     expect(quarters).toContain('Q1 2027'); // the edited quarter
+       |                      ^
+    172|     expect(quarters).not.toContain('Q4 2026'); // the original parsed …
+    173|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-7: with no Constant Work CSV loaded the readers return their empty values > keeps both arrays null and returns 0 / [] from the readers
+AssertionError: expected undefined to be null
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:182:45
+    180| 
+    181|     expect(read(win, 'parsedConstantWork')).toBeNull();
+    182|     expect(read(win, 'editedConstantWork')).toBeNull(); // declared `l…
+       |                                             ^
+    183| 
+    184|     expect(evalIn(win, "getConstantWorkEffort(['Q3 2026'])")).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-8: a freshly-loaded Constant Work CSV with no edits feeds the Run identically (transparent indirection) > makes editedConstantWork a structural clone of parsedConstantWork and the readers report the same effort
+AssertionError: expected undefined to deeply equal [ …(3) ]
+
+- Expected: 
+Array [
+  Object {
+    "category": "Backend",
+    "epic_name": "Locked work",
+    "jira_key": "CW-1",
+    "key_result": "KR-A",
+    "quarter": "Q3 2026",
+    "team": "Platform",
+    "tshirt_size": "M",
+  },
+  Object {
+    "category": "Backend",
+    "epic_name": "Locked work",
+    "jira_key": "CW-2",
+    "key_result": "KR-A",
+    "quarter": "Q3 2026",
+    "team": "Platform",
+    "tshirt_size": "L",
+  },
+  Object {
+    "category": "Backend",
+    "epic_name": "Locked work",
+    "jira_key": "CW-3",
+    "key_result": "KR-A",
+    "quarter": "Q4 2026",
+    "team": "Platform",
+    "tshirt_size": "S",
+  },
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:206:20
+    204|     // these readers (ADR-0033 — it never touches K / λ / the bootstra…
+    205|     // so reader-level identity == Run-level identity (modulo Monte Ca…
+    206|     expect(edited).toEqual(parsed);
+       |                    ^
+    207| 
+    208|     const quarters = [...new Set(parsed.map(r => r.quarter))];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  tests/acceptance/phase-1-constant-work-substrate.test.js > AT-9: re-loading a Constant Work CSV rebuilds the clone wholesale and discards prior edits > replaces editedConstantWork with a fresh clone of the new file and drops the earlier edit
+AssertionError: expected undefined to deeply equal [ Object{ jira_key: 'CW-B', …(6) } ]
+
+- Expected: 
+Array [
+  Object {
+    "category": "Backend",
+    "epic_name": "Locked work",
+    "jira_key": "CW-B",
+    "key_result": "KR-A",
+    "quarter": "Q3 2026",
+    "team": "Platform",
+    "tshirt_size": "S",
+  },
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-1-constant-work-substrate.test.js:232:20
+    230|     const parsed = read(win, 'parsedConstantWork');
+    231|     const edited = read(win, 'editedConstantWork');
+    232|     expect(edited).toEqual(parsed); // wholesale fresh clone of B
+       |                    ^
+    233|     expect(edited[0].jira_key).toBe('CW-B');
+    234|     expect(edited[0].tshirt_size).toBe('S'); // the prior XL edit is g…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-21: Constant Work CSV cascade category→moscow→emoji > getConstantWorkEpics resolves the row's category via the cascade
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/acceptance/phase-1-engine.test.js:488:19
+    486|     const epics = evalIn(win, "getConstantWorkEpics('Q2 2026', 'Team A…
+    487|     expect(Array.isArray(epics)).toBe(true);
+    488|     expect(epics).toHaveLength(1);
+       |                   ^
+    489|     // The epic should carry the normalised category KR1, however the …
+    490|     // names the field (`category`, `_category`, etc.). Use a structur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  tests/acceptance/phase-1-engine.test.js > AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === []
+AssertionError: expected +0 to be 2.200382139383515 // Object.is equality
+
+- Expected
++ Received
+
+- 2.200382139383515
++ 0
+
+ ❯ tests/acceptance/phase-1-engine.test.js:644:27
+    642|     expect(cell).toBeTruthy();
+    643|     // cwEffort reflects the editedConstantWork row's M size (non-zero…
+    644|     expect(cell.cwEffort).toBe(evalIn(win, "tshirtToPersonMonths('M')"…
+       |                           ^
+    645|     expect(cell.cwEffort).toBeGreaterThan(0);
+    646|     // Flat band: p25 === p50 === p75 === cwEffort.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+ Test Files  2 failed (2)
+      Tests  11 failed | 28 passed (39)
+   Start at  22:29:01
+   Duration  1.31s (transform 31ms, setup 0ms, collect 772ms, tests 867ms, environment 0ms, prepare 102ms)
+

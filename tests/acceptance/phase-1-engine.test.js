@@ -471,8 +471,10 @@ describe('AT-20: free-text Category typed in datalist combo writes through', () 
 describe('AT-21: Constant Work CSV cascade category→moscow→emoji', () => {
   it('getConstantWorkEpics resolves the row\'s category via the cascade', () => {
     const win = loadSimulator();
-    // Mount a parsedConstantWork row carrying `category: KR1`.
-    execIn(win, `parsedConstantWork = [{
+    // Migrated for feature 0021 Phase 1: getConstantWorkEpics now reads
+    // `editedConstantWork` (the simulation source of truth), so the row is
+    // mounted there rather than on the immutable `parsedConstantWork`.
+    execIn(win, `editedConstantWork = [{
       team: 'Team A',
       quarter: 'Q2 2026',
       t_shirt_size: 'M',
@@ -610,14 +612,21 @@ describe('AT-26: buildTeamProjections drives band from the Projection Group', ()
 describe('AT-27: empty groupsStore falls back to cwEffort-only band', () => {
   it('every projection band collapses to the constant-work-only triple when groupsStore === []', () => {
     const win = loadSimulator();
-    // Ten Must initiatives + a 5-PM constant-work row. Pre-impl MSC drives a
-    // non-trivial spread on top of the 5 PM CW shift; post-impl the empty
-    // groupsStore collapses the band to (5, 5, 5).
+    // Ten Must initiatives + one constant-work row. With an empty groupsStore
+    // there is no Projection group, so each band collapses to the flat
+    // (cwEffort, cwEffort, cwEffort) triple.
+    //
+    // Migrated for feature 0021 Phase 1: the constant work is mounted on
+    // `editedConstantWork` (the simulation source of truth that
+    // buildTeamProjections / getConstantWorkEpics now read) rather than on the
+    // immutable `parsedConstantWork`. cwEffort must therefore be the deterministic
+    // person-months of the edited row — non-zero — proving the read goes through
+    // the substrate.
     const rows = [];
     for (let i = 1; i <= 10; i++) rows.push(sensibleRow(`I-${i}`, 'Team A', 'Q2 2026', 'Must'));
     loadInitiatives(win, rows, ['jira_key', 'name', 'category', 'teams', 'quarter']);
     setEpics(win, defaultEpics(rows.map(r => r.jira_key)));
-    execIn(win, `parsedConstantWork = [{
+    execIn(win, `editedConstantWork = [{
       team: 'Team A',
       quarter: 'Q2 2026',
       t_shirt_size: 'M',
@@ -631,6 +640,10 @@ describe('AT-27: empty groupsStore falls back to cwEffort-only band', () => {
     expect(proj.length).toBeGreaterThan(0);
     const cell = proj[0].byQuarter['Q2 2026'];
     expect(cell).toBeTruthy();
+    // cwEffort reflects the editedConstantWork row's M size (non-zero).
+    expect(cell.cwEffort).toBe(evalIn(win, "tshirtToPersonMonths('M')"));
+    expect(cell.cwEffort).toBeGreaterThan(0);
+    // Flat band: p25 === p50 === p75 === cwEffort.
     expect(cell.p25).toBe(cell.cwEffort);
     expect(cell.p50).toBe(cell.cwEffort);
     expect(cell.p75).toBe(cell.cwEffort);
