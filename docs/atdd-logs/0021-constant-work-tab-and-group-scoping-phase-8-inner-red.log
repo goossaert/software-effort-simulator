@@ -1,0 +1,53 @@
+command: npx vitest run tests/acceptance/phase-8-groups-popover-union.test.js -t "AT-1:"
+run_at: 2026-05-31T23:42:07Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > does not list a Category that is in neither initiatives nor constant work (negative)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js (11 tests | 2 failed | 8 skipped) 140ms
+   × AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category 91ms
+     → expected [ 'A', 'B' ] to include 'C'
+   × AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model) 21ms
+     → expected [ 'A' ] to include 'Platform'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
+AssertionError: expected [ 'A', 'B' ] to include 'C'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:102:18
+    100|     expect(opts).toContain('A');
+    101|     expect(opts).toContain('B');
+    102|     expect(opts).toContain('C'); // the constant-work-only Category
+       |                  ^
+    103|   });
+    104| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model)
+AssertionError: expected [ 'A' ] to include 'Platform'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:129:42
+    127| 
+    128|     const opts = categoryOptions(openPopover(win));
+    129|     for (const c of cwCats) expect(opts).toContain(c);
+       |                                          ^
+    130|   });
+    131| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed | 8 skipped (11)
+   Start at  01:42:08
+   Duration  592ms (transform 16ms, setup 0ms, collect 209ms, tests 140ms, environment 0ms, prepare 51ms)
+

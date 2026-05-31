@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 8
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T23:35:49Z
+next_handover: handover-25-atdd-p8.md
+updated_at: 2026-05-31T23:42:42Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -422,3 +422,29 @@ AT-2 fail; (c) `confirm()` on delete → AT-3 fail. Targeted (11 pass) + `npm ru
 (215 passed / 1 skipped) both exit 0; working tree clean. Review:
 `docs/reviews/0021-…-phase-7-review-01.md`. Advanced to **Phase 8 atdd**
 (`current_phase: 8`, `retry_count: 0`); next handover `handover-03-plan.md`.
+
+**Phase 8 atdd done** (this commit): authored
+`tests/acceptance/phase-8-groups-popover-union.test.js` (AT-1…AT-6, 11 `it`s) for the
+**Groups Members popover** sourcing its observed-Categories option list from the union of
+`editedInitiatives` ∪ `editedConstantWork`, computed at popover-open time — constant-work
+Categories (incl. constant-work-only ones) become targetable by Groups; a Category in both
+sources is one entry (Initiative casing wins on a case-insensitive merge), a constant-work-only
+Category keeps its own casing, and adding a constant-work-only Category to a Group scopes that
+work on the next Run (the Phase-2 `getConstantWorkEffortPerGroup` shift) while clearing the
+Phase-5 `getConstantWorkExcluded` line; the `(Blank)` row and free-text input are unchanged.
+**Migrated** `tests/acceptance/phase-2-groups-tab.test.js` **AT-28** (popover source
+`editedInitiatives` → `editedInitiatives ∪ editedConstantWork`) — frozen. Seams (autonomously
+chosen): the Phase-2 popover open affordance (`#groups-table-wrap .group-add-chip-btn`) and the
+option list read from the DOM (`.ms-option`/`label` text), deliberately NOT locking the popover
+DOM beyond the option-list contents + the `(Blank)`/free-text affordances (plan's "Do NOT lock
+in"); AT-4's scoping effect asserted through the Phase-2 `getConstantWorkEffortPerGroup` and
+Phase-5 `getConstantWorkExcluded` engine seams; constant work read via the canonical `category`
+key. RED confirmed: acceptance run (Phase 8 + Phase 2) **8 failed / 37 passed**, exit 1 — RED
+confined to the new file's 7 union RED-drivers (AT-1 happy+property, AT-3 ×2, AT-4, AT-6 ×2) +
+the migrated AT-28; AT-1 negative, AT-2 ×2, AT-5 are preserved-behavior guards GREEN on the
+post-Phase-7 build (same shape as Phases 4/5 GREEN guards). Focused inner run (`-t "AT-1:"`)
+2 failed / 1 passed / 8 skipped, exit 1. Full suite (`npm run verify`) **8 failed / 218 passed /
+1 skipped**, exit 1 — 218 = the 215 post-Phase-7 baseline − AT-28 (now RED) + 4 new GREEN guards;
+the 1 skipped is the pre-existing self-skipping `sanity-check-engine-mean.test.js`. Logs under
+`docs/atdd-logs/0021-…-phase-8-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
+**Phase 8 implement** (`stage: implement`); next handover `handover-25-atdd-p8.md`.

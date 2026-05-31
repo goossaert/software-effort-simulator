@@ -1,0 +1,223 @@
+command: npx vitest run tests/acceptance/phase-8-groups-popover-union.test.js tests/acceptance/phase-2-groups-tab.test.js
+run_at: 2026-05-31T23:42:05Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > does not list a Category that is in neither initiatives nor constant work (negative)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-2: a Category present in both sources appears once, with the Initiative casing > a single merged entry uses the Initiative casing, not the constant-work casing
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-2: a Category present in both sources appears once, with the Initiative casing > dedups case-insensitively across several overlapping case variants (property)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > renders the constant-work casing verbatim when the Category is absent from initiatives
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > preserves a mixed-case constant-work-only Category exactly (boundary)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-4: adding a constant-work-only Category to a Group scopes that constant work on the next Run > after adding the Category via the popover, the Group's fixedEffortPerGroup includes the row PM and the row is no longer excluded
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-5: the popover still lists the (Blank) row and the free-text input > a dedicated (Blank) row and a free-text input are present (unchanged from feature 0020)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > an unsaved edit to an initiative Category and to a constant-work Category both appear without a Run
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > recomputes on each open, so an edit made after a first open is reflected on reopen (not cached)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js (11 tests | 7 failed) 311ms
+   × AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category 95ms
+     → expected [ 'A', 'B' ] to include 'C'
+   × AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model) 23ms
+     → expected [ 'A' ] to include 'Platform'
+   × AT-3: a constant-work-only Category keeps its own casing > renders the constant-work casing verbatim when the Category is absent from initiatives 20ms
+     → expected [ 'Backend' ] to include 'Ops'
+   × AT-3: a constant-work-only Category keeps its own casing > preserves a mixed-case constant-work-only Category exactly (boundary) 19ms
+     → expected [ 'Backend' ] to include 'DataPlatform'
+   × AT-4: adding a constant-work-only Category to a Group scopes that constant work on the next Run > after adding the Category via the popover, the Group's fixedEffortPerGroup includes the row PM and the row is no longer excluded 21ms
+     → expected undefined to be truthy
+   × AT-6: the union reflects the current edited state of both tabs (computed at open time) > an unsaved edit to an initiative Category and to a constant-work Category both appear without a Run 19ms
+     → expected [ 'KR9' ] to include 'KR8'
+   × AT-6: the union reflects the current edited state of both tabs (computed at open time) > recomputes on each open, so an edit made after a first open is reflected on reopen (not cached) 19ms
+     → expected [ 'A' ] to include 'C'
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr>
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:10319)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives ∪ editedConstantWork Categories > an edit to editedInitiatives and a constant-work Category both appear in the popover even before Run
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js (34 tests | 1 failed) 712ms
+   × AT-28: Members popover lists current editedInitiatives ∪ editedConstantWork Categories > an edit to editedInitiatives and a constant-work Category both appear in the popover even before Run 19ms
+     → expected '\n    \n      \n      KR99\n    \n   …' to match /KR88/
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives ∪ editedConstantWork Categories > an edit to editedInitiatives and a constant-work Category both appear in the popover even before Run
+AssertionError: expected '\n    \n      \n      KR99\n    \n   …' to match /KR88/
+
+- Expected: 
+/KR88/
+
++ Received: 
+"
+    
+      
+      KR99
+    
+    
+    
+    (Blank)
+  
+    
+      
+      Add
+    
+  "
+
+ ❯ tests/acceptance/phase-2-groups-tab.test.js:609:33
+    607|     expect(popover).toBeTruthy();
+    608|     expect(popover.textContent).toMatch(/KR99/); // edited initiative …
+    609|     expect(popover.textContent).toMatch(/KR88/); // constant-work-only…
+       |                                 ^
+    610|   });
+    611| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
+AssertionError: expected [ 'A', 'B' ] to include 'C'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:102:18
+    100|     expect(opts).toContain('A');
+    101|     expect(opts).toContain('B');
+    102|     expect(opts).toContain('C'); // the constant-work-only Category
+       |                  ^
+    103|   });
+    104| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model)
+AssertionError: expected [ 'A' ] to include 'Platform'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:129:42
+    127| 
+    128|     const opts = categoryOptions(openPopover(win));
+    129|     for (const c of cwCats) expect(opts).toContain(c);
+       |                                          ^
+    130|   });
+    131| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > renders the constant-work casing verbatim when the Category is absent from initiatives
+AssertionError: expected [ 'Backend' ] to include 'Ops'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:181:18
+    179| 
+    180|     const opts = categoryOptions(openPopover(win));
+    181|     expect(opts).toContain('Ops'); // its own casing, not 'ops' / 'OPS'
+       |                  ^
+    182|     expect(opts).not.toContain('ops');
+    183|     expect(opts).not.toContain('OPS');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > preserves a mixed-case constant-work-only Category exactly (boundary)
+AssertionError: expected [ 'Backend' ] to include 'DataPlatform'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:196:18
+    194| 
+    195|     const opts = categoryOptions(openPopover(win));
+    196|     expect(opts).toContain('DataPlatform');
+       |                  ^
+    197|   });
+    198| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-4: adding a constant-work-only Category to a Group scopes that constant work on the next Run > after adding the Category via the popover, the Group's fixedEffortPerGroup includes the row PM and the row is no longer excluded
+AssertionError: expected undefined to be truthy
+
+- Expected: 
+true
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:225:25
+    223|       return label && /\bOps\b/.test(label.textContent);
+    224|     });
+    225|     expect(opsCheckbox).toBeTruthy();
+       |                         ^
+    226|     opsCheckbox.checked = true;
+    227|     opsCheckbox.dispatchEvent(new win.Event('change', { bubbles: true …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > an unsaved edit to an initiative Category and to a constant-work Category both appear without a Run
+AssertionError: expected [ 'KR9' ] to include 'KR8'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:276:18
+    274|     const opts = categoryOptions(openPopover(win));
+    275|     expect(opts).toContain('KR9'); // edited initiative Category
+    276|     expect(opts).toContain('KR8'); // edited constant-work Category
+       |                  ^
+    277|   });
+    278| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tests/acceptance/phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > recomputes on each open, so an edit made after a first open is reflected on reopen (not cached)
+AssertionError: expected [ 'A' ] to include 'C'
+ ❯ tests/acceptance/phase-8-groups-popover-union.test.js:290:18
+    288|     // First open establishes the popover once.
+    289|     let opts = categoryOptions(openPopover(win));
+    290|     expect(opts).toContain('C');
+       |                  ^
+    291|     expect(opts).not.toContain('LateAddition');
+    292| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+ Test Files  2 failed (2)
+      Tests  8 failed | 37 passed (45)
+   Start at  01:42:06
+   Duration  1.18s (transform 27ms, setup 0ms, collect 440ms, tests 1.02s, environment 0ms, prepare 107ms)
+

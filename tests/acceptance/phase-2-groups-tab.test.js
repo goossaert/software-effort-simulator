@@ -584,15 +584,20 @@ describe('AT-27: typed-but-unblurred value does not commit', () => {
   });
 });
 
-// ─── AT-28: Members popover sources options from editedInitiatives ─
-describe('AT-28: Members popover lists current editedInitiatives Categories', () => {
-  it('an edit to editedInitiatives appears in the popover even before Run', () => {
+// ─── AT-28: Members popover sources options from editedInitiatives ∪ editedConstantWork ─
+// Migrated for feature 0021 Phase 8: the popover's observed-Categories list now
+// sources from the union of `editedInitiatives` AND `editedConstantWork`,
+// computed at open time. Migrated during the Phase 8 ATDD session and frozen.
+describe('AT-28: Members popover lists current editedInitiatives ∪ editedConstantWork Categories', () => {
+  it('an edit to editedInitiatives and a constant-work Category both appear in the popover even before Run', () => {
     const win = loadSimulator();
     loadInitiatives(win, [
       sensibleRow('I-1', 'Team A', 'Q2 2026', 'Must'),
     ], ['jira_key', 'name', 'category', 'teams', 'quarter']);
     // Simulate a user editing the Initiative's Category in the Initiatives tab.
     execIn(win, 'editedInitiatives[0].category = "KR99";');
+    // …and a constant-work-only Category in the Constant work tab (Phase 8 union).
+    execIn(win, 'editedConstantWork = [{ category: "KR88", team: "Team A", quarter: "Q2 2026", tshirt_size: "M" }];');
     setGroups(win, [
       { name: 'A', color: '#000', members: [], isProjection: true },
     ]);
@@ -600,7 +605,8 @@ describe('AT-28: Members popover lists current editedInitiatives Categories', ()
     win.document.querySelector('#groups-table-wrap .group-add-chip-btn, #groups-table-wrap button[data-add-member]').click();
     const popover = win.document.querySelector('.members-popover, #members-popover, .group-members-popover');
     expect(popover).toBeTruthy();
-    expect(popover.textContent).toMatch(/KR99/);
+    expect(popover.textContent).toMatch(/KR99/); // edited initiative Category
+    expect(popover.textContent).toMatch(/KR88/); // constant-work-only Category
   });
 });
 
