@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 5
+current_phase: 6
 retry_count: 0
 max_retries: 3
-next_handover: handover-17-implement-p5.md
-updated_at: 2026-05-31T22:33:03Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T22:40:04Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -24,6 +24,7 @@ artifacts:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-2-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-3-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-4-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-5-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -257,3 +258,27 @@ any Group's `kPerGroup` / **Poisson λ** / **Bootstrap pool** (engine path uncha
 GREEN confirmed: targeted acceptance 6/6 pass (exit 0); `npm run verify` exits 0
 (189 passed / 1 skipped — the 3 RED-drivers flipped, no regression). No test file edited.
 Advanced to **Phase 5 review** (`stage: review`); next handover `handover-17-implement-p5.md`.
+
+**Phase 5 review done** (this commit): verdict **PASS**. Independent verification
+(diff `0d56a92..1e4e617`, `index.html`-only) confirmed the general Phase 5 rule:
+`refreshQuarters` sources the **Target** selector from `initiatives ∪ epics ∪
+editedConstantWork` and the **Historical** selector from `initiatives ∪ epics`,
+populating the two `MultiSelect`s from **different lists** (`histMS.populate(all)` /
+`targetMS.populate(allTarget)`) with selection-preservation intact; the new
+`getConstantWorkExcluded` computes an **overlap-aware** in-no-Group exclusion
+(member union built once, excluded iff in *no* Group) reusing the established
+trim+case-fold+(Blank)-sentinel membership and the category→moscow→emoji cascade;
+`prepareSimulationData.preview` gained `fixedEffortPerGroup` (group-aligned),
+`cwExcludedPM`, `cwExcludedRows`; `renderPreview` surfaces per-Group PM and a
+positive-only excluded line. All 5 invariants hold by construction; none of the 5
+counterexamples is realizable (1–4 caught by AT-1/AT-3/AT-4/AT-5; 5 — no Run
+gate/alert — structurally absent from the diff). No gaming pattern; no test file
+drifted across `test_commit..impl_commit`; the 1 skipped test is the pre-existing
+self-skipping `sanity-check-engine-mean.test.js`. Constant work still contributes
+zero to any Group's `kPerGroup` / Poisson λ / bootstrap pool. Two negative-control
+mutations (Historical populated from the widened list → AT-1/AT-3 fail; drop the
+overlap-aware guard → AT-5/AT-6 fail) both caught and reverted; GREEN restored,
+working tree clean. Targeted (6 pass) + `npm run verify` (189 passed / 1 skipped)
+both exit 0. Review: `docs/reviews/0021-…-phase-5-review-01.md`. Advanced to
+**Phase 6 atdd** (`current_phase: 6`, `retry_count: 0`); next handover
+`handover-03-plan.md`.
