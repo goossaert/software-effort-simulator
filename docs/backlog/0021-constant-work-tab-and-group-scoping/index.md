@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-07-atdd-p2.md
-updated_at: 2026-05-31T21:01:54Z
+next_handover: handover-08-implement-p2.md
+updated_at: 2026-05-31T21:19:00Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -73,3 +73,20 @@ green on both builds), exit 1; full suite 12 failed / 160 passed / 1 skipped, ex
 targeted (only the new file + AT-12 fail). Logs under
 `docs/atdd-logs/0021-…-phase-2-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
 **Phase 2 implement** (`stage: implement`); next handover `handover-07-atdd-p2.md`.
+
+**Phase 2 implement done** (this commit): implemented the per-Group org-headline shift
+inline in `index.html`. Added `getConstantWorkEffortPerGroup(quarters, groups, teamName=null)`
+(buckets `editedConstantWork` by Category membership — `trim`+case-fold+(Blank) sentinel,
+reusing `bucketRowsByGroups` semantics — into a vector aligned with `kPerGroup`);
+`prepareSimulationData` now returns the org-wide `fixedEffortPerGroup`; `runSimulation`'s
+scalar `fixedEffort` param/return is **gone**, replaced by `fixedEffortPerGroup` (per-Group
+shift, `globalMin = min(...)` empty-safe, return reports the vector, no scalar). All four
+`runSimulation` references migrated: org handler passes the prepared vector; team-level
+broadcasts `td.fixedEffort` uniformly (Phase 3 scopes it); the projection cell passes
+`[cwEffort]` (Phase 4 scopes it). Auto-default `All` now unions initiative ∪ constant-work
+Categories via `syncAutoDefaultGroup()` (re)derived while the store is the pristine lone
+`All` (same structural heuristic as the JSON-load path), frozen on user modification;
+preserves AT-29 fires-once-for-initiatives by only re-deriving on first load or once constant
+work is present. GREEN confirmed: targeted 47/47 pass (1 skipped sanity-check); `npm run verify`
+exits 0 (172 passed / 1 skipped). No test file edited. Advanced to **Phase 2 review**
+(`stage: review`); next handover `handover-08-implement-p2.md`.

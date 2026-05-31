@@ -1578,18 +1578,13 @@ function loadInitiativesCSV(text) {
   detectedCols = { ...(detectedCols || {}), initKeyCol, categoryCol, teamCol, nameCol, krCol };
   console.log(`[Initiatives] ${parsedInitiatives.length} rows | key="${initKeyCol}" | category="${categoryCol}" | team="${teamCol}" | name="${nameCol}" | kr="${krCol}"`);
 
-  // Auto-default `All` Group: fires only on first ever CSV load
-  // (when groupsStore is still empty). Subsequent loads preserve the
-  // user's Groups — see ADR-0029 invariants and AT-9 / AT-29.
-  if (groupsStore.length === 0) {
-    const observed = collectObservedCategories(editedInitiatives, categoryCol);
-    groupsStore.push({
-      name: 'All',
-      color: '#4f46e5',
-      members: observed,
-      isProjection: true,
-    });
-  }
+  // Auto-default `All` Group: while groupsStore is still the pristine
+  // auto-default, its members union the observed Categories across BOTH
+  // editedInitiatives and editedConstantWork (ADR-0033, AT-9). An
+  // initiatives-only reload preserves the existing auto-default
+  // (fires-once semantics — AT-29); the union (re)derives only on the
+  // first-ever load or once constant work is in play.
+  syncAutoDefaultGroup();
 
   refreshQuarters();
 }
@@ -1615,6 +1610,53 @@ function collectObservedCategories(rows, categoryCol) {
   const out = [...firstSeen.values()];
   if (hasBlank) out.push(BLANK);
   return out;
+}
+
+/**
+ * (Re)derive the auto-default `All` Group's members as the union of observed
+ * Categories across `editedInitiatives` AND `editedConstantWork` (ADR-0033).
+ *
+ * Only acts while `groupsStore` is still the pristine auto-default — using the
+ * same structural heuristic the Groups JSON-load path uses to treat a
+ * replacement as "trivial" (`confirmLoadGroupsReplacement`): an empty store, or
+ * a single Group named `All`. Once the user renames/adds/deletes a Group (or
+ * loads their own groups.json), the store is no longer that lone `All` and
+ * auto-sync freezes (ADR-0029; AT-10).
+ *
+ * To preserve the fires-once-for-initiatives contract (AT-29 — an initiatives
+ * reload must NOT re-sync the existing `All`), the union (re)derives only on the
+ * first-ever load (empty store) or once constant work is in play
+ * (`editedConstantWork !== null`). Initiative casing wins on a case-insensitive
+ * merge (initiatives are seeded first); BLANK is included iff any source has a
+ * blank Category.
+ */
+function syncAutoDefaultGroup() {
+  const pristine =
+    groupsStore.length === 0
+    || (groupsStore.length === 1 && groupsStore[0].name === 'All');
+  if (!pristine) return;
+  // An initiatives-only reload (no constant work, existing `All`) is frozen.
+  if (groupsStore.length === 1 && editedConstantWork === null) return;
+
+  const initCatCol = (detectedCols || {}).categoryCol;
+  const initCats = collectObservedCategories(editedInitiatives, initCatCol);
+  const cwCats   = collectObservedCategories(editedConstantWork, 'category');
+
+  const seen = new Map(); // lowercase → first-seen casing (initiatives seeded first)
+  let hasBlank = false;
+  for (const c of [...initCats, ...cwCats]) {
+    if (c === BLANK) { hasBlank = true; continue; }
+    const lc = c.toLowerCase();
+    if (!seen.has(lc)) seen.set(lc, c);
+  }
+  const members = [...seen.values()];
+  if (hasBlank) members.push(BLANK);
+
+  if (groupsStore.length === 0) {
+    groupsStore.push({ name: 'All', color: '#4f46e5', members, isProjection: true });
+  } else {
+    groupsStore[0].members = members;
+  }
 }
 
 /**
@@ -1746,6 +1788,9 @@ function loadConstantWorkCSV(text) {
   parsedConstantWork = parseCSV(text);
   editedConstantWork = parsedConstantWork.map(r => ({ ...r }));
   console.log(`[ConstantWork] ${parsedConstantWork.length} rows`);
+  // Fold constant-work Categories into the pristine auto-default `All` Group
+  // (ADR-0033, AT-9). No-op once the user has modified Groups (AT-10).
+  syncAutoDefaultGroup();
 }
 
 /**
@@ -1764,6 +1809,59 @@ function getConstantWorkEffort(quarters, teamName = null) {
     total += tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || '');
   }
   return total;
+}
+
+/**
+ * Bucket the deterministic constant-work effort by Group, returning a
+ * `number[]` aligned index-for-index with the passed `groups` (and so with
+ * `kPerGroup`). For each Group, sum `tshirtToPersonMonths(size)` over
+ * `editedConstantWork` rows whose `quarter ∈ quarters` (and, when `teamName`
+ * is given, whose `team` matches case-insensitively) and whose normalised
+ * **Category** ∈ that Group's `members` — `trim` + case-fold equality, with
+ * the **(Blank) sentinel** matching blank-Category rows (the same semantics as
+ * `bucketRowsByGroups`). Constant work never enters K / λ / the bootstrap pool;
+ * this vector is purely an additive post-sort shift (ADR-0033). A row whose
+ * Category is in no Group's members contributes to no entry.
+ *
+ * @param {string[]} quarters
+ * @param {Array}    groups            — the Group snapshot to align with
+ * @param {string|null} [teamName=null] — when set, only rows for this team count
+ * @returns {number[]} one PM sum per Group, in `groups` order
+ */
+function getConstantWorkEffortPerGroup(quarters, groups, teamName = null) {
+  const groupList = groups || [];
+  if (!editedConstantWork || !editedConstantWork.length) return groupList.map(() => 0);
+
+  const qSet    = new Set(quarters.map(q => q.trim()));
+  const teamKey = teamName === null ? null : teamName.toLowerCase();
+
+  // Pre-normalise in-scope rows once (matching quarter + optional team) so the
+  // per-Group membership scan is a simple Category compare.
+  const scoped = [];
+  for (const r of editedConstantWork) {
+    if (!qSet.has((r.quarter || '').trim())) continue;
+    if (teamKey !== null && (r.team || '').trim().toLowerCase() !== teamKey) continue;
+    scoped.push({
+      // Mirror the Initiatives CSV cascade used by getConstantWorkEpics: category → moscow → emoji.
+      cat:    normalizeCategory(r.category || r.moscow || r.emoji || ''),
+      effort: tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || ''),
+    });
+  }
+
+  return groupList.map(g => {
+    const lcMembers = new Set();
+    let blankMember = false;
+    for (const m of g.members) {
+      if (m === BLANK) blankMember = true;
+      else lcMembers.add(String(m).toLowerCase());
+    }
+    let total = 0;
+    for (const row of scoped) {
+      if (row.cat === BLANK) { if (blankMember) total += row.effort; }
+      else if (lcMembers.has(row.cat.toLowerCase())) total += row.effort;
+    }
+    return total;
+  });
 }
 
 /**
@@ -1864,7 +1962,7 @@ function bucketRowsByGroups(rows, categoryCol) {
  *
  * @param {string[]} histQuarters    e.g. ["Q2 2026"]
  * @param {string[]} targetQuarters  e.g. ["Q3 2026"]
- * @returns {{ lambda, epicSizingDist, kPerGroup, preview }}
+ * @returns {{ lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview }}
  */
 function prepareSimulationData(histQuarters, targetQuarters) {
   const { initKeyCol, categoryCol } = detectedCols || {};
@@ -1930,6 +2028,10 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   const targetInits = editedInitiatives.filter(r => targetQuarters.includes((r.quarter || '').trim()));
   const { kPerGroup, categoryBreakdown } = bucketRowsByGroups(targetInits, categoryCol);
 
+  // Org-wide per-Group constant-work shift (all teams), aligned with kPerGroup.
+  // Purely additive deterministic effort — never enters K / λ / the bootstrap pool.
+  const fixedEffortPerGroup = getConstantWorkEffortPerGroup(targetQuarters, groupsStore);
+
   // Size breakdown for preview
   const sizeDist = {};
   for (const s of epicSizingDist) sizeDist[s] = (sizeDist[s] || 0) + 1;
@@ -1946,7 +2048,7 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     categoryBreakdown,
   };
 
-  return { lambda, epicSizingDist, kPerGroup, preview };
+  return { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview };
 }
 
 /**
@@ -2165,7 +2267,8 @@ function buildTeamProjections(allQuarters, orgLambda, orgEpicSizingDist, projIte
           lambda: orgLambda, epicSizingDist: orgEpicSizingDist,
           kPerGroup: [kProj], groups: [projGroup],
           capacity: 0, iterations: projIterations,
-          fixedEffort: cwEffort,
+          // Single-group cell, unscoped: Phase 4 owns Projection-group Category scoping.
+          fixedEffortPerGroup: [cwEffort],
         });
         p25 = sim.results[0].stats.p25;
         p50 = sim.results[0].stats.p50;
@@ -2267,21 +2370,25 @@ function buildHistogram(sorted, globalMin, globalMax, numBins) {
  * @param {Array}   args.groups            — snapshot of `groupsStore` at Run time
  * @param {number}  args.capacity
  * @param {number}  args.iterations
- * @param {number}  [args.fixedEffort=0]
- * @returns {{ results: Array, globalMin: number, globalMax: number, fixedEffort: number }}
+ * @param {number[]} [args.fixedEffortPerGroup=[]] — per-Group deterministic
+ *   constant-work shift, aligned index-for-index with `kPerGroup`/`groups`
+ *   (default 0 for any Group the vector does not cover). Replaces the former
+ *   global scalar `fixedEffort` (ADR-0033).
+ * @returns {{ results: Array, globalMin: number, globalMax: number, fixedEffortPerGroup: number[] }}
  *   `results` is one `{ name, color, sorted, stats, hist }` per Group, in
  *   the same order as the input `groups` snapshot.
  */
-function runSimulation({ lambda, epicSizingDist, kPerGroup, groups, capacity, iterations, fixedEffort = 0 }) {
+function runSimulation({ lambda, epicSizingDist, kPerGroup, groups, capacity, iterations, fixedEffortPerGroup = [] }) {
   // Fresh RNG seed combining time and entropy
   rng = new Xoshiro128ss((Date.now() ^ Math.imul(Date.now(), 0x9e3779b9)) >>> 0);
   resetBoxMuller();
 
   const groupList = groups || [];
   const ks = kPerGroup || [];
+  const shifts = fixedEffortPerGroup || [];
 
   // Run one Monte Carlo scenario per Group. A K === 0 Group yields the
-  // all-zeros distribution (which shifts to `fixedEffort` below) — see AT-12.
+  // all-zeros distribution (which shifts to its own per-Group shift below) — see AT-12.
   const rawSorted = groupList.map((_, i) => {
     const k = ks[i] || 0;
     return k > 0
@@ -2289,21 +2396,26 @@ function runSimulation({ lambda, epicSizingDist, kPerGroup, groups, capacity, it
       : new Float64Array(iterations);
   });
 
-  // Shift all samples by the deterministic constant-work effort.
-  // Adding a constant to a sorted array preserves sort order.
-  const shifted = rawSorted.map(arr => {
-    if (!fixedEffort) return arr;
+  // Shift each Group's samples by ITS OWN deterministic constant-work effort
+  // (default 0 when the vector is shorter / absent). Adding a constant to a
+  // sorted array preserves sort order — the ADR-0023 mechanism, now per Group.
+  const shifted = rawSorted.map((arr, i) => {
+    const shift = shifts[i] || 0;
+    if (!shift) return arr;
     const out = new Float64Array(arr.length);
-    for (let i = 0; i < arr.length; i++) out[i] = arr[i] + fixedEffort;
+    for (let j = 0; j < arr.length; j++) out[j] = arr[j] + shift;
     return out;
   });
 
-  // Clip chart range at P99.5 to prevent outliers from stretching the axis
+  // Clip chart range at P99.5 to prevent outliers from stretching the axis.
+  // The shared Global histogram range floor is the MINIMUM per-Group shift
+  // (Groups no longer share a single scalar floor); the ceiling accommodates
+  // the tallest shift. Both are empty-safe (min/max of [] would be ±Infinity).
   const p995 = arr => arr.length ? arr[Math.min(arr.length - 1, Math.floor(0.995 * arr.length))] : 0;
-  const globalMin = fixedEffort; // distribution now starts at fixedEffort, not 0
+  const globalMin = shifts.length ? Math.min(...shifts) : 0;
   const globalMax = Math.max(
     ...shifted.map(p995),
-    fixedEffort + 1,
+    (shifts.length ? Math.max(...shifts) : 0) + 1,
   );
 
   const NUM_BINS = 60;
@@ -2319,7 +2431,7 @@ function runSimulation({ lambda, epicSizingDist, kPerGroup, groups, capacity, it
   return {
     results,
     globalMin, globalMax,
-    fixedEffort,
+    fixedEffortPerGroup: shifts,
   };
 }
 </script>
@@ -2616,12 +2728,17 @@ function renderTeamSection(idx, useOrg) {
   const lambda        = useOrg ? td.orgLambda        : td.teamLambda;
   const epicSizingDist = useOrg ? td.orgEpicSizingDist : td.teamEpicSizingDist;
 
+  // Phase 2 shape change only: runSimulation now takes a per-Group vector.
+  // Preserve the existing (uniform) team behaviour by broadcasting this team's
+  // scalar constant-work effort across every Group — Phase 3 replaces this with
+  // a per-team, Category-scoped fixedEffortPerGroup.
+  const teamGroupsSnapshot = groupsStore.slice();
   const results = runSimulation({
     lambda, epicSizingDist,
     kPerGroup: td.kPerGroup,
-    groups:    groupsStore.slice(),
+    groups:    teamGroupsSnapshot,
     capacity: lastCapacity, iterations: lastIterations,
-    fixedEffort: td.fixedEffort || 0,
+    fixedEffortPerGroup: teamGroupsSnapshot.map(() => td.fixedEffort || 0),
   });
 
   const teamCtxKey = `team-${idx}`;
@@ -4132,7 +4249,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
   // Defer heavy computation so the browser can paint the spinner first
   setTimeout(() => {
     try {
-      const { lambda, epicSizingDist, kPerGroup, preview } =
+      const { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview } =
         prepareSimulationData(histQs, targetQs);
 
       // ── Validate inputs ───────────────────────────────────────
@@ -4154,13 +4271,14 @@ document.getElementById('run-btn').addEventListener('click', () => {
       }
 
       // ── Run simulation ────────────────────────────────────────
-      const orgFixedEffort = getConstantWorkEffort(targetQs); // sum across ALL teams for org level
+      // Org-wide per-Group constant-work shift (all teams), aligned with the
+      // Run snapshot — computed in prepareSimulationData against groupsStore.
       const groupsSnapshot = groupsStore.slice();
       const results = runSimulation({
         lambda, epicSizingDist,
         kPerGroup, groups: groupsSnapshot,
         capacity, iterations: iters,
-        fixedEffort: orgFixedEffort,
+        fixedEffortPerGroup,
       });
 
       // ── Render org level ──────────────────────────────────────
