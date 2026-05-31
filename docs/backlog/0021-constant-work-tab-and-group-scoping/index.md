@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: review
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 8
-current_phase: 6
+current_phase: 7
 retry_count: 0
 max_retries: 3
-next_handover: handover-20-implement-p6.md
-updated_at: 2026-05-31T23:04:00Z
+next_handover: handover-03-plan.md
+updated_at: 2026-05-31T23:10:20Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -25,6 +25,7 @@ artifacts:
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-3-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-4-review-01.md
     - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-5-review-01.md
+    - docs/reviews/0021-constant-work-tab-and-group-scoping-phase-6-review-01.md
 ---
 # 0021 — Editable Constant work tab + group-/quarter-scoped constant work
 
@@ -329,3 +330,23 @@ inner run (`-t "AT-4:"`) 3 pass / 12 skip (exit 0); `npm run verify` exits 0 (20
 the 16 RED tests flipped, no regression). No test file edited; the only production change is
 `index.html`. Advanced to **Phase 6 review** (`stage: review`); next handover
 `handover-20-implement-p6.md`.
+
+**Phase 6 review done** (this commit): verdict **PASS**. Independent verification
+(diff `ed7426b..bd4c799`, `index.html`-only) confirmed the general Phase 6 rule: a fifth
+**Constant work** tab (`data-tab="constant-work"`) is inserted between **Initiatives** and
+**Groups**; `renderConstantWorkTable()` renders `editedConstantWork` with role-based per-field
+editors — size `<select>` from the canonical `Object.keys(T_SHIRT_PARAMS)` seven (unrecognised
+value appended-and-selected), category/team/quarter `<input list>` datalists seeded from the
+`editedInitiatives ∪ editedConstantWork` union (team candidates `['team','teams']` bridge the
+naming split), everything else free text; inline `onchange` commits to `editedConstantWork` and
+calls `tryUpdatePreview` (no Run); `exportConstantWorkCSV()` → `Papa.unparse` →
+`constant-work-edited.csv` preserving the imported header set verbatim. All 8 invariants hold;
+none of the 6 counterexamples is realizable; no test file drifted across `test_commit..impl_commit`
+(drift check empty). The one nuance — the cell `value="…"` attribute uses **escapeHtml** (not
+escapeAttr) — is a deliberate, AT-11-mandated choice that is XSS-safe (escapeHtml escapes `&<>"`)
+and round-trips exactly. Three negative controls each flipped the targeted AT(s) to RED and reverted
+to GREEN: size set `.slice(0,6)` → AT-4 (3 fail); datalist CW-only → AT-5 (2 fail); free-text
+`escapeAttr` → AT-11 (1 fail). Targeted (49 pass) + `npm run verify` (204 passed / 1 skipped) both
+exit 0; working tree clean. Review:
+`docs/reviews/0021-…-phase-6-review-01.md`. Advanced to **Phase 7 atdd**
+(`current_phase: 7`, `retry_count: 0`); next handover `handover-03-plan.md`.
