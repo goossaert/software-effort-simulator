@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 7
 retry_count: 0
 max_retries: 3
-next_handover: handover-22-atdd-p7.md
-updated_at: 2026-05-31T23:21:39Z
+next_handover: handover-23-implement-p7.md
+updated_at: 2026-05-31T23:29:12Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -378,3 +378,27 @@ the post-Phase-6 baseline; the 1 skipped is the pre-existing self-skipping
 `sanity-check-engine-mean.test.js`). Logs under
 `docs/atdd-logs/0021-…-phase-7-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
 **Phase 7 implement** (`stage: implement`); next handover `handover-22-atdd-p7.md`.
+
+**Phase 7 implement done** (this commit): implemented **Add row / delete row / from-scratch
+authoring** on the **Constant work tab** inline in `index.html` (one production file). Added a
+`CW_CANONICAL_SCHEMA` constant (`['jira_key','epic_name','key_result','category','team','quarter',
+'tshirt_size']`); restructured `renderConstantWorkTable` so the toolbar — now carrying a
+**`+ Add row`** button (text `/add row/i`) plus the existing `↓ Export CSV` — renders in **every**
+state, including the empty state (which previously early-returned "No constant work loaded." with no
+control); `+ Add row` is placed in the toolbar, **not** as a `<tbody>` row, so the rendered row count
+stays exact. Each data row gained a trailing per-row **Delete** `<button>` (the single button in the
+row; the new trailing `<th></th>`/`<td>` column keeps data-column indices intact). New handler
+`addConstantWorkRow()` appends a blank row: initialises `editedConstantWork` to `[]` when `null`
+(an already-`[]` model is left intact; `parsedConstantWork` stays `null`), keys = the **canonical
+schema** when `parsedConstantWork === null` else the **imported header set**
+(`Object.keys(editedConstantWork[0] || parsedConstantWork[0] || {})` — robust to a fully-emptied
+import), all values blank, then re-renders. New handler `deleteConstantWorkRow(rowIdx)` splices the
+targeted row immediately with **no `confirm()`**, preserving order, then re-renders. Added rows
+render the **same** smart editors (seven-size `<select>`, datalist combos) automatically, export via
+the unchanged `exportConstantWorkCSV()`, and feed the simulation through the Phase-2
+`getConstantWorkEffortPerGroup` seam; lenient blanks (size→0 PM, blank quarter→excluded, blank
+Category→**(Blank) sentinel**) are left to the engine — no coercion added. GREEN confirmed: targeted
+`phase-7-constant-work-add-delete.test.js` 11/11 pass (exit 0); `npm run verify` exits 0
+(**215 passed / 1 skipped** — the pre-existing self-skipping `sanity-check-engine-mean.test.js`).
+No test file edited; the only production change is `index.html`. Advanced to **Phase 7 review**
+(`stage: review`); next handover `handover-23-implement-p7.md`.

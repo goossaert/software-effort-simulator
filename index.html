@@ -3658,6 +3658,12 @@ const CW_CATEGORY_COLS = new Set(['category', 'moscow', 'emoji']);
 const CW_TEAM_COLS     = new Set(['team']);
 const CW_QUARTER_COLS  = new Set(['quarter']);
 
+// Canonical constant-work schema for a from-scratch row when there is no imported
+// header set to mirror (`parsedConstantWork === null`). ADR-0034 — the KEY SET is
+// the contract; an imported file instead reuses its own header set so all rows
+// share columns and the export round-trips.
+const CW_CANONICAL_SCHEMA = ['jira_key', 'epic_name', 'key_result', 'category', 'team', 'quarter', 'tshirt_size'];
+
 // Observed non-empty, trimmed values for the given candidate columns across a
 // rows array — de-duplicated in first-seen order. Used to seed the
 // category/team/quarter datalists from the editedInitiatives ∪ editedConstantWork
@@ -3681,8 +3687,19 @@ function _cwObservedValues(rows, candidateCols) {
 function renderConstantWorkTable() {
   const container = document.getElementById('constant-work-table-wrap');
   if (!container) return;
-  if (!editedConstantWork || !editedConstantWork.length) {
-    container.innerHTML = '<p style="color:#6b7280;padding:16px">No constant work loaded.</p>';
+
+  // The `+ Add row` control is ALWAYS rendered so from-scratch authoring works
+  // even with nothing imported (ADR-0034); it must not be a <tbody> row (that
+  // would inflate the rendered row count). Export only when there are rows.
+  const hasRows = !!(editedConstantWork && editedConstantWork.length);
+  const toolbar =
+    `<div class="constant-work-toolbar">` +
+      `<button class="add-marker-btn" onclick="addConstantWorkRow()">+ Add row</button>` +
+      (hasRows ? `<button class="add-marker-btn" onclick="exportConstantWorkCSV()">↓ Export CSV</button>` : ``) +
+    `</div>`;
+
+  if (!hasRows) {
+    container.innerHTML = toolbar + '<p style="color:#6b7280;padding:16px">No constant work loaded.</p>';
     return;
   }
 
@@ -3706,12 +3723,10 @@ function renderConstantWorkTable() {
   const cols = Object.keys(editedConstantWork[0]);
 
   let html = `
-    <div class="constant-work-toolbar">
-      <button class="add-marker-btn" onclick="exportConstantWorkCSV()">↓ Export CSV</button>
-    </div>
+    ${toolbar}
     ${datalistHtml}
     <table>
-      <thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+      <thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}<th></th></tr></thead>
       <tbody>`;
 
   editedConstantWork.forEach((row, rowIdx) => {
@@ -3739,11 +3754,43 @@ function renderConstantWorkTable() {
         html += `<td><input type="text" value="${escapeHtml(current)}" onchange="${onchange}"></td>`;
       }
     });
+    // Per-row delete — immediate, no confirmation (ADR-0034). The single <button>
+    // in the row; editor cells are <input>/<select>.
+    html += `<td><button class="group-row-btn danger" onclick="deleteConstantWorkRow(${rowIdx})">Delete</button></td>`;
     html += '</tr>';
   });
 
   html += '</tbody></table>';
   container.innerHTML = html;
+}
+
+// `+ Add row` handler (ADR-0034). Appends a blank row to `editedConstantWork` and
+// re-renders. From-scratch authoring: when `editedConstantWork` is `null` it is
+// initialised to `[]` first (an already-`[]` model is left intact) while
+// `parsedConstantWork` stays `null`. The new row's key set is the canonical schema
+// when nothing was imported to mirror; otherwise the imported header set (an
+// existing row's keys, falling back to the parse output if every row was deleted)
+// — so all rows share columns and the export round-trips. Values are all blank;
+// the engine's lenient blanks (size→0 PM, blank quarter→excluded, blank
+// Category→(Blank) sentinel) need no coercion here.
+function addConstantWorkRow() {
+  if (editedConstantWork === null) editedConstantWork = [];
+  const cols = (parsedConstantWork === null)
+    ? CW_CANONICAL_SCHEMA
+    : Object.keys(editedConstantWork[0] || parsedConstantWork[0] || {});
+  const row = {};
+  cols.forEach(c => { row[c] = ''; });
+  editedConstantWork.push(row);
+  renderConstantWorkTable();
+}
+
+// Per-row delete handler (ADR-0034). Splices exactly the targeted row out of
+// `editedConstantWork` immediately — no confirmation dialog (matching the Groups
+// tab) — preserving the order of the rest, then re-renders.
+function deleteConstantWorkRow(rowIdx) {
+  if (!editedConstantWork) return;
+  editedConstantWork.splice(rowIdx, 1);
+  renderConstantWorkTable();
 }
 
 // ── Groups tab — feature 0020 Phase 2 ─────────────────────────────
