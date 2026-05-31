@@ -1669,20 +1669,31 @@ function refreshQuarters() {
   const fromEpics = parsedEpics
     ? [...new Set(parsedEpics.map(r => r._quarter || '').filter(Boolean))]
     : [];
-  const all = [...new Set([...fromInits, ...fromEpics])].sort((a, b) => {
+  const cmpQuarter = (a, b) => {
     const pa = a.match(/^Q(\d)\s+(\d{4})$/), pb = b.match(/^Q(\d)\s+(\d{4})$/);
     if (pa && pb) return (+pa[2] - +pb[2]) || (+pa[1] - +pb[1]);
     return a.localeCompare(b);
-  });
+  };
+  // Historical selector source: initiatives ∪ epics only. Constant work is
+  // deterministic effort that cannot inform Poisson λ or the bootstrap pool, so
+  // a quarter present only in constant work never becomes a Historical quarter.
+  const all = [...new Set([...fromInits, ...fromEpics])].sort(cmpQuarter);
+  // Target selector source: initiatives ∪ epics ∪ constant work. A
+  // constant-work-only quarter is a valid Target quarter (yielding a
+  // pure-constant-work forecast) (ADR-0033).
+  const fromCW    = editedConstantWork ? extractQuarters(editedConstantWork) : [];
+  const allTarget = [...new Set([...all, ...fromCW])].sort(cmpQuarter);
 
-  // Preserve current selections if still valid; otherwise fall back to sensible defaults
+  // Preserve current selections if still valid; otherwise fall back to sensible
+  // defaults. The Target selector validates against the widened list so a
+  // constant-work-only target quarter can stay selected.
   const curHist   = histMS.getSelected().filter(q => all.includes(q));
-  const curTarget = targetMS.getSelected().filter(q => all.includes(q));
+  const curTarget = targetMS.getSelected().filter(q => allTarget.includes(q));
   const histDef   = curHist.length   ? curHist   : (all.includes('Q2 2026') ? ['Q2 2026'] : all.slice(0, 1));
-  const targetDef = curTarget.length ? curTarget : (all.includes('Q3 2026') ? ['Q3 2026'] : all.slice(1, 2));
+  const targetDef = curTarget.length ? curTarget : (allTarget.includes('Q3 2026') ? ['Q3 2026'] : allTarget.slice(1, 2));
 
   histMS.populate(all, histDef);
-  targetMS.populate(all, targetDef);
+  targetMS.populate(allTarget, targetDef);
 }
 
 /**
@@ -1782,6 +1793,9 @@ function resetConstantWorkFile() {
   wrap.classList.remove('loaded');
   wrap.querySelector('.file-icon').textContent = '📄';
   document.getElementById('cw-reset-row').style.display = 'none';
+  // Constant-work-only quarters must drop out of the Target selector now that
+  // the source array is gone (symmetry with the other reset handlers).
+  refreshQuarters();
 }
 
 function loadConstantWorkCSV(text) {
@@ -1791,6 +1805,9 @@ function loadConstantWorkCSV(text) {
   // Fold constant-work Categories into the pristine auto-default `All` Group
   // (ADR-0033, AT-9). No-op once the user has modified Groups (AT-10).
   syncAutoDefaultGroup();
+  // Surface the new constant-work quarters in the Target selector (Phase 5):
+  // the Target source is initiatives ∪ epics ∪ constant work.
+  refreshQuarters();
 }
 
 /**
@@ -1862,6 +1879,54 @@ function getConstantWorkEffortPerGroup(quarters, groups, teamName = null) {
     }
     return total;
   });
+}
+
+/**
+ * Sum the deterministic person-months — and count the rows — of constant work
+ * that is in scope (`quarter ∈ quarters`, and, when `teamName` is given, whose
+ * `team` matches case-insensitively) but whose normalised **Category** is in
+ * **no** Group's members. This is the constant work silently dropped from every
+ * Group's shift; ADR-0033 requires it be surfaced in the **Data preview**, never
+ * silently lost (no Run gate). Membership uses the same trim + case-fold +
+ * **(Blank) sentinel** semantics as `getConstantWorkEffortPerGroup` /
+ * `bucketRowsByGroups`. Overlap-aware: a row counts as excluded only if it
+ * matches *no* Group — a Category in ≥1 Group is never excluded, regardless of
+ * how many Groups it is in.
+ *
+ * @param {string[]} quarters
+ * @param {Array}    groups            — the Group snapshot to test membership against
+ * @param {string|null} [teamName=null] — when set, only rows for this team count
+ * @returns {{pm: number, rows: number}}
+ */
+function getConstantWorkExcluded(quarters, groups, teamName = null) {
+  if (!editedConstantWork || !editedConstantWork.length) return { pm: 0, rows: 0 };
+
+  // Union of every Group's members (case-folded), plus whether any Group
+  // includes the (Blank) sentinel — a Category is "in some Group" iff it is here.
+  const memberSet = new Set();
+  let blankMember = false;
+  for (const g of (groups || [])) {
+    for (const m of g.members) {
+      if (m === BLANK) blankMember = true;
+      else memberSet.add(String(m).toLowerCase());
+    }
+  }
+
+  const qSet    = new Set(quarters.map(q => q.trim()));
+  const teamKey = teamName === null ? null : teamName.toLowerCase();
+
+  let pm = 0, rows = 0;
+  for (const r of editedConstantWork) {
+    if (!qSet.has((r.quarter || '').trim())) continue;
+    if (teamKey !== null && (r.team || '').trim().toLowerCase() !== teamKey) continue;
+    // Mirror the Initiatives CSV cascade used elsewhere: category → moscow → emoji.
+    const cat = normalizeCategory(r.category || r.moscow || r.emoji || '');
+    const inSomeGroup = cat === BLANK ? blankMember : memberSet.has(cat.toLowerCase());
+    if (inSomeGroup) continue;
+    pm += tshirtToPersonMonths(r.tshirt_size || r.t_shirt_size || '');
+    rows++;
+  }
+  return { pm, rows };
 }
 
 /**
@@ -2032,6 +2097,10 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   // Purely additive deterministic effort — never enters K / λ / the bootstrap pool.
   const fixedEffortPerGroup = getConstantWorkEffortPerGroup(targetQuarters, groupsStore);
 
+  // Constant work in the target quarters whose Category matches no Group —
+  // surfaced (never silently dropped) in the Data preview (ADR-0033, Phase 5).
+  const cwExcluded = getConstantWorkExcluded(targetQuarters, groupsStore);
+
   // Size breakdown for preview
   const sizeDist = {};
   for (const s of epicSizingDist) sizeDist[s] = (sizeDist[s] || 0) + 1;
@@ -2043,9 +2112,12 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     epicCountMax: countArray.length ? Math.max(...countArray) : 0,
     targetQuarter: targetQuarters.join(', '), targetInitCount: targetInits.length,
     kPerGroup,
+    fixedEffortPerGroup,
     groupNames:  groupsStore.map(g => g.name),
     groupColors: groupsStore.map(g => g.color),
     categoryBreakdown,
+    cwExcludedPM:   cwExcluded.pm,
+    cwExcludedRows: cwExcluded.rows,
   };
 
   return { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview };
@@ -3147,11 +3219,23 @@ function renderPreview(preview) {
   // trailing whitespace around the name is intentional: it surfaces as a
   // text node between sibling pk/pv spans so `textContent` (and any
   // word-boundary regex) sees `name` and `K = n` as distinct tokens.
+  // Each Group's K row also reports the constant-work person-months folded into
+  // that Group (aligned index-for-index with kPerGroup, ADR-0033). The exact
+  // wording/format is not contractual — only that the per-Group PM is surfaced.
+  const cwPerGroup = preview.fixedEffortPerGroup || [];
   const groupKRows = (preview.kPerGroup || []).map((k, i) => {
     const name  = preview.groupNames?.[i]  ?? '';
     const color = preview.groupColors?.[i] ?? '#6366f1';
-    return ` <span class="pk" style="color:${color}">${escapeHtml(name)}</span> <span class="pv">K = ${k}</span>`;
+    const cwPM  = cwPerGroup[i] || 0;
+    return ` <span class="pk" style="color:${color}">${escapeHtml(name)}</span> <span class="pv">K = ${k} · ${cwPM.toFixed(1)} PM constant</span>`;
   }).join('');
+
+  // Constant work in the target quarters matching no Group is surfaced (not
+  // silently dropped) — but only as a positive line; nothing is emitted when
+  // there is no excluded work (a zero/absent line is acceptable per the plan).
+  const excludedRow = (preview.cwExcludedRows > 0)
+    ? `<span class="pk" style="grid-column:1/-1;color:#b45309;font-size:10px;padding-top:2px">Constant work in no group: ${(preview.cwExcludedPM || 0).toFixed(1)} PM across ${preview.cwExcludedRows} rows — excluded</span>`
+    : '';
 
   document.getElementById('preview-grid').innerHTML = `
     <span class="pk">Hist. quarter</span><span class="pv">${escapeHtml(preview.histQuarter)}</span>
@@ -3162,6 +3246,7 @@ function renderPreview(preview) {
     <div class="divider"></div>
     <span class="pk">Target quarter</span><span class="pv">${escapeHtml(preview.targetQuarter)}</span>
     ${groupKRows}
+    ${excludedRow}
   `;
   document.getElementById('data-preview').style.display = 'flex';
 

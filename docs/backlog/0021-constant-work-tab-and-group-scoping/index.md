@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 5
 retry_count: 0
 max_retries: 3
-next_handover: handover-16-atdd-p5.md
-updated_at: 2026-05-31T22:25:14Z
+next_handover: handover-17-implement-p5.md
+updated_at: 2026-05-31T22:33:03Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -236,3 +236,24 @@ run (`-t "Data preview"`) 2 failed / 1 passed / 3 skipped, exit 1; full suite
 (`npm run verify`) 3 failed / 186 passed / 1 skipped, exit 1 — RED confined to the new file.
 Logs under `docs/atdd-logs/0021-…-phase-5-{acceptance-red,inner-red,verify-ci}.log`. Advanced
 to **Phase 5 implement** (`stage: implement`); next handover `handover-16-atdd-p5.md`.
+
+**Phase 5 implement done** (this commit): implemented the Phase 5 slice inline in
+`index.html` (one production file). (1) `refreshQuarters` now sources the **Target**
+selector from `initiatives ∪ epics ∪ editedConstantWork` quarters (new
+`fromCW = extractQuarters(editedConstantWork)`, `allTarget` sorted with the shared
+`cmpQuarter`, Target selection-preservation validated against `allTarget`) while the
+**Historical** selector keeps `initiatives ∪ epics` — the two `MultiSelect`s are
+populated from different lists; `loadConstantWorkCSV` / `resetConstantWorkFile` now
+call `refreshQuarters()` for the user-visible source change. (2) `prepareSimulationData`'s
+`preview` gained `fixedEffortPerGroup` (the org-wide vector already computed at the call
+site, group-aligned), `cwExcludedPM`, and `cwExcludedRows` — the latter two from a new
+sibling helper `getConstantWorkExcluded(quarters, groups, teamName)` that counts
+in-scope CW rows whose **Category** is in **no** Group's members (overlap-aware: union of
+all members built once; reuses the trim + case-fold + (Blank) sentinel semantics and the
+`category → moscow → emoji` cascade). (3) `renderPreview` surfaces each Group's
+constant-work PM beside its `K` row and a positive-only "… excluded" line
+(`cwExcludedRows > 0`); no Run gate / alert. Constant work still contributes **zero** to
+any Group's `kPerGroup` / **Poisson λ** / **Bootstrap pool** (engine path unchanged).
+GREEN confirmed: targeted acceptance 6/6 pass (exit 0); `npm run verify` exits 0
+(189 passed / 1 skipped — the 3 RED-drivers flipped, no regression). No test file edited.
+Advanced to **Phase 5 review** (`stage: review`); next handover `handover-17-implement-p5.md`.
