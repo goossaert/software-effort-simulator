@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0021"
 slug: constant-work-tab-and-group-scoping
 title: Editable Constant work tab + constant work scoped to Groups by Category and quarter
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 8
 current_phase: 3
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-05-31T21:26:54Z
+next_handover: handover-10-atdd-p3.md
+updated_at: 2026-05-31T21:38:30Z
 created_at: 2026-05-29T23:11:00Z
 blocked_reason: ""
 artifacts:
@@ -106,3 +106,16 @@ AT-5/AT-11; `globalMin`→max fails AT-6 (`[8,3]`); both reverted → GREEN. Tar
 (47 pass/1 skip) + `npm run verify` (172 pass/1 skip) both exit 0. Review:
 `docs/reviews/0021-…-phase-2-review-01.md`. Advanced to **Phase 3 atdd**
 (`current_phase: 3`, `retry_count: 0`); next handover `handover-03-plan.md`.
+
+**Phase 3 atdd done** (this commit): authored
+`tests/acceptance/phase-3-team-level-constant-work-scoping.test.js` (AT-1…AT-5 for
+the per-team `fixedEffortPerGroup` on the **Team Level tab** — team match
+AND-composes with Category membership). No legacy migration was needed (AT-25 was
+migrated to the vector in Phase 2 and stays green; the plan confirms no Phase-3-unique
+migration). RED gate confirmed: targeted run 5 failed / 0 passed, exit 1; full suite
+5 failed / 172 passed / 1 skipped, exit 1 — RED confined to the new file. AT-1/2/3/5
+fail because `prepareTeamSimulationData` returns no `fixedEffortPerGroup` (scalar
+`fixedEffort` only); AT-4 fails because `renderTeamSection` broadcasts the team scalar
+uniformly (Frontend wrongly lifted to `4.4` instead of `0.0`). Logs under
+`docs/atdd-logs/0021-…-phase-3-{acceptance-red,inner-red,verify-ci}.log`. Advanced to
+**Phase 3 implement** (`stage: implement`); next handover `handover-10-atdd-p3.md`.

@@ -1,0 +1,136 @@
+command: npx vitest run tests/acceptance/phase-3-team-level-constant-work-scoping.test.js
+run_at: 2026-05-31T21:37:44Z
+exit_code: 1
+note: Phase 3 has no separate inner-loop seam (plan: "Inner tests: covered in the acceptance file"). The per-team, Category-scoped vector is exercised directly through prepareTeamSimulationData in the acceptance file below; this log records that same targeted run as the inner gate.
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-1: a team section lifts only the Groups whose members include a matching-team constant-work row's Category > credits the team's matching Group its t-shirt person-months, leaves the non-matching Group at 0, and ignores rows outside the Target quarters
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-2: a constant-work row for another team does not lift this team > leaves every Group entry of the non-matching team at 0 while the matching team is lifted
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-3: the per-team vector is aligned with the Groups and is team-scoped AND Category-scoped > has one entry per Group and excludes the team's constant-work row whose Category is in no Group
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderTeamSection (http://localhost/:302:29)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:71)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-5: the per-team constant-work match is case-insensitive on the team name > credits a row whose team casing differs from the initiative team, and still excludes other teams' rows
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js (5 tests | 5 failed) 162ms
+   × AT-1: a team section lifts only the Groups whose members include a matching-team constant-work row's Category > credits the team's matching Group its t-shirt person-months, leaves the non-matching Group at 0, and ignores rows outside the Target quarters 73ms
+     → expected false to be true // Object.is equality
+   × AT-2: a constant-work row for another team does not lift this team > leaves every Group entry of the non-matching team at 0 while the matching team is lifted 30ms
+     → expected undefined to deeply equal [ +0, +0 ]
+   × AT-3: the per-team vector is aligned with the Groups and is team-scoped AND Category-scoped > has one entry per Group and excludes the team's constant-work row whose Category is in no Group 20ms
+     → Target cannot be null or undefined.
+   × AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted 23ms
+     → expected '4.4' to be '0.0' // Object.is equality
+   × AT-5: the per-team constant-work match is case-insensitive on the team name > credits a row whose team casing differs from the initiative team, and still excludes other teams' rows 16ms
+     → Cannot read properties of undefined (reading '0')
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-1: a team section lifts only the Groups whose members include a matching-team constant-work row's Category > credits the team's matching Group its t-shirt person-months, leaves the non-matching Group at 0, and ignores rows outside the Target quarters
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js:107:32
+    105|     expect(platform).toBeTruthy();
+    106|     const vec = platform.fixedEffortPerGroup;
+    107|     expect(Array.isArray(vec)).toBe(true);
+       |                                ^
+    108|     expect(vec).toHaveLength(2);
+    109|     expect(vec[0]).toBeCloseTo(pm(win, 'M'), 10); // Backend lifted by…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-2: a constant-work row for another team does not lift this team > leaves every Group entry of the non-matching team at 0 while the matching team is lifted
+AssertionError: expected undefined to deeply equal [ +0, +0 ]
+
+- Expected: 
+Array [
+  0,
+  0,
+]
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js:135:38
+    133|     expect(risk).toBeTruthy();
+    134|     // Negative: the Platform-owned row lifts nothing on the Risk team.
+    135|     expect(risk.fixedEffortPerGroup).toEqual([0, 0]);
+       |                                      ^
+    136| 
+    137|     // Contrast so the all-zero vector above is meaningful, not vacuou…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-3: the per-team vector is aligned with the Groups and is team-scoped AND Category-scoped > has one entry per Group and excludes the team's constant-work row whose Category is in no Group
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js:159:17
+    157|     const platform = findTeam(prepareTeams(win, ['Q1 2026'], ['Q3 2026…
+    158|     const vec = platform.fixedEffortPerGroup;
+    159|     expect(vec).toHaveLength(1);                  // aligned with grou…
+       |                 ^
+    160|     expect(vec[0]).toBeCloseTo(pm(win, 'M'), 10); // only the Backend …
+    161|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
+AssertionError: expected '4.4' to be '0.0' // Object.is equality
+
+Expected: "0.0"
+Received: "4.4"
+
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js:204:44
+    202|     // Backend (Category match) is lifted to its constant-work PM; Fro…
+    203|     expect(valCells[0].textContent.trim()).toBe(pm(win, 'L').toFixed(1…
+    204|     expect(valCells[1].textContent.trim()).toBe('0.0');               …
+       |                                            ^
+    205|   });
+    206| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-5: the per-team constant-work match is case-insensitive on the team name > credits a row whose team casing differs from the initiative team, and still excludes other teams' rows
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/acceptance/phase-3-team-level-constant-work-scoping.test.js:226:40
+    224|     // Only the case-insensitively-matching 'platform' row counts (M),…
+    225|     // 'risk' row (XL) — so the entry is exactly pm('M'), not pm('M') …
+    226|     expect(platform.fixedEffortPerGroup[0]).toBeCloseTo(pm(win, 'M'), …
+       |                                        ^
+    227|   });
+    228| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  23:37:44
+   Duration  627ms (transform 14ms, setup 0ms, collect 236ms, tests 162ms, environment 0ms, prepare 42ms)
+
