@@ -4,11 +4,17 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "verify": "vitest run",
+    "lint": "eslint index.html --max-warnings 0",
+    "scan:forbidden": "if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html",
+    "verify": "npm run lint && npm run scan:forbidden && vitest run",
     "test:phase-1": "vitest run tests/acceptance/phase-1-engine.test.js",
     "test:phase-2": "vitest run tests/acceptance/phase-2-groups-tab.test.js"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-html": "^8.0.0",
+    "globals": "^15.0.0",
     "jsdom": "^25.0.1",
     "vitest": "^2.1.8"
   }

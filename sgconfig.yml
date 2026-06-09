@@ -1,0 +1,4 @@
+# ast-grep project config — used by the backlog loop's forbidden-pattern scan and by
+# `ast-grep scan` run manually from the repo root. Rules live in .ast-grep/rules/.
+ruleDirs:
+  - .ast-grep/rules

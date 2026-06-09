@@ -1,0 +1,43 @@
+# Repo-specific forbidden-pattern ruleset for the backlog loop's (d) structural scan.
+# Referenced by backlog.config.json -> gate.forbidden_pattern_scan.rules, and layered
+# on top of the tool's built-in canonical rules (prod-import-from-tests, test-env-branch,
+# fixture-identity-special-case; see tools/backlog/docs/0002 §(d)).
+#
+# These are JavaScript rules; ast-grep's native HTML->JS injection applies them to the
+# <script> blocks embedded in index.html. Every pattern below is ABSENT from the current
+# code (verified), so a hit means new production code introduced a forbidden construct.
+# Run standalone: `ast-grep scan` (reads sgconfig.yml at the repo root).
+id: no-debugger
+language: javascript
+severity: error
+message: "Forbidden: `debugger` statement must not ship in production."
+rule:
+  kind: debugger_statement
+---
+id: no-eval
+language: javascript
+severity: error
+message: "Forbidden: `eval()` (arbitrary code execution / common test-gaming vector)."
+rule:
+  pattern: eval($$$ARGS)
+---
+id: no-new-function
+language: javascript
+severity: error
+message: "Forbidden: `new Function(...)` is eval-by-another-name."
+rule:
+  pattern: new Function($$$ARGS)
+---
+id: no-document-write
+language: javascript
+severity: error
+message: "Forbidden: `document.write(...)` (XSS-prone, blocks parsing)."
+rule:
+  pattern: document.write($$$ARGS)
+---
+id: no-with-statement
+language: javascript
+severity: error
+message: "Forbidden: `with` statement (deprecated, defeats static analysis)."
+rule:
+  kind: with_statement

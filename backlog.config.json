@@ -6,16 +6,22 @@
     "plan": "opus",
     "atdd": "opus",
     "implement": "opus",
-    "review": "opus"
+    "review": "opus",
+    "review-correctness": "opus"
   },
   "max_retries": 3,
   "stop_on_flag": false,
   "poll_interval_seconds": 10,
-  "usage": { "reprobe_interval_seconds": 600 },
+  "usage": {
+    "reprobe_interval_seconds": 600
+  },
   "notify_hook": "",
   "logs_dir": ".backlog-logs",
   "submodule_autoupdate": true,
-  "sandbox": { "backend": "ai-jail", "command": "ai-jail" },
+  "sandbox": {
+    "backend": "ai-jail",
+    "command": "ai-jail"
+  },
   "paths": {
     "backlog_dir": "docs/backlog",
     "plans_dir": "docs/plans",
@@ -24,5 +30,70 @@
     "atdd_logs_dir": "docs/atdd-logs",
     "context_file": "CONTEXT.md"
   },
-  "verify_command": "npm run verify"
+  "verify_command": "npm run verify",
+  "smoke_command": "",
+  "correctness_gate": {
+    "enabled": true,
+    "typecheck_command": "",
+    "lint_command": "npm run lint",
+    "sast_command": "",
+    "sanitizer_command": "",
+    "dep_scan_command": "",
+    "secret_scan_command": "",
+    "analysis_command": "npm run lint"
+  },
+  "test_paths": [
+    "tests/**",
+    "features/**",
+    "e2e/**",
+    "acceptance/**"
+  ],
+  "gate": {
+    "enabled": true,
+    "forbidden_pattern_scan": {
+      "matcher": "ast-grep",
+      "rules": ".ast-grep/rules/forbidden-patterns.yml"
+    },
+    "mutation_command": "",
+    "analysis_command": ""
+  },
+  "mutation": {
+    "enabled": false,
+    "tool": "",
+    "command": "",
+    "min_score": 80,
+    "scope": "changed-files"
+  },
+  "hermetic_verify": {
+    "enabled": true,
+    "network_disable": "auto",
+    "fresh_checkout": "worktree"
+  },
+  "stability": {
+    "green_reruns": 3,
+    "randomized_order": true
+  },
+  "test_immutability": {
+    "flakiness_reruns": 5,
+    "readonly_enforcement": "chmod",
+    "test_globs": []
+  },
+  "review_correctness": {
+    "cross_family": {
+      "enabled": false,
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "api_key_env": "GEMINI_API_KEY",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta",
+      "transport": "inline",
+      "timeout_s": 120,
+      "on_api_error": "warn"
+    }
+  },
+  "eval": {
+    "tasks_dir": "",
+    "isolation": "worktree",
+    "backend": "",
+    "timeout_s": 1800
+  }
 }
