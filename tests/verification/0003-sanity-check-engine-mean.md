@@ -1,4 +1,4 @@
-# Sanity-check verdict — `sanity-check-engine-mean.test.js`
+# Sanity-check verdict — `0003-sanity-check-engine-mean.test.js`
 
 ## Result: PASS ✅
 
@@ -67,7 +67,7 @@ So:
 ## How to reproduce
 
 ```sh
-npx vitest run tests/verification/sanity-check-engine-mean.test.js
+npx vitest run tests/verification/0003-sanity-check-engine-mean.test.js
 ```
 
 The test reads three CSVs from `~/Downloads/` by default. Override the
