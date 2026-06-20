@@ -1,3 +1,0 @@
-[submodule "tools/backlog"]
-	path = tools/backlog
-	url = git@github-effort-simulator:goossaert/backlog.git

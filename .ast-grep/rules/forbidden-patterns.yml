@@ -1,7 +1,7 @@
 # Repo-specific forbidden-pattern ruleset for the backlog loop's (d) structural scan.
 # Referenced by backlog.config.json -> gate.forbidden_pattern_scan.rules, and layered
 # on top of the tool's built-in canonical rules (prod-import-from-tests, test-env-branch,
-# fixture-identity-special-case; see tools/backlog/docs/0002 §(d)).
+# fixture-identity-special-case; see the backlog tool's docs/0002 §(d)).
 #
 # These are JavaScript rules; ast-grep's native HTML->JS injection applies them to the
 # <script> blocks embedded in index.html. Every pattern below is ABSENT from the current

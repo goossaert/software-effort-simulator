@@ -1,5 +1,6 @@
 {
   "schema": "backlog-config/v1",
+  "config_version": 3,
   "models": {
     "default": "opus",
     "apply-docs": "opus",
@@ -17,7 +18,9 @@
   },
   "notify_hook": "",
   "logs_dir": ".backlog-logs",
-  "submodule_autoupdate": true,
+  "submodule_autoupdate": false,
+  "tool_commit": "f53f1b80751e43b1fa2ec3b8cd36d992a6610ed2",
+  "trusted_config_path": "/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json",
   "sandbox": {
     "backend": "ai-jail",
     "command": "ai-jail"
@@ -40,7 +43,8 @@
     "sanitizer_command": "",
     "dep_scan_command": "",
     "secret_scan_command": "",
-    "analysis_command": "npm run lint"
+    "analysis_command": "npm run lint",
+    "suppression_pattern": ""
   },
   "test_paths": [
     "tests/**",
@@ -50,6 +54,11 @@
   ],
   "gate": {
     "enabled": true,
+    "protected_phases": [
+      "implement",
+      "review",
+      "review-correctness"
+    ],
     "forbidden_pattern_scan": {
       "matcher": "ast-grep",
       "rules": ".ast-grep/rules/forbidden-patterns.yml"
@@ -61,8 +70,45 @@
     "enabled": false,
     "tool": "",
     "command": "",
+    "pbt_command": "",
     "min_score": 80,
-    "scope": "changed-files"
+    "scope": "changed-files",
+    "business_logic_globs": []
+  },
+  "pbt": {
+    "enabled": false,
+    "framework": "",
+    "import_symbol": "",
+    "min_per_rule": 1
+  },
+  "contract": {
+    "enabled": false,
+    "assert_symbols": ""
+  },
+  "oracle_free": {
+    "enabled": false,
+    "marker": "",
+    "min_per_phase": 1
+  },
+  "toolchain": {
+    "selected": false,
+    "selected_at": "",
+    "search_dated": "",
+    "layers": {
+      "pbt": {},
+      "mutation": {},
+      "typecheck": {},
+      "lint": {},
+      "sast": {},
+      "sanitizer": {},
+      "dep_scan": {},
+      "secret_scan": {},
+      "analysis": {},
+      "forbidden_matcher": {},
+      "oracle_free": {},
+      "smoke": {},
+      "verify": {}
+    }
   },
   "hermetic_verify": {
     "enabled": true,
@@ -71,7 +117,8 @@
   },
   "stability": {
     "green_reruns": 3,
-    "randomized_order": true
+    "randomized_order": true,
+    "shuffle_flag": ""
   },
   "test_immutability": {
     "flakiness_reruns": 5,
