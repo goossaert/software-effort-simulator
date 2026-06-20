@@ -3,7 +3,7 @@ run_at: 2026-05-31T23:21:28Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-7-constant-work-add-delete.test.js > AT-2: + Add row appends a blank row carrying the imported header set, not the canonical schema > gives the new row exactly the imported headers (blank) so all rows share columns
 [ConstantWork] 1 rows

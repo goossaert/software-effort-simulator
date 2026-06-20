@@ -3,7 +3,7 @@ run_at: 2026-05-31T21:59:44Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-4-projections-constant-work-scoping.test.js > AT-1: a projection cell shows only constant work whose Category is in the Projection group's members > appends the Backend constant-work row to the cell and omits the Ops row when the Projection group's members are ['Backend']
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

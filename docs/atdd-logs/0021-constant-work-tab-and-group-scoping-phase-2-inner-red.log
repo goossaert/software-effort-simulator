@@ -3,7 +3,7 @@ run_at: 2026-05-31T21:01:24Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
  ↓ tests/verification/sanity-check-engine-mean.test.js (1 test | 1 skipped)
 stdout | tests/verification/phase-1-2-review-01.test.js > Phase 1 — forbidden legacy fields are absent from engine returns > prepareSimulationData return shape carries kPerGroup only
@@ -14,16 +14,16 @@ stdout | tests/verification/phase-1-2-review-01.test.js > Phase 1 — forbidden 
 
 stderr | tests/verification/phase-1-2-review-01.test.js > Phase 1 — chart datasets derive translucent backgroundColor from Group color > backgroundColor is a translucent rgba; borderColor has alpha === 0
 Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
-    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
-    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at module.exports (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
     at renderChartOnCanvas (http://localhost/:32:25)
     at renderChart (http://localhost/:207:19)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:9838)
     at eval (<anonymous>)
     at window.__readBinding (http://localhost/:66:23)
-    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+    at Module.execIn (/Users/username/software-effort-simulator/tests/harness.js:192:14) undefined
 
 stdout | tests/verification/phase-1-2-review-01.test.js > Phase 1 — Initiatives-tab datalist options are sorted alphabetically (case-insensitive) > options for `KR2`, `Automation`, `KR1`, `analytics` render in alpha order
 [Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
@@ -112,16 +112,16 @@ stdout | tests/acceptance/phase-1-engine.test.js > AT-10: prepareSimulationData 
 
 stderr | tests/acceptance/phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
 Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
-    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
-    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at module.exports (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
     at renderChartOnCanvas (http://localhost/:32:25)
     at renderChart (http://localhost/:207:19)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:12156)
     at eval (<anonymous>)
     at window.__readBinding (http://localhost/:66:23)
-    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+    at Module.execIn (/Users/username/software-effort-simulator/tests/harness.js:192:14) undefined
 
 stdout | tests/acceptance/phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
 [Initiatives] 9 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

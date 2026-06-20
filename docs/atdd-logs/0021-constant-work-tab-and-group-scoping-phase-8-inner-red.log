@@ -3,7 +3,7 @@ run_at: 2026-05-31T23:42:07Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
 [Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

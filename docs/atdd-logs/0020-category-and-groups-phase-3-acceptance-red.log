@@ -3,7 +3,7 @@ run_at: 2026-05-27T05:39:42Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-3-json-persistence.test.js > AT-16: loaded members referencing absent Categories are preserved verbatim > a Group whose members reference a CSV-absent Category loads cleanly and silently matches zero at Run
 [Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

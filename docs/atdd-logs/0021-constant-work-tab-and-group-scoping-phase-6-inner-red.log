@@ -3,7 +3,7 @@ run_at: 2026-05-31T22:49:45Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
  ❯ tests/acceptance/phase-6-constant-work-tab.test.js (15 tests | 3 failed | 12 skipped) 113ms
    × AT-4: the tshirt_size cell is a <select> of exactly the seven Recognised t-shirt sizes > renders a <select> whose options are exactly 2XS,XS,S,M,L,XL,XL+ with the row value M selected 71ms

@@ -7,8 +7,8 @@ enforcement overlay — a session cannot do them.
 
 > **This repo's actual paths differ from the generic `/opt/backlog/...` examples below.** The
 > trusted overlay for `software-effort-simulator` lives at
-> `/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json`, and the
-> tool at `/Users/emmanuel.goossaert@new10.com/code/backlog` (owned by the `backlog-tool` service
+> `/Users/username/backlog-enforcement/enforcement.config.json`, and the
+> tool at `/Users/username/backlog` (owned by the `backlog-tool` service
 > account). Follow **`docs/backlog-loop-ops.md`** for the exact, repo-specific commands; treat the
 > `/opt/backlog` snippets here as illustrative only.
 

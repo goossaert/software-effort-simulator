@@ -3,7 +3,7 @@ run_at: 2026-05-31T22:24:46Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

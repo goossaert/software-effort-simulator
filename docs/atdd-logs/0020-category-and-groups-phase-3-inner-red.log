@@ -3,7 +3,7 @@ run_at: 2026-05-27T05:40:11Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
  ❯ tests/acceptance/phase-3-json-persistence-inner.test.js (28 tests | 28 failed) 539ms
    × inner: schemaVersion policy > happy: schemaVersion exactly 1 is accepted 84ms

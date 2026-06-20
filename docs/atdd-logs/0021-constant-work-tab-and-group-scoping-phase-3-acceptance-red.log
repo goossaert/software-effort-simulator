@@ -3,7 +3,7 @@ run_at: 2026-05-31T21:37:44Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-1: a team section lifts only the Groups whose members include a matching-team constant-work row's Category > credits the team's matching Group its t-shirt person-months, leaves the non-matching Group at 0, and ignores rows outside the Target quarters
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
@@ -19,16 +19,16 @@ stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-
 
 stderr | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
 Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
-    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
-    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at module.exports (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
     at renderChartOnCanvas (http://localhost/:32:25)
     at renderTeamSection (http://localhost/:302:29)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:71)
     at eval (<anonymous>)
     at window.__readBinding (http://localhost/:66:23)
-    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+    at Module.execIn (/Users/username/software-effort-simulator/tests/harness.js:192:14) undefined
 
 stdout | tests/acceptance/phase-3-team-level-constant-work-scoping.test.js > AT-5: the per-team constant-work match is case-insensitive on the team name > credits a row whose team casing differs from the initiative team, and still excludes other teams' rows
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

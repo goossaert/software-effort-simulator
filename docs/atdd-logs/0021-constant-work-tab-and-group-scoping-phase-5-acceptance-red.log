@@ -3,7 +3,7 @@ run_at: 2026-05-31T22:24:45Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-5-constant-work-quarters-and-preview.test.js > AT-1: a constant-work-only quarter is selectable as a Target quarter but not a Historical quarter > lists constant-work-only quarters in the Target selector, omits them from the Historical selector, and the Target⊇Historical difference is exactly the constant-work-only quarters
 [Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

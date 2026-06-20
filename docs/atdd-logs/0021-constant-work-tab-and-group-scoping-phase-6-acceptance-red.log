@@ -3,7 +3,7 @@ run_at: 2026-05-31T22:49:25Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > seeds the category datalist from the union of initiative and constant-work Categories
 [Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
@@ -62,16 +62,16 @@ stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-12: adding a free-text
 
 stderr | tests/acceptance/phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
 Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
-    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
-    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at module.exports (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
     at renderChartOnCanvas (http://localhost/:32:25)
     at renderChart (http://localhost/:207:19)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:10176)
     at eval (<anonymous>)
     at window.__readBinding (http://localhost/:66:23)
-    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+    at Module.execIn (/Users/username/software-effort-simulator/tests/harness.js:192:14) undefined
 
 stdout | tests/acceptance/phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

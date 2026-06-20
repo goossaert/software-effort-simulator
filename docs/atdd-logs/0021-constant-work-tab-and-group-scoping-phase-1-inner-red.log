@@ -11,7 +11,7 @@ gate is therefore the SAME command and run as the acceptance gate, reproduced
 below for the file-first loop reader.
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-1-constant-work-substrate.test.js > AT-1: loading a Constant Work CSV creates editedConstantWork as a per-row shallow clone of parsedConstantWork > clones every row into a new top-level array with equal length, distinct row references, equal values, and equal key order
 [ConstantWork] 3 rows
@@ -85,16 +85,16 @@ stdout | tests/acceptance/phase-1-engine.test.js > AT-10: prepareSimulationData 
 
 stderr | tests/acceptance/phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
 Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
-    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
-    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at module.exports (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/username/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
     at renderChartOnCanvas (http://localhost/:32:25)
     at renderChart (http://localhost/:207:19)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
     at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:12044)
     at eval (<anonymous>)
     at window.__readBinding (http://localhost/:66:23)
-    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+    at Module.execIn (/Users/username/software-effort-simulator/tests/harness.js:192:14) undefined
 
 stdout | tests/acceptance/phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
 [Initiatives] 9 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

@@ -3,7 +3,7 @@ run_at: 2026-05-31T21:01:17Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
 stdout | tests/acceptance/phase-2-constant-work-org-scoping.test.js > AT-1: a constant-work row lifts only the Groups whose members include its Category > credits the matching Group its t-shirt person-months, leaves non-matching Groups at 0, and ignores rows outside the Target quarters
 [Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"

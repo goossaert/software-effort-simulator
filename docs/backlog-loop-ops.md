@@ -11,9 +11,9 @@ submodule path.
 
 | Asset | Path | Owner | Mode | Why |
 |---|---|---|---|---|
-| External tool | `/Users/emmanuel.goossaert@new10.com/code/backlog` | `backlog-tool` (service acct) | dirs `0755`, bins `0755` | Sibling of this repo, outside it and outside `~/.claude`. Owned by a uid the loop can't write, so a session can't edit its own judge. |
-| Trusted overlay | `/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json` | `backlog-tool` | `0444` | Authoritative source for the gate's enforcement-critical keys. The in-repo `trusted_config_path` key is **discovery-only** and is never read for enforcement. |
-| This repo | `/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator` | you | — | The only thing the ai-jail sandbox maps **writable** (`--rw-map "$repo"`). |
+| External tool | `/Users/username/backlog` | `backlog-tool` (service acct) | dirs `0755`, bins `0755` | Sibling of this repo, outside it and outside `~/.claude`. Owned by a uid the loop can't write, so a session can't edit its own judge. |
+| Trusted overlay | `/Users/username/backlog-enforcement/enforcement.config.json` | `backlog-tool` | `0444` | Authoritative source for the gate's enforcement-critical keys. The in-repo `trusted_config_path` key is **discovery-only** and is never read for enforcement. |
+| This repo | `/Users/username/software-effort-simulator` | you | — | The only thing the ai-jail sandbox maps **writable** (`--rw-map "$repo"`). |
 | Loop uid | your normal login user | — | — | **Never** run the loop as root or as `backlog-tool` — the fail-closed preflight checks the assets are *not writable by the running uid*; a privileged owner running the loop would (correctly) abort it. |
 
 Integrity comes from **loop uid ≠ asset owner uid**, not from root specifically (verified in the
@@ -23,8 +23,8 @@ outside `$REPO`, outside `~/.claude`, and `! [ -w ]` by the running uid — it n
 ## Daily launch (run as your normal user)
 
 ```bash
-backlog-loop --repo /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator \
-             --trusted-config /Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json
+backlog-loop --repo /Users/username/software-effort-simulator \
+             --trusted-config /Users/username/backlog-enforcement/enforcement.config.json
 # Optional hardening flags:
 #   --require-tool-version    refuse to run if the tool drifted from the recorded tool_commit
 #   --require-config-version  refuse to run if config_version is behind the tool schema
@@ -32,7 +32,7 @@ backlog-loop --repo /Users/emmanuel.goossaert@new10.com/code/software-effort-sim
 ```
 
 `backlog-loop` is on `PATH` via a `…/code/backlog/bin` entry (see setup). If it is not on your PATH,
-invoke it by full path: `/Users/emmanuel.goossaert@new10.com/code/backlog/bin/backlog-loop …`.
+invoke it by full path: `/Users/username/backlog/bin/backlog-loop …`.
 
 ## One-time setup (operator / root)
 
@@ -50,7 +50,7 @@ id backlog-tool   # confirm it exists
 ### 2. Hand the existing tool checkout to that account (no copy — it already lives here at f53f1b8)
 
 ```bash
-TOOL=/Users/emmanuel.goossaert@new10.com/code/backlog
+TOOL=/Users/username/backlog
 sudo chown -R backlog-tool "$TOOL"
 sudo find "$TOOL" -type d -exec chmod 0755 {} \;
 ```
@@ -65,11 +65,11 @@ The launcher resolves its libs from `BASH_SOURCE[0]` **without** `readlink -f`, 
 
 ```bash
 # Option A (no sudo): add the bin dir to your PATH — backlog-loop then resolves to the real path.
-echo 'export PATH="$PATH:/Users/emmanuel.goossaert@new10.com/code/backlog/bin"' >> ~/.zshrc
+echo 'export PATH="$PATH:/Users/username/backlog/bin"' >> ~/.zshrc
 
 # Option B (sudo): exec-wrappers in /usr/local/bin (they invoke the REAL path, so libs resolve).
 for b in backlog-loop backlog-migrate backlog-init backlog-watch; do
-  printf '#!/bin/sh\nexec /Users/emmanuel.goossaert@new10.com/code/backlog/bin/%s "$@"\n' "$b" \
+  printf '#!/bin/sh\nexec /Users/username/backlog/bin/%s "$@"\n' "$b" \
     | sudo tee /usr/local/bin/$b >/dev/null && sudo chmod 0755 /usr/local/bin/$b
 done
 ```
@@ -77,7 +77,7 @@ done
 ### 4. Deploy + lock the trusted enforcement overlay
 
 ```bash
-OVERLAY=/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json
+OVERLAY=/Users/username/backlog-enforcement/enforcement.config.json
 sudo install -d -m 0755 -o backlog-tool "$(dirname "$OVERLAY")"
 printf '{"gate":{"enabled":true},"correctness_gate":{"enabled":true},"test_immutability":{"readonly_enforcement":"chmod"}}' \
   | sudo tee "$OVERLAY" >/dev/null
@@ -90,7 +90,7 @@ hatches are honored **trusted-only** (an in-repo N/A is ignored so a session can
 record them in the overlay, rotating in place and re-asserting read-only:
 
 ```bash
-OVERLAY=/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json
+OVERLAY=/Users/username/backlog-enforcement/enforcement.config.json
 sudo sh -c "jq '.toolchain.layers.mutation.status=\"n/a\" | .toolchain.layers.pbt.status=\"n/a\"' \
   '$OVERLAY' > '$OVERLAY.next' && mv '$OVERLAY.next' '$OVERLAY'"
 sudo chown backlog-tool "$OVERLAY"; sudo chmod 0444 "$OVERLAY"
@@ -99,8 +99,8 @@ sudo chown backlog-tool "$OVERLAY"; sudo chmod 0444 "$OVERLAY"
 ### 5. Verify ownership + writability (run as your NORMAL user, not root, not backlog-tool)
 
 ```bash
-TOOL=/Users/emmanuel.goossaert@new10.com/code/backlog
-OVERLAY=/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json
+TOOL=/Users/username/backlog
+OVERLAY=/Users/username/backlog-enforcement/enforcement.config.json
 ls -ld "$TOOL" "$TOOL/bin/backlog-loop"            # owner = backlog-tool, dirs 0755
 ls -l  "$OVERLAY"                                  # -r--r--r-- owned by backlog-tool
 git -C "$TOOL" rev-parse HEAD                       # f53f1b80751e43b1fa2ec3b8cd36d992a6610ed2
@@ -119,7 +119,7 @@ First, a pre-overlay sanity check that PATH + lib resolution work (omitting `--t
 the preflight a documented no-op, so this is safe even before the overlay exists):
 
 ```bash
-backlog-loop --repo /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator --until-idle
+backlog-loop --repo /Users/username/software-effort-simulator --until-idle
 # Expect: "Backlog loop starting …" then "no ready tasks — exiting (--until-idle)" (0021 is done).
 ```
 
@@ -127,8 +127,8 @@ Then the real integrity check. The preflight runs **only on a real launch** (`DR
 `--dry-run` does **not** exercise it — use `--until-idle`:
 
 ```bash
-backlog-loop --repo /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator \
-             --trusted-config /Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json \
+backlog-loop --repo /Users/username/software-effort-simulator \
+             --trusted-config /Users/username/backlog-enforcement/enforcement.config.json \
              --until-idle
 # PASS:        "Backlog loop starting …" then "no ready tasks — exiting (--until-idle)".
 # FAIL "trusted config not found":          the overlay isn't deployed yet — finish setup step 4.
@@ -162,9 +162,9 @@ The repo-side upgrade is on branch `chore/backlog-v3-external`. To abandon:
 the repo; remove them with **literal** paths (never an unset `$VAR` with `rm -rf`):
 
 ```bash
-sudo rm -rf /Users/emmanuel.goossaert@new10.com/code/backlog-enforcement   # the overlay only
+sudo rm -rf /Users/username/backlog-enforcement   # the overlay only
 sudo sysadminctl -deleteUser backlog-tool                                  # the service account
-# The tool checkout stays at /Users/emmanuel.goossaert@new10.com/code/backlog (you keep it there);
+# The tool checkout stays at /Users/username/backlog (you keep it there);
 # if you deleted the service account, chown it back to yourself:
-#   sudo chown -R "$(id -un)" /Users/emmanuel.goossaert@new10.com/code/backlog
+#   sudo chown -R "$(id -un)" /Users/username/backlog
 ```

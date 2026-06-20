@@ -20,7 +20,7 @@
   "logs_dir": ".backlog-logs",
   "submodule_autoupdate": false,
   "tool_commit": "f53f1b80751e43b1fa2ec3b8cd36d992a6610ed2",
-  "trusted_config_path": "/Users/emmanuel.goossaert@new10.com/code/backlog-enforcement/enforcement.config.json",
+  "trusted_config_path": "/Users/username/backlog-enforcement/enforcement.config.json",
   "sandbox": {
     "backend": "ai-jail",
     "command": "ai-jail"

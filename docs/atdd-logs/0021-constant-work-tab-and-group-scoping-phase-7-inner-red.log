@@ -3,7 +3,7 @@ run_at: 2026-05-31T23:21:29Z
 exit_code: 1
 ---
 
- RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+ RUN  v2.1.9 /Users/username/software-effort-simulator
 
  ❯ tests/acceptance/phase-7-constant-work-add-delete.test.js (11 tests | 2 failed | 9 skipped) 100ms
    × AT-1: + Add row appends a blank canonical-schema row when nothing was imported > appends exactly one canonical-schema row (all cells blank) to editedConstantWork and re-renders 74ms
