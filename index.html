@@ -949,12 +949,12 @@
       <div class="field-group">
         <label>Lognormal Parameters</label>
         <div class="param-mode-options" id="param-mode-options">
-          <label id="param-label-synthetic" class="active">
-            <input type="radio" name="param-mode" value="synthetic" checked>
+          <label id="param-label-synthetic">
+            <input type="radio" name="param-mode" value="synthetic">
             Synthetic lognormal parameters
           </label>
-          <label id="param-label-empirical">
-            <input type="radio" name="param-mode" value="empirical">
+          <label id="param-label-empirical" class="active">
+            <input type="radio" name="param-mode" value="empirical" checked>
             <span>Empirical lognormal parameters<br><span class="param-mode-note">Bias-corrected from Q1 2026 actuals</span></span>
           </label>
         </div>
@@ -1329,8 +1329,8 @@ const T_SHIRT_PARAMS_EMPIRICAL = {
   'XL+': { mu:  2.3503, sigma: 0.0372 }, // no Q1 data; same as synthetic
 };
 
-// Active parameter set — toggled by the UI selector; default: synthetic
-let activeParams = T_SHIRT_PARAMS;
+// Active parameter set — toggled by the UI selector; default: empirical
+let activeParams = T_SHIRT_PARAMS_EMPIRICAL;
 
 /**
  * Convert a t-shirt size label to a deterministic person-months value

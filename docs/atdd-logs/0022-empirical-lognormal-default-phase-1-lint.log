@@ -1,0 +1,9 @@
+command: npm run lint
+phase: 1 (0022 empirical-lognormal-default) — layer: lint (ESLint 9, --max-warnings 0)
+---
+
+> lint
+> eslint index.html --max-warnings 0
+
+---
+exit_code: 0

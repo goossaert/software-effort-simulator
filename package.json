@@ -8,7 +8,7 @@
     "scan:forbidden": "if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html --inspect=summary",
     "scan:deps": "node scripts/dep-scan.mjs",
     "scan:secrets": "secretlint \"**/*\"",
-    "verify": "npm run lint && npm run scan:forbidden && npm run scan:deps && npx secretlint \"**/*\" && vitest run",
+    "verify": "{ [ -e node_modules/.bin/eslint ] || npm ci; } && npm run lint && npm run scan:forbidden && npm run scan:deps && npx secretlint \"**/*\" && vitest run",
     "test:phase-1": "vitest run tests/acceptance/0020-phase-1-engine.test.js",
     "test:phase-2": "vitest run tests/acceptance/0020-phase-2-groups-tab.test.js"
   },

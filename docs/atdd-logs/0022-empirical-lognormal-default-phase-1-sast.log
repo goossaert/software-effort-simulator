@@ -1,0 +1,9 @@
+command: npm run lint  # SAST = eslint-plugin-security (security/recommended) folded into the eslint flat config
+phase: 1 — layer: sast (eslint-plugin-security 4.0.1; detect-object-injection disabled — canonical FP on param-table lookups)
+---
+
+> lint
+> eslint index.html --max-warnings 0
+
+---
+exit_code: 0

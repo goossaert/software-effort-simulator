@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 1
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-05-gate-p1.md
-updated_at: 2026-06-21T18:14:24Z
+next_handover: handover-06-implement-p1.md
+updated_at: 2026-06-21T18:27:00Z
 created_at: 2026-06-20T21:36:48Z
 blocked_reason: ""
 artifacts:
@@ -58,3 +58,17 @@ regression guard + happy/boundary/negative examples). Stable RED proven over 5 r
 calibrated size {XS,S,M,L} — the non-vacuous driver; 2XS carry-through + AT-3 pass). RED logs +
 flakiness log under `docs/atdd-logs/0022-…-phase-1-*.log`. No `index.html` edits. Stage →
 **implement**, `next_handover: handover-04-atdd-p1.md`.
+
+**implement p1 (2026-06-21, retry after gate rewind):** done. The first implement (`165edeee`) was
+rewound by the post-stage gate for the **hermetic-verify** sub-check (`exit 127` —
+`sh: eslint: command not found`). Root cause: the gate runs `verify_command` in a **bare** detached
+worktree with **no `npm ci`**, and `node_modules/` is git-ignored, so the old `verify` (which
+assumed installed deps) failed at its first tool. Fixed in `package.json` by making `verify`
+self-bootstrap deps from the lockfile (`{ [ -e node_modules/.bin/eslint ] || npm ci; } && …`) — no
+tool changed/weakened. Re-applied the six in-place `index.html` edits (page-load default → Empirical:
+empirical radio `checked` + `.active`; `let activeParams = T_SHIRT_PARAMS_EMPIRICAL`; comment; the
+`change` handler untouched). Inner tests stable green (acceptance 3/3, property 5/5; 3 default + 1
+shuffle = 8/8), `npm run verify` exit 0 (234 passed | 1 skipped), and a **gate-faithful hermetic
+verify now PASSES** (bare worktree, 3 reruns + shuffle, all exit 0). Per-layer + hermetic logs under
+`docs/atdd-logs/0022-…-phase-1-*.log`. No `tests/**` edits. Stage → **review**,
+`next_handover: handover-06-implement-p1.md`.

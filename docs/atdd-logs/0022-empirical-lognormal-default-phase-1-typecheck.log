@@ -1,0 +1,6 @@
+command: (none — correctness_gate.typecheck_command empty)
+phase: 1 — layer: typecheck
+---
+N/A — vanilla JS, no TypeScript. typecheck_command is empty in backlog.config.json; no strict type pass applies to a single 4.6k-line index.html.
+---
+exit_code: N/A

@@ -1,0 +1,53 @@
+command: npm run verify   (under a gate-faithful hermetic verify)
+phase: 1 (0022 empirical-lognormal-default) — layer: hermetic verify (the gate sub-check that previously failed)
+
+=== Why the prior implement (commit 165edeee) was rewound ===
+Gate evidence (.backlog-logs/20260621_200627_0022_implement_p1.log.gate):
+
+    > verify
+    > npm run lint && npm run scan:forbidden && npm run scan:deps && npx secretlint "**/*" && vitest run
+    > lint
+    > eslint index.html --max-warnings 0
+    sh: eslint: command not found     (=> exit 127)
+
+Root cause (confirmed in lib/gate.sh:235-286, gate_hermetic_verify):
+  - The gate materialises a FRESH detached worktree of the commit
+    (`git worktree add --detach <tmp> HEAD`) and runs `verify_command` directly,
+    N=green_reruns(3) times + 1 randomized-order pass, in ONE reused worktree.
+  - It does NOT run `npm ci` / any dependency install. `node_modules/` is
+    .gitignored, so a fresh worktree is BARE.
+  - `net_disabled` is absent on this host => gate_net_wrap runs verify with the
+    network available.
+  - The old `verify_command` assumed deps were already installed, so its first
+    layer (`eslint`) was not on PATH => `command not found` => exit 127.
+
+=== Fix (production, non-test) ===
+package.json `verify` now self-bootstraps deps from the lockfile when node_modules
+is absent (same `command -v`/guard idiom already used by `scan:forbidden`):
+
+  "verify": "{ [ -e node_modules/.bin/eslint ] || npm ci; } && npm run lint && \
+             npm run scan:forbidden && npm run scan:deps && \
+             npx secretlint \"**/*\" && vitest run"
+
+No tool is changed/disabled/downgraded; the only addition is the documented
+hermetic precondition (`npm ci`). In the working tree the guard finds eslint and
+skips the install (fast); in the gate's bare worktree it runs `npm ci` once on
+the first rerun, and reuses node_modules for the remaining reruns.
+
+=== Gate-faithful reproduction of the fixed tree ===
+Tree under test: `git stash create` => 6c9f8e4 (HEAD tree + index.html + package.json),
+materialised via `git worktree add --detach <tmp> 6c9f8e4` (node_modules ABSENT — bare,
+exactly the gate scenario). verify run N=3 + 1 shuffle in the one reused worktree:
+
+  rerun 1/3 exit: 0   (ran `npm ci` => "added 419 packages", then all layers)  Tests 234 passed | 1 skipped
+  rerun 2/3 exit: 0   (node_modules present => skipped npm ci, straight to lint) Tests 234 passed | 1 skipped
+  rerun 3/3 exit: 0                                                              Tests 234 passed | 1 skipped
+  shuffle   exit: 0   (npm run verify -- --sequence.shuffle)                     Tests 234 passed | 1 skipped
+  grep -c "eslint: command not found" across all 4 logs: 0
+
+HERMETIC OVERALL: PASS
+
+=== Working-tree verify (fast feedback) ===
+  npm run verify => exit 0, Tests 234 passed | 1 skipped (235)
+
+exit_code: 0

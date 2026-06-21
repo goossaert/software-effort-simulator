@@ -1,0 +1,6 @@
+command: (none — correctness_gate.sanitizer_command empty)
+phase: 1 — layer: sanitizer
+---
+N/A — managed/interpreted language (JS). Native sanitizers (ASan/UBSan/TSan) are compiled-language-only.
+---
+exit_code: N/A
