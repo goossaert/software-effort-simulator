@@ -4,17 +4,17 @@ id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
 stage: review
-status: ready
+status: needs-human
 priority: normal
-flagged_for_human: false
+flagged_for_human: true
 total_phases: 1
 current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-06-implement-p1.md
-updated_at: 2026-06-21T18:59:41Z
+updated_at: 2026-06-21T19:04:26Z
 created_at: 2026-06-20T21:36:48Z
-blocked_reason: "review p1 BLOCKED: mutation adequacy gate unrunnable — `npx stryker run` produces no score (scoped `mutate` ranges = 0 mutants; vitest-runner `related` finds no harness-loaded tests); needs a human stryker.conf.json/toolchain fix or a deliberate mutation N/A"
+blocked_reason: "mutation adequacy gate unrunnable — `npx stryker run` produces no score (scoped `mutate` ranges instrument 0 mutants; vitest-runner `related` finds no harness-loaded tests); needs a human stryker.conf.json/toolchain fix or a deliberate mutation N/A"
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
   reviews:
