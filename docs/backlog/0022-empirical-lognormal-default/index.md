@@ -12,11 +12,13 @@ current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-06-implement-p1.md
-updated_at: 2026-06-21T18:27:00Z
+updated_at: 2026-06-21T18:59:41Z
 created_at: 2026-06-20T21:36:48Z
-blocked_reason: ""
+blocked_reason: "review p1 BLOCKED: mutation adequacy gate unrunnable — `npx stryker run` produces no score (scoped `mutate` ranges = 0 mutants; vitest-runner `related` finds no harness-loaded tests); needs a human stryker.conf.json/toolchain fix or a deliberate mutation N/A"
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
+  reviews:
+    - docs/reviews/0022-empirical-lognormal-default-phase-1-review-01.md
 ---
 # 0022 — Default to empirical lognormal parameters
 
@@ -58,6 +60,22 @@ regression guard + happy/boundary/negative examples). Stable RED proven over 5 r
 calibrated size {XS,S,M,L} — the non-vacuous driver; 2XS carry-through + AT-3 pass). RED logs +
 flakiness log under `docs/atdd-logs/0022-…-phase-1-*.log`. No `index.html` edits. Stage →
 **implement**, `next_handover: handover-04-atdd-p1.md`.
+
+**review p1 (2026-06-21):** **BLOCKED** (flagged for human). Integrity axes all clean over
+`f7eb97d..62f80b5`: no test files changed; no test-gaming patterns; the `package.json` `verify`
+bootstrap weakens no correctness layer; I-1/I-2 (`[test-only]`) satisfied (no `[contract]`
+invariants); AT-1..AT-4 + the per-size `test.prop` property + triangulation examples all map to the
+plan (oracle (a); parity N/A); **negative control PASS** (revert default → exit 1/5-failed; restore
+→ exit 0/8-passed). The single blocker is the plan-DoD **scored mutation gate**: with
+`mutation.enabled: true`, `npx stryker run` produces **no score** — the scoped `mutate`
+ranges `["index.html:1333","index.html:4522-4531"]` instrument **0 mutants** (a diagnostic whole-file
+run = 3589 mutants proves Stryker *can* mutate this HTML, so it is a range-config defect, not a
+capability gap) and the vitest runner's `related` discovery can't find the JSDOM-harness fs-loaded
+tests (no `import` edge). Not a production bug (→implement) and not a missing test (→atdd); the fix is
+a human `stryker.conf.json`/toolchain change (set `vitest.related:false` + a working scoped `mutate`
+form) or a deliberate mutation N/A. Stage left at **review**; re-run after the human fix. Review +
+mutation report under `docs/reviews/0022-…-phase-1-{review,mutation}-01.md`; findings in
+`handover-07-review-p1.md`.
 
 **implement p1 (2026-06-21, retry after gate rewind):** done. The first implement (`165edeee`) was
 rewound by the post-stage gate for the **hermetic-verify** sub-check (`exit 127` —
