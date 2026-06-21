@@ -1,0 +1,111 @@
+command: npx vitest run tests/acceptance/0022-empirical-default-on-load.test.js
+run_at: 2026-06-21T16:02:35Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/0022-empirical-default-on-load.test.js (3 tests | 3 failed) 135ms
+   × 0022 AT-1 — page-load selects the Empirical parameters radio > checks the empirical radio and highlights its label, leaving synthetic unchecked and unhighlighted 74ms
+     → expected false to be true // Object.is equality
+   × 0022 AT-2 — page-load binds activeParams to the Empirical parameters table > initialises activeParams to T_SHIRT_PARAMS_EMPIRICAL by reference, not the Synthetic table 24ms
+     → expected Object{ '2XS': Object{ …(2) }, …(6) } to be Object{ '2XS': Object{ …(2) }, …(6) } // Object.is equality
+   × 0022 AT-4 — the Empirical default is ephemeral (no persistence introduced) > defaults a fresh page-load to empirical even after a prior window selected synthetic, and persists nothing to localStorage 37ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0022-empirical-default-on-load.test.js > 0022 AT-1 — page-load selects the Empirical parameters radio > checks the empirical radio and highlights its label, leaving synthetic unchecked and unhighlighted
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0022-empirical-default-on-load.test.js:34:41
+     32| 
+     33|     // Empirical parameters are the page-load default (happy path).
+     34|     expect(empiricalRadio(win).checked).toBe(true);
+       |                                         ^
+     35|     expect(empiricalLabel(win).classList.contains('active')).toBe(true…
+     36| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/acceptance/0022-empirical-default-on-load.test.js > 0022 AT-2 — page-load binds activeParams to the Empirical parameters table > initialises activeParams to T_SHIRT_PARAMS_EMPIRICAL by reference, not the Synthetic table
+AssertionError: expected Object{ '2XS': Object{ …(2) }, …(6) } to be Object{ '2XS': Object{ …(2) }, …(6) } // Object.is equality
+
+- Expected
++ Received
+
+  Object {
+    "2XS": Object {
+      "mu": -1.8444,
+      "sigma": 0.3575,
+    },
+    "L": Object {
+-     "mu": 1.755,
++     "mu": 1.4452,
+      "sigma": 0.2703,
+    },
+    "M": Object {
+-     "mu": 0.9636,
++     "mu": 0.7521,
+      "sigma": 0.2703,
+    },
+    "S": Object {
+-     "mu": 0.4704,
++     "mu": 0.0589,
+      "sigma": 0.2703,
+    },
+    "XL": Object {
+      "mu": 1.9945,
+      "sigma": 0.1582,
+    },
+    "XL+": Object {
+      "mu": 2.3503,
+      "sigma": 0.0372,
+    },
+    "XS": Object {
+-     "mu": -0.5093,
++     "mu": -0.837,
+      "sigma": 0.4286,
+    },
+  }
+
+ ❯ tests/acceptance/0022-empirical-default-on-load.test.js:51:26
+     49|     // Reference identity: every sampler (sampleLognormal, tshirtToPer…
+     50|     // reads the Empirical table without any user action (happy path).
+     51|     expect(activeParams).toBe(read(win, 'T_SHIRT_PARAMS_EMPIRICAL'));
+       |                          ^
+     52| 
+     53|     // And it is NOT the Synthetic table (negative).
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/acceptance/0022-empirical-default-on-load.test.js > 0022 AT-4 — the Empirical default is ephemeral (no persistence introduced) > defaults a fresh page-load to empirical even after a prior window selected synthetic, and persists nothing to localStorage
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0022-empirical-default-on-load.test.js:71:44
+     69|     // nothing carried over from the first window (boundary: a reload …
+     70|     const second = loadSimulator();
+     71|     expect(empiricalRadio(second).checked).toBe(true);
+       |                                            ^
+     72|     expect(read(second, 'activeParams')).toBe(read(second, 'T_SHIRT_PA…
+     73| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:02:36
+   Duration  556ms (transform 13ms, setup 0ms, collect 183ms, tests 135ms, environment 0ms, prepare 56ms)
+

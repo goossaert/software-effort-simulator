@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 1
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-06-21T15:50:53Z
+next_handover: handover-04-atdd-p1.md
+updated_at: 2026-06-21T16:02:35Z
 created_at: 2026-06-20T21:36:48Z
 blocked_reason: ""
 artifacts:
@@ -49,3 +49,12 @@ one thin vertical slice. Plan `docs/plans/0022-empirical-lognormal-default.md` f
 param-mode region (`stryker.conf.json` `mutate` → `["index.html:1333","index.html:4522-4531"]`)
 with `mutation.min_score: 70` (apply-docs delegated the realistic per-phase threshold to plan).
 Stage → **atdd**, `current_phase: 1`.
+
+**atdd p1 (2026-06-21):** done. Committed RED tests under `tests/acceptance/0022-*.test.js`:
+`0022-empirical-default-on-load.test.js` (AT-1/AT-2/AT-4) and
+`0022-empirical-default-params-property.test.js` (the per-size fast-check property + AT-3 toggle
+regression guard + happy/boundary/negative examples). Stable RED proven over 5 reruns on the base
+(`c54d9c8`, synthetic default): acceptance 5/5 exit 1, property 5/5 exit 1 (shrunk counterexample a
+calibrated size {XS,S,M,L} — the non-vacuous driver; 2XS carry-through + AT-3 pass). RED logs +
+flakiness log under `docs/atdd-logs/0022-…-phase-1-*.log`. No `index.html` edits. Stage →
+**implement**, `next_handover: handover-04-atdd-p1.md`.
