@@ -12,9 +12,9 @@ current_phase: 0
 retry_count: 0
 max_retries: 3
 next_handover: handover-01-grill.md
-updated_at: 2026-06-20T21:36:48Z
+updated_at: 2026-06-21T14:37:12Z
 created_at: 2026-06-20T21:36:48Z
-blocked_reason: ""
+blocked_reason: "apply-docs blocked at Step 3b: pbt install ERESOLVE — @fast-check/vitest@0.4.1 needs vitest@^4.1.0 but repo pins vitest@2.1.9; needs human re-pin or approved vitest 4.x upgrade (see handover-02-apply-docs.md)."
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
 ---
