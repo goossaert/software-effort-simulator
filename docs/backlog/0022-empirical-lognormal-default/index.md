@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
-stage: review
+stage: review-correctness
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,14 +11,15 @@ total_phases: 1
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-06-implement-p1.md
-updated_at: 2026-06-21T19:42:17Z
+next_handover: handover-07-review-p1.md
+updated_at: 2026-06-21T20:15:08Z
 created_at: 2026-06-20T21:36:48Z
 blocked_reason: ""
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
   reviews:
     - docs/reviews/0022-empirical-lognormal-default-phase-1-review-01.md
+    - docs/reviews/0022-empirical-lognormal-default-phase-1-review-02.md
 ---
 # 0022 — Default to empirical lognormal parameters
 
@@ -96,6 +97,25 @@ mutation forcing-check — the N/A must also be recorded in the trusted `enforce
 (owned by `backlog-tool`, not writable from this session). Add the `toolchain.layers.mutation` N/A,
 i.e. the file becomes:
 `{"gate":{"enabled":true},"correctness_gate":{"enabled":true},"test_immutability":{"readonly_enforcement":"chmod"},"toolchain":{"layers":{"mutation":{"status":"n/a"}}}}`
+
+**review p1 (2026-06-21, run 02 — re-run after the human mutation-N/A fix):** **PASS** (integrity
+clean). Reviewed `f7eb97d..62f80b5` (test..impl). Production diff = `index.html` (six in-place
+edits flipping the page-load default synthetic→empirical; the `change` handler byte-for-byte
+unchanged) + `package.json` (the `verify` self-bootstrap). All integrity axes clean: **no
+test-file drift** (`git diff …-- tests features e2e acceptance` empty); **no test-gaming
+pattern** (the `package.json` `verify` change prepends a guarded `npm ci` and disables/
+downgrades/scope-narrows **no** correctness layer — infrastructure, not a goalpost move);
+**I-1/I-2** `[test-only]` SATISFIED (no `[contract]` invariants → gate (g) N/A); **AT-1..AT-4 +
+the per-size `test.prop` property + triangulation examples** map to the plan (oracle (a); parity
+N/A; PBT property present, generator-read from the table, non-vacuous on calibrated sizes);
+**negative control PASS** (revert default→synthetic → exit 1, 5 failed, property counterexample
+`["XS"]`; restore → exit 0, 8 passed). Mutation **N/A** and **does not block** — `mutation.enabled:
+false` *with* recorded N/A (`toolchain.layers.mutation.status: "n/a"`, ADR-0036), exactly the
+human-fix resolution of run-01's blocker (so this is **not** the `mutation-unconfigured` block
+case). Full `npm run verify` on the committed tree exits 0 (234 passed | 1 skipped). Review at
+`docs/reviews/0022-…-phase-1-review-02.md`; findings + correctness-review inputs in
+`handover-07-review-p1.md`. Stage → **review-correctness** (same `current_phase: 1`); the
+correctness review owns the advance to `done`.
 
 **implement p1 (2026-06-21, retry after gate rewind):** done. The first implement (`165edeee`) was
 rewound by the post-stage gate for the **hermetic-verify** sub-check (`exit 127` —
