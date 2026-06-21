@@ -332,20 +332,23 @@ After the test commit, the implementation session may NOT edit `tests/**`, `feat
 - [ ] Acceptance tests (AT-1..AT-4) pass.
 - [ ] Property test (per-size empirical-on-load) and focused examples pass **on every rerun and
   in randomized order** (`npm run verify -- --sequence.shuffle`) — stable green.
-- [ ] **Scoped mutation score ≥ 70%** on the param-mode region. Mutation is **scoped** (per the
-  apply-docs handover: whole-file 80 is unrealistic day one) to the changed initializer + the
-  param-mode `change` handler via Stryker line-ranges **`["index.html:1333", "index.html:4522-4531"]`**
-  (set in `stryker.conf.json` by this plan; `backlog.config.json` `mutation.min_score` set to
-  `70`). The empirical/synthetic **data tables are deliberately excluded** from `mutate`: their
-  numeric-literal mutants are not killable by this phase's tests (the property reads `μ/σ` from
-  the same table on both sides) and would only dilute the score. Rationale: the changed
-  initializer line yields ~no operator/literal mutants, so the scored mutants come from the
-  `change` handler (string/equality/conditional/ternary), which AT-1 + AT-3 exercise directly;
-  70% leaves headroom for a few equivalent or inline-script-boundary mutants on a single-file
-  HTML app while still pinning the toggle logic. Surviving non-equivalent mutants are
-  missing-test gaps → closed by re-running `/stage-atdd`, never by editing tests during review.
-  **Implement must re-grep the two ranges before committing** (edits are in-place so lines
-  should not drift, but confirm) and adjust `stryker.conf.json` if they did.
+- [N/A] **Mutation adequacy — recorded N/A** (`toolchain.layers.mutation.status: "n/a"`,
+  `mutation.enabled: false`; human toolchain decision 2026-06-21, see ADR-0036). This bullet
+  originally required a **scoped mutation score ≥ 70%** on the param-mode region via Stryker
+  line-ranges `["index.html:1333", "index.html:4522-4531"]`. That strategy rested on a false
+  assumption: StrykerJS 9.x's `mutate` line-range filter compares against **script-relative**
+  babel positions that reset for each of the ten inline `<script>` blocks, so **no file-line
+  range can isolate the param-mode block** (the planned `index.html:4522-4531` instruments 0
+  mutants; the script-relative equivalent `28-30` over-captures lines 28-30 of several unrelated
+  blocks). Independently, the changed line `let activeParams = T_SHIRT_PARAMS_EMPIRICAL;` yields
+  **0 mutants** (no mutator applies to an identifier assignment), and the `change` handler the
+  plan meant to score was **untouched** by this task — so a clean, scoped score for *this change*
+  is not a meaningful number. Whole-file mutation (3589 mutants) is impractical (~20 min) and
+  dominated by UI code the engine suite does not exercise, so its score would fail 70% for reasons
+  unrelated to the change. The behavioural guarantee is therefore carried by the **passing Step-6
+  negative control** (revert the default → suite fails) + the **per-size empirical-on-load PBT
+  property**, not a mutation score. `stryker.conf.json` is left runnable (`vitest.related: false`
+  + whole-file `mutate`) for ad-hoc broad runs, but is not a gate.
 - [ ] `npm run verify` passes **under a hermetic verify** (fresh, network-disabled checkout of
   the commit; deps from the lockfile via `npm ci`), running the **full** `correctness_gate`
   stack with no layer disabled/downgraded/scope-narrowed:

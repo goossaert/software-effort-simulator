@@ -80,3 +80,36 @@ A human owning the grill→apply-docs toolchain selection must make the mutation
 Until one of these is done, the scoped mutation adequacy score required by the plan's Definition of
 Done **cannot be measured**, so the integrity review is **BLOCKED** (see the review file,
 `0022-empirical-lognormal-default-phase-1-review-01.md`).
+
+## Resolution (human, 2026-06-21) — mutation recorded N/A
+
+A human triage chose **option 3 (deliberate mutation N/A)** after establishing — from the
+`@stryker-mutator/instrumenter` 9.6.1 source + reproduction on the committed tree — *why* no
+scoped form can work, not merely *that* the configured one didn't:
+
+- **The `mutate` line-range filter is script-relative, not file-relative.** Stryker's HTML parser
+  (`parsers/html-parser.js`) parses each `<script>`'s content **independently**, so the babel node
+  positions used by the range filter (`transformers/babel-transformer.js` →
+  `locationIncluded(range, path.node.loc)`) are **script-relative** and **reset for each of the ten
+  `<script>` blocks** in `index.html`. The *reported* mutant location is only later offset back to
+  file coordinates (`mutant.js` → `line = source.line + offset.line - 1`). So:
+  - `index.html:4522-4531` (file-relative; the param-mode `change` handler at file 4524–4528) →
+    **0 mutants** (no script has 4500+ lines).
+  - `index.html:28-30` (the handler's script-relative lines in block #10) → 20 mutants, but spanning
+    file lines **1169, 3307, 3308, 4525, 4526, 4527** — i.e. it also grabs lines 28–30 of several
+    *other* blocks. **No file-line range isolates one block.**
+- **The changed line has no mutable surface.** `let activeParams = T_SHIRT_PARAMS_EMPIRICAL;`
+  (file line 1333) instruments **0 mutants** (no mutator applies to an identifier assignment); the
+  empirical/synthetic default also lives in an HTML `checked` attribute (not JS-mutable); and the
+  `change` handler the plan meant to score was **untouched** by this task.
+- **Whole-file is impractical & misleading** (3589 mutants ≈ 20 min; score dominated by UI code the
+  engine suite never exercises → would fail 70% for reasons unrelated to the change).
+
+Both blockers therefore have a definitive answer: **(1)** the `vitest.related` failure is real and
+fixed by `vitest: { related: false }` (verified: `npx stryker run` then runs all 234 tests via the
+JSDOM harness); **(2)** the scoped-mutation requirement is **unsatisfiable** for this single-file
+multi-`<script>` architecture in StrykerJS 9.x. Recorded N/A in `backlog.config.json`
+(`toolchain.layers.mutation.status: "n/a"`, `mutation.enabled: false`); `stryker.conf.json` left
+runnable (`related: false` + whole-file `mutate`) for ad-hoc use only. Full rationale + re-enable
+conditions: **ADR-0036**. The behavioural adequacy signal is carried by the **passing Step-6 negative
+control** + the **per-size PBT property**. The integrity `review` should now re-run and PASS.

@@ -4,17 +4,17 @@ id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
 stage: review
-status: needs-human
+status: ready
 priority: normal
-flagged_for_human: true
+flagged_for_human: false
 total_phases: 1
 current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-06-implement-p1.md
-updated_at: 2026-06-21T19:04:26Z
+updated_at: 2026-06-21T19:42:17Z
 created_at: 2026-06-20T21:36:48Z
-blocked_reason: "mutation adequacy gate unrunnable — `npx stryker run` produces no score (scoped `mutate` ranges instrument 0 mutants; vitest-runner `related` finds no harness-loaded tests); needs a human stryker.conf.json/toolchain fix or a deliberate mutation N/A"
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
   reviews:
@@ -76,6 +76,26 @@ a human `stryker.conf.json`/toolchain change (set `vitest.related:false` + a wor
 form) or a deliberate mutation N/A. Stage left at **review**; re-run after the human fix. Review +
 mutation report under `docs/reviews/0022-…-phase-1-{review,mutation}-01.md`; findings in
 `handover-07-review-p1.md`.
+
+**human fix (2026-06-21):** unblocked. Root-caused both blockers from the StrykerJS 9.6.1 source +
+reproduction: (1) `vitest.related` fails because the ADR-0031 harness fs-loads `index.html` with no
+`import` edge — fixed by `vitest: { related: false }` (verified: `npx stryker run` then runs all 234
+tests); (2) **scoped** mutation is *unsatisfiable* for this single-file multi-`<script>` app — Stryker's
+`mutate` line-range filter is **script-relative** and resets per `<script>` block, so no file-line range
+isolates the param-mode block (`index.html:4522-4531` → 0 mutants; the script-relative `28-30`
+over-captures unrelated blocks at file lines 1169/3307/3308), and the changed line
+`let activeParams = …` yields **0 mutants** anyway. Decision (operator-chosen): record the mutation
+layer **N/A** (`mutation.enabled: false`, `toolchain.layers.mutation.status: "n/a"`) — see **ADR-0036**;
+behaviour stays guarded by the passing Step-6 negative control + per-size PBT. `stryker.conf.json` left
+runnable (`related:false` + whole-file `mutate`) for ad-hoc use only. Plan DoD mutation bullet marked
+N/A; mutation report carries the full root-cause under "Resolution". Blocked `handover-07-review-p1.md`
+removed so the loop regenerates the review fresh. Stage stays **review**, `status: ready` → re-run
+review (all other axes already clean → should PASS → `review-correctness`). **Trusted-overlay action
+(operator, out-of-band):** the overlay is active, so this in-repo N/A is ignored by the gate's
+mutation forcing-check — the N/A must also be recorded in the trusted `enforcement.config.json`
+(owned by `backlog-tool`, not writable from this session). Add the `toolchain.layers.mutation` N/A,
+i.e. the file becomes:
+`{"gate":{"enabled":true},"correctness_gate":{"enabled":true},"test_immutability":{"readonly_enforcement":"chmod"},"toolchain":{"layers":{"mutation":{"status":"n/a"}}}}`
 
 **implement p1 (2026-06-21, retry after gate rewind):** done. The first implement (`165edeee`) was
 rewound by the post-stage gate for the **hermetic-verify** sub-check (`exit 127` —

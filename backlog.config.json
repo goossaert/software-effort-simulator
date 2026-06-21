@@ -67,7 +67,7 @@
     "analysis_command": ""
   },
   "mutation": {
-    "enabled": true,
+    "enabled": false,
     "tool": "StrykerJS",
     "command": "npx stryker run",
     "pbt_command": "",
@@ -103,11 +103,8 @@
         "rationale": "ideal for the Monte Carlo numeric core (Poisson/lognormal/percentile invariants); dominant maintained JS PBT lib. @fast-check/vitest re-pinned 0.4.1->0.3.0 to keep vitest 2.x (no ERESOLVE)."
       },
       "mutation": {
-        "status": "selected",
-        "choice": "StrykerJS (core + vitest-runner)",
-        "version": "@stryker-mutator/core 9.6.1, @stryker-mutator/vitest-runner 9.6.1",
-        "install": "npm i -D @stryker-mutator/core@9.6.1 @stryker-mutator/vitest-runner@9.6.1",
-        "rationale": "gives the adequacy gate real teeth on the engine; Stryker mutates inline scripts in index.html, node+jsdom supported"
+        "status": "n/a",
+        "rationale": "StrykerJS 9.x cannot scope mutation to one inline <script> in a multi-<script> single-file HTML app (its mutate line-range filter is script-relative and collides across all 10 blocks; no file-line range isolates one block), and the changed line (let activeParams = …) yields 0 mutants; whole-file is impractical/misleading. Behaviour is guarded instead by the passing negative-control + per-size PBT. See ADR-0036."
       },
       "oracle_free": {
         "status": "n/a",
