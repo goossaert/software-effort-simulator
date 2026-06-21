@@ -4,17 +4,17 @@ id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
 stage: apply-docs
-status: needs-human
+status: ready
 priority: normal
-flagged_for_human: true
+flagged_for_human: false
 total_phases: 0
 current_phase: 0
 retry_count: 0
 max_retries: 3
 next_handover: handover-01-grill.md
-updated_at: 2026-06-21T14:39:09Z
+updated_at: 2026-06-21T14:59:38Z
 created_at: 2026-06-20T21:36:48Z
-blocked_reason: "pbt toolchain install failed (ERESOLVE): `npm i -D fast-check@4.8.0 @fast-check/vitest@0.4.1` — @fast-check/vitest@0.4.1 requires peer vitest@^4.1.0 but repo pins vitest@2.1.9; resolution is an upstream one-way-door (re-pin the integration package or approve a vitest 4.x major upgrade), not auto-substitutable by apply-docs."
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0022-empirical-lognormal-default.md
 ---

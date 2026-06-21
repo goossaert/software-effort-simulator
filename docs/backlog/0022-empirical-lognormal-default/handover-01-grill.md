@@ -122,14 +122,21 @@ substitute.
 - layer: pbt
   status: selected
   choice: fast-check (+ @fast-check/vitest integration)
-  version: fast-check 4.8.0, @fast-check/vitest 0.4.1
-  install: npm i -D fast-check@4.8.0 @fast-check/vitest@0.4.1
+  version: fast-check 4.8.0, @fast-check/vitest 0.3.0
+  install: npm i -D fast-check@4.8.0 @fast-check/vitest@0.3.0
   config:
     pbt.framework: "fast-check"
     pbt.import_symbol: "fc.property|test.prop|it.prop"
     pbt.enabled: true
   rationale: ideal for the Monte Carlo numeric core (Poisson/lognormal/percentile invariants); dominant maintained JS PBT lib
   searched_on: 2026-06-20
+  # RE-PIN (human, 2026-06-21): @fast-check/vitest 0.4.1 -> 0.3.0. 0.4.x declares peer
+  # vitest@^4.1.0 only, which ERESOLVE-conflicts with this repo's vitest@2.1.9 pin (the original
+  # apply-docs blocker). 0.3.0's peer range is "^1 || ^2 || ^3 || ^4" — it satisfies the current
+  # vitest 2.x AND stays compatible if vitest is later upgraded to 4.x. fast-check 4.8.0 core is
+  # unchanged. Verified against the live npm registry: `npm i -D fast-check@4.8.0
+  # @fast-check/vitest@0.3.0` resolves with no ERESOLVE, and 0.3.0 still exports { fc, it, test }
+  # so the recorded import_symbol (fc.property|test.prop|it.prop) is unchanged.
 
 - layer: mutation
   status: selected
