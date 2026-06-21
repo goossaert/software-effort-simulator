@@ -39,10 +39,10 @@
     "enabled": true,
     "typecheck_command": "",
     "lint_command": "npm run lint",
-    "sast_command": "",
+    "sast_command": "npm run lint",
     "sanitizer_command": "",
-    "dep_scan_command": "",
-    "secret_scan_command": "",
+    "dep_scan_command": "npm run scan:deps",
+    "secret_scan_command": "npx secretlint \"**/*\"",
     "analysis_command": "npm run lint",
     "suppression_pattern": ""
   },
@@ -67,18 +67,18 @@
     "analysis_command": ""
   },
   "mutation": {
-    "enabled": false,
-    "tool": "",
-    "command": "",
+    "enabled": true,
+    "tool": "StrykerJS",
+    "command": "npx stryker run",
     "pbt_command": "",
     "min_score": 80,
     "scope": "changed-files",
     "business_logic_globs": []
   },
   "pbt": {
-    "enabled": false,
-    "framework": "",
-    "import_symbol": "",
+    "enabled": true,
+    "framework": "fast-check",
+    "import_symbol": "fc.property|test.prop|it.prop",
     "min_per_rule": 1
   },
   "contract": {
@@ -91,23 +91,89 @@
     "min_per_phase": 1
   },
   "toolchain": {
-    "selected": false,
-    "selected_at": "",
-    "search_dated": "",
+    "selected": true,
+    "selected_at": "2026-06-21T15:42:41Z",
+    "search_dated": "2026-06-20",
     "layers": {
-      "pbt": {},
-      "mutation": {},
-      "typecheck": {},
-      "lint": {},
-      "sast": {},
-      "sanitizer": {},
-      "dep_scan": {},
-      "secret_scan": {},
-      "analysis": {},
-      "forbidden_matcher": {},
-      "oracle_free": {},
-      "smoke": {},
-      "verify": {}
+      "pbt": {
+        "status": "selected",
+        "choice": "fast-check (+ @fast-check/vitest integration)",
+        "version": "fast-check 4.8.0, @fast-check/vitest 0.3.0",
+        "install": "npm i -D fast-check@4.8.0 @fast-check/vitest@0.3.0",
+        "rationale": "ideal for the Monte Carlo numeric core (Poisson/lognormal/percentile invariants); dominant maintained JS PBT lib. @fast-check/vitest re-pinned 0.4.1->0.3.0 to keep vitest 2.x (no ERESOLVE)."
+      },
+      "mutation": {
+        "status": "selected",
+        "choice": "StrykerJS (core + vitest-runner)",
+        "version": "@stryker-mutator/core 9.6.1, @stryker-mutator/vitest-runner 9.6.1",
+        "install": "npm i -D @stryker-mutator/core@9.6.1 @stryker-mutator/vitest-runner@9.6.1",
+        "rationale": "gives the adequacy gate real teeth on the engine; Stryker mutates inline scripts in index.html, node+jsdom supported"
+      },
+      "oracle_free": {
+        "status": "n/a",
+        "rationale": "opt-in metamorphic/differential marker; no oracle-free tests planned for this task"
+      },
+      "typecheck": {
+        "status": "n/a",
+        "rationale": "vanilla JS, no TypeScript; adding tsc --checkJs to a 4.6k-line single file is a separate effort"
+      },
+      "lint": {
+        "status": "selected",
+        "choice": "ESLint 9 (flat config) — existing",
+        "version": "eslint 9.39.4 (^9)",
+        "install": "(none — already installed; eslint-plugin-security adds to it under the sast layer)",
+        "rationale": "already wired (eslint index.html --max-warnings 0)"
+      },
+      "sast": {
+        "status": "selected",
+        "choice": "eslint-plugin-security",
+        "version": "4.0.1",
+        "install": "npm i -D eslint-plugin-security",
+        "rationale": "npm-native SAST folded into the eslint flat config (security.configs.recommended); covers eval/unsafe-regex/etc. detect-object-injection disabled (canonical FP on param-table lookups)."
+      },
+      "sanitizer": {
+        "status": "n/a",
+        "rationale": "managed/interpreted language (JS); sanitizers are native/compiled-only"
+      },
+      "dep_scan": {
+        "status": "selected",
+        "choice": "npm audit (npm built-in), wrapped by scripts/dep-scan.mjs to record an accepted-exception allowlist",
+        "version": "n/a (ships with npm 11)",
+        "install": "(none — npm built-in)",
+        "rationale": "zero-install lockfile CVE check; wrapper records the apply-docs-authorised accepted exception for 2 pre-existing dev-server/UI-only advisories (GHSA-fx2h-pf6j-xcff, GHSA-5xrq-8626-4rwp) fixable only by a refused vitest 4.x major. Any other high/critical still fails."
+      },
+      "secret_scan": {
+        "status": "selected",
+        "choice": "secretlint (+ preset-recommend)",
+        "version": "secretlint 13.0.2, @secretlint/secretlint-rule-preset-recommend 13.0.2",
+        "install": "npm i -D secretlint @secretlint/secretlint-rule-preset-recommend",
+        "rationale": "npm-native, lockfile-pinnable secret scanner; sufficient for a static client-side app"
+      },
+      "analysis": {
+        "status": "selected",
+        "choice": "ESLint 9 — existing (static subset re-run by the gate)",
+        "version": "eslint 9.39.4 (^9)",
+        "install": "(none)",
+        "rationale": "eslint is the static subset; ast-grep is covered separately by the forbidden-matcher sub-check, so no double-run"
+      },
+      "forbidden_matcher": {
+        "status": "selected",
+        "choice": "ast-grep (pinned as a devDependency)",
+        "version": "@ast-grep/cli 0.43.0",
+        "install": "npm i -D @ast-grep/cli@0.43.0",
+        "rationale": "matcher already wired (.ast-grep/rules/forbidden-patterns.yml); pinned via npm so it lands in the lockfile instead of a brew system binary"
+      },
+      "smoke": {
+        "status": "n/a",
+        "rationale": "no build step; single self-contained index.html; verify already loads/boots it"
+      },
+      "verify": {
+        "status": "selected",
+        "choice": "npm run verify — existing composite (extended)",
+        "version": "n/a",
+        "install": "(none)",
+        "rationale": "real composite already (lint + ast-grep + vitest); extended to chain scan:deps + secretlint (tests last)"
+      }
     }
   },
   "hermetic_verify": {
@@ -118,7 +184,7 @@
   "stability": {
     "green_reruns": 3,
     "randomized_order": true,
-    "shuffle_flag": ""
+    "shuffle_flag": "-- --sequence.shuffle"
   },
   "test_immutability": {
     "flakiness_reruns": 5,

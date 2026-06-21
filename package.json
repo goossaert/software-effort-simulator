@@ -6,16 +6,29 @@
     "test": "vitest run",
     "lint": "eslint index.html --max-warnings 0",
     "scan:forbidden": "if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html --inspect=summary",
-    "verify": "npm run lint && npm run scan:forbidden && vitest run",
+    "scan:deps": "node scripts/dep-scan.mjs",
+    "scan:secrets": "secretlint \"**/*\"",
+    "verify": "npm run lint && npm run scan:forbidden && npm run scan:deps && npx secretlint \"**/*\" && vitest run",
     "test:phase-1": "vitest run tests/acceptance/0020-phase-1-engine.test.js",
     "test:phase-2": "vitest run tests/acceptance/0020-phase-2-groups-tab.test.js"
   },
+  "overrides": {
+    "esbuild": "^0.25.0"
+  },
   "devDependencies": {
+    "@ast-grep/cli": "^0.43.0",
     "@eslint/js": "^9.0.0",
+    "@fast-check/vitest": "^0.3.0",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "eslint": "^9.0.0",
     "eslint-plugin-html": "^8.0.0",
+    "eslint-plugin-security": "^4.0.1",
+    "fast-check": "^4.8.0",
     "globals": "^15.0.0",
     "jsdom": "^25.0.1",
+    "secretlint": "^13.0.2",
     "vitest": "^2.1.8"
   }
 }

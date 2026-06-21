@@ -13,10 +13,15 @@
 // allowed; every other empty block is still an error.
 import js from "@eslint/js";
 import html from "eslint-plugin-html";
+import security from "eslint-plugin-security";
 import globals from "globals";
 
 export default [
   js.configs.recommended,
+  // SAST layer (backlog correctness_gate.sast_command). eslint-plugin-security's
+  // recommended ruleset folds the static-security checks (eval, unsafe-regex, child
+  // process, non-literal fs/require, …) into the same `npm run lint` the lint layer runs.
+  security.configs.recommended,
   {
     files: ["index.html"],
     plugins: { html },
@@ -29,6 +34,11 @@ export default [
       "no-undef": "off",
       "no-unused-vars": "off",
       "no-empty": ["error", { allowEmptyCatch: true }],
+      // detect-object-injection is the canonical false positive for this app's
+      // per-size param-table lookups (activeParams[sizeLabel], T_SHIRT_PARAMS[size],
+      // T_SHIRT_PARAMS_EMPIRICAL[...]): the keys are normalized t-shirt sizes, never
+      // attacker-controlled. Disable ONLY this rule, not the whole security preset.
+      "security/detect-object-injection": "off",
     },
   },
 ];
