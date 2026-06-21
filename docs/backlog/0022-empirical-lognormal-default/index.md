@@ -3,8 +3,8 @@ schema: backlog-index/v1
 id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
-stage: review-correctness
-status: ready
+stage: done
+status: done
 priority: normal
 flagged_for_human: false
 total_phases: 1
@@ -12,7 +12,7 @@ current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-07-review-p1.md
-updated_at: 2026-06-21T20:15:08Z
+updated_at: 2026-06-21T20:20:46Z
 created_at: 2026-06-20T21:36:48Z
 blocked_reason: ""
 artifacts:
@@ -20,6 +20,7 @@ artifacts:
   reviews:
     - docs/reviews/0022-empirical-lognormal-default-phase-1-review-01.md
     - docs/reviews/0022-empirical-lognormal-default-phase-1-review-02.md
+    - docs/reviews/0022-empirical-lognormal-default-phase-1-correctness-01.md
 ---
 # 0022 — Default to empirical lognormal parameters
 
@@ -130,3 +131,21 @@ shuffle = 8/8), `npm run verify` exit 0 (234 passed | 1 skipped), and a **gate-f
 verify now PASSES** (bare worktree, 3 reruns + shuffle, all exit 0). Per-layer + hermetic logs under
 `docs/atdd-logs/0022-…-phase-1-*.log`. No `tests/**` edits. Stage → **review**,
 `next_handover: handover-06-implement-p1.md`.
+
+**review-correctness p1 (2026-06-21, run 01):** **PASS** — task **done**. Reasoned from the
+**spec** (plan Phase 1 rule + I-1/I-2 + oracle (a) + per-size PBT property; ADR-0035/0026/0002;
+CONTEXT.md) against the **production-only** diff `f7eb97d..62f80b5` (`index.html` six in-place
+edits + `package.json` `verify` self-bootstrap; the `param-mode` `change` handler at
+`index.html:4524-4530` byte-for-byte unchanged), **not** the tests. All five axes clean:
+**logic** (flip directly realizes AT-1/AT-2; toggle preserved AT-3); **edge** (PBT holds for all
+7 sizes since `activeParams === T_SHIRT_PARAMS_EMPIRICAL` by reference; carry-through `2XS/XL/XL+`
+== synthetic by value is by-design, not a bug); **error-handling** (the `npm ci` guard aborts the
+`&&` chain loudly; weakens no layer); **security** / **complexity** (none). One-way-door fidelity
+(all three surfaces point at empirical; no on-load code re-derives `activeParams` from `:checked`,
+so UI ↔ binding can't diverge — I-1 holds), ephemerality preserved (no localStorage/URL added —
+I-2/AT-4), no table mutation / scope creep. Single clean pass + judge pass dropped 3 candidates
+(bfcache reload, stale CONTEXT.md line numbers, speculative I-1 future-edit); **0 findings
+survived**. Cross-family gate off (default). Review at
+`docs/reviews/0022-…-phase-1-correctness-01.md`; findings + decisions in
+`handover-08-review-correctness-p1.md`. `current_phase == total_phases == 1` → **stage: done,
+status: done**. Feature complete.
