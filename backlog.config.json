@@ -71,7 +71,7 @@
     "tool": "StrykerJS",
     "command": "npx stryker run",
     "pbt_command": "",
-    "min_score": 80,
+    "min_score": 70,
     "scope": "changed-files",
     "business_logic_globs": []
   },

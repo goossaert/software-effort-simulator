@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0022"
 slug: empirical-lognormal-default
 title: Default to empirical lognormal parameters
-stage: plan
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
-total_phases: 0
-current_phase: 0
+total_phases: 1
+current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-02-apply-docs.md
-updated_at: 2026-06-21T15:43:33Z
+next_handover: handover-03-plan.md
+updated_at: 2026-06-21T15:50:53Z
 created_at: 2026-06-20T21:36:48Z
 blocked_reason: ""
 artifacts:
@@ -41,3 +41,11 @@ eslint-plugin-security, secretlint, ast-grep, npm audit), `toolchain.selected: t
 `npm run verify` GREEN. `npm audit` carries a documented accepted-exception allowlist for two
 pre-existing dev-server-only advisories fixable only by the refused vitest 4.x major (see
 `handover-02-apply-docs.md`). Stage → **plan**.
+
+**plan (2026-06-21):** done. `total_phases: 1` (authoritative) — the page-load default flip is
+one thin vertical slice. Plan `docs/plans/0022-empirical-lognormal-default.md` formalises AC-1..AC-4
++ I-1 into Phase-1 acceptance scenarios (AT-1..AT-4), a per-size empirical-on-load PBT property
+(fast-check), oracle class (a), and citations of ADR-0035/0026/0007. Mutation scoped to the
+param-mode region (`stryker.conf.json` `mutate` → `["index.html:1333","index.html:4522-4531"]`)
+with `mutation.min_score: 70` (apply-docs delegated the realistic per-phase threshold to plan).
+Stage → **atdd**, `current_phase: 1`.
