@@ -138,18 +138,22 @@ function captureExport(win, exprThatExports) {
 }
 
 // ─── AT-1: a sixth Constant work tab button after Initiatives ──────────────────
+// Migrated for feature 0023 Phase 1, which appends a seventh Error Report tab as
+// the last .tab-btn. Constant work stays fifth and Groups sixth; Error Report is
+// now last. The invariant under test (Constant work is fifth, immediately before
+// Groups) is unchanged.
 describe('AT-1: a sixth Constant work tab button appears after Initiatives and before Groups', () => {
-  it('renders six .tab-btn elements in order with Constant work fifth (data-tab="constant-work") and Groups sixth', () => {
+  it('renders seven .tab-btn elements in order with Constant work fifth (data-tab="constant-work"), Groups sixth, and Error Report last', () => {
     const win = loadSimulator();
     const buttons = Array.from(win.document.querySelectorAll('.tab-btn'));
-    expect(buttons).toHaveLength(6);
+    expect(buttons).toHaveLength(7);
     expect(buttons.map(b => b.dataset.tab)).toEqual([
-      'org', 'teams', 'projections', 'initiatives', 'constant-work', 'groups',
+      'org', 'teams', 'projections', 'initiatives', 'constant-work', 'groups', 'error-report',
     ]);
     const fifth = buttons[4];
     expect(fifth.dataset.tab).toBe('constant-work');
     expect(fifth.textContent.trim()).toBe('Constant work');
-    // Negative: Groups stays last (Constant work must not be placed after it).
+    // Negative: Constant work must sit immediately before Groups (sixth).
     expect(buttons[5].dataset.tab).toBe('groups');
   });
 });

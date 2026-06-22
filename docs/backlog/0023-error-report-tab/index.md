@@ -3,20 +3,22 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: implement
-status: needs-human
+stage: review
+status: ready
 priority: normal
-flagged_for_human: true
+flagged_for_human: false
 total_phases: 6
 current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-05-implement-p1.md
-updated_at: 2026-06-22T20:07:25Z
+updated_at: 2026-06-22T20:42:02Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: "frozen tests 0020-AT-1 / 0021-AT-1 assert toHaveLength(6) and an exact slug array ending in groups — any 7th .tab-btn in .tab-bar breaks them; cannot satisfy alongside 0023-AT-1 (error-report must be last .tab-btn in .tab-bar) without editing frozen test files"
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
+  test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
+  impl_commit: d77e0abc6f340e4915560b91bf4fad942839c8ee
 ---
 # 0023 — Error Report tab
 
@@ -55,6 +57,23 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > `docs/atdd-logs/0023-error-report-tab-phase-1-*.log`. Tests target only the named
 > seams (`prepareSimulationData(...).findings`, `renderErrorReport(findings)`, the
 > rendered `#tab-error-report` DOM). Next stage: **implement** (feature-phase 1).
+>
+> **human fix — UNBLOCKED (2026-06-22):** the implement-phase block is resolved. A
+> human (operator-approved) **migrated** the two conflicting frozen tab-bar
+> assertions to the 7-tab reality — exactly the precedent set when feature 0021
+> Phase 6 migrated 0020-AT-1 for the Constant work tab:
+> - `0020-phase-2-groups-tab.test.js` AT-1 → `toHaveLength(7)`, slug array now ends
+>   `…, 'groups', 'error-report'`; Groups asserted sixth, **Error Report** last.
+> - `0021-phase-6-constant-work-tab.test.js` AT-1 → same array; Constant work fifth,
+>   Groups sixth (its invariant — Constant work immediately before Groups — unchanged).
+>
+> The 0023 Phase-1 tests are **unchanged**. `npm run verify` now exits **0** (247
+> passed, 1 skipped). The migration lands in a **separate chore commit that is a
+> descendant of the implement commit `d77e0ab`**, so the integrity review's diff
+> range `test_commit (36d5b1c) .. impl_commit (d77e0ab)` stays **production-only with
+> zero test-file changes** (stage-review immutability rule satisfied). The implement
+> production code is complete and committed at `d77e0ab`; advanced to **review**
+> (feature-phase 1) reading `handover-05-implement-p1.md`.
 >
 > **implement p1 BLOCKED (2026-06-22):** Phase-1 production code is complete (13/13
 > Phase-1 tests pass stably) but `npm run verify` exits 1 because frozen tests

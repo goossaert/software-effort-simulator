@@ -42,24 +42,30 @@ function renderGroups(win) {
   execIn(win, 'renderGroupsTab();');
 }
 
-// ─── AT-1: Groups tab button (migrated for feature 0021 Phase 6) ────
-// Feature 0021 Phase 6 inserts a sixth Constant work tab BETWEEN Initiatives
-// and Groups, so the tab bar now has six buttons with Constant work fifth and
-// Groups sixth. Migrated during the Phase 6 ATDD session and frozen.
+// ─── AT-1: Groups tab button (migrated for features 0021 Phase 6 + 0023 Phase 1) ────
+// Feature 0021 Phase 6 inserted a sixth Constant work tab BETWEEN Initiatives
+// and Groups (Constant work fifth, Groups sixth). Feature 0023 Phase 1 then
+// appended a seventh Error Report tab as the LAST .tab-btn, so the tab bar now
+// has seven buttons; Groups stays sixth and Error Report is last. Migrated
+// during each feature's session and frozen.
 describe('AT-1: Groups tab button is sixth, after the Constant work tab', () => {
-  it('the tab bar contains exactly 6 .tab-btn elements with Constant work fifth and Groups sixth', () => {
+  it('the tab bar contains exactly 7 .tab-btn elements with Constant work fifth, Groups sixth, and Error Report last', () => {
     const win = loadSimulator();
     const buttons = Array.from(win.document.querySelectorAll('.tab-btn'));
-    expect(buttons).toHaveLength(6);
+    expect(buttons).toHaveLength(7);
     expect(buttons.map(b => b.dataset.tab)).toEqual([
-      'org', 'teams', 'projections', 'initiatives', 'constant-work', 'groups',
+      'org', 'teams', 'projections', 'initiatives', 'constant-work', 'groups', 'error-report',
     ]);
     const fifth = buttons[4];
     expect(fifth.dataset.tab).toBe('constant-work');
     expect(fifth.textContent.trim()).toBe('Constant work');
+    const sixth = buttons[5];
+    expect(sixth.dataset.tab).toBe('groups');
+    expect(sixth.textContent.trim()).toBe('Groups');
+    // Negative: Groups is no longer last — Error Report sits after it.
     const last = buttons[buttons.length - 1];
-    expect(last.dataset.tab).toBe('groups');
-    expect(last.textContent.trim()).toBe('Groups');
+    expect(last.dataset.tab).toBe('error-report');
+    expect(last.textContent.trim()).toBe('Error Report');
   });
 });
 
