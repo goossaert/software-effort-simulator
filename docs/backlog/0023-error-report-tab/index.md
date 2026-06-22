@@ -6,15 +6,15 @@ title: Error Report tab
 stage: implement
 status: ready
 priority: normal
-flagged_for_human: false
+flagged_for_human: true
 total_phases: 6
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-04-atdd-p1.md
-updated_at: 2026-06-22T19:45:25Z
+next_handover: handover-05-implement-p1.md
+updated_at: 2026-06-22T22:05:00Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: ""
+blocked_reason: "frozen tests 0020-AT-1 / 0021-AT-1 assert toHaveLength(6) + exact slug array ending in groups — broken by any 7th tab-btn; cannot satisfy alongside 0023-AT-1 (error-report last) without editing frozen test files"
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
 ---
@@ -55,3 +55,11 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > `docs/atdd-logs/0023-error-report-tab-phase-1-*.log`. Tests target only the named
 > seams (`prepareSimulationData(...).findings`, `renderErrorReport(findings)`, the
 > rendered `#tab-error-report` DOM). Next stage: **implement** (feature-phase 1).
+>
+> **implement p1 BLOCKED (2026-06-22):** Phase-1 production code is complete (13/13
+> Phase-1 tests pass stably) but `npm run verify` exits 1 because frozen tests
+> `0020-AT-1` and `0021-AT-1` assert `toHaveLength(6)` + exact slug array ending in
+> `groups` — both break with the 7th `error-report` tab button required by 0023-AT-1.
+> Human test-fix needed: loosen 0020/0021 AT-1 to check positional relationships
+> (constant-work=5th, groups=6th) rather than total count. See
+> `handover-05-implement-p1.md` for proposed fix. **`flagged_for_human: true`.**

@@ -1028,6 +1028,7 @@
           <button class="tab-btn" data-tab="initiatives">Initiatives</button>
           <button class="tab-btn" data-tab="constant-work">Constant work</button>
           <button class="tab-btn" data-tab="groups">Groups</button>
+          <button class="tab-btn" data-tab="error-report">Error Report</button>
         </div>
 
         <!-- Organization Level tab panel -->
@@ -1079,6 +1080,10 @@
           </div>
           <div id="groups-load-error" class="groups-load-error" style="display:none"></div>
           <div id="groups-table-wrap"></div>
+        </div>
+
+        <!-- Error Report tab panel (feature 0023) -->
+        <div id="tab-error-report" class="tab-panel" style="display:none">
         </div>
       </div>
 
@@ -2046,6 +2051,7 @@ function bucketRowsByGroups(rows, categoryCol) {
  */
 function prepareSimulationData(histQuarters, targetQuarters) {
   const { initKeyCol, categoryCol } = detectedCols || {};
+  const findings = []; // advisory — never changes existing engine values (I-1)
 
   // ── STEP 1: Historical initiatives ───────────────────────────────
   const histInits = editedInitiatives.filter(r => histQuarters.includes((r.quarter || '').trim()));
@@ -2101,7 +2107,22 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     const inScope = epicQ ? histQSet.has(epicQ) : histKeys.has(link);
     if (!inScope) continue;
     const size = normalizeSize(epic._tshirt_size);
-    if (T_SHIRT_PARAMS[size]) epicSizingDist.push(size);
+    if (T_SHIRT_PARAMS[size]) {
+      epicSizingDist.push(size);
+    } else {
+      // Collect UNRECOGNIZED_SIZE_EPIC finding (codes 1): in-scope epic whose
+      // normalised size is not a Recognised t-shirt size — excluded from the
+      // Bootstrap pool and (when linked) from the Poisson λ denominator.
+      const epicId = String(epic._epic_key || '');
+      findings.push({
+        code: 'UNRECOGNIZED_SIZE_EPIC',
+        severity: 'ERROR',
+        category: 'T-shirt sizing',
+        locators: [{ kind: 'epic', id: epicId }],
+        impact: 'Excluded from Poisson λ and the Bootstrap pool.',
+        message: `Epic "${epicId}" has unrecognised t-shirt size "${epic._tshirt_size}": excluded from Poisson λ and the Bootstrap pool.`,
+      });
+    }
   }
 
   // ── STEP 3: Target quarter initiative counts per Group ───────────
@@ -2135,7 +2156,111 @@ function prepareSimulationData(histQuarters, targetQuarters) {
     cwExcludedRows: cwExcluded.rows,
   };
 
-  return { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview };
+  // ── Collect UNRECOGNIZED_SIZE_CONSTANT_WORK findings (code 2) ────
+  // One finding per Constant work row in a target quarter whose normalised
+  // t-shirt size is not a Recognised t-shirt size — it contributed 0 PM.
+  if (editedConstantWork && editedConstantWork.length) {
+    const tQSet = new Set(targetQuarters.map(q => q.trim()));
+    for (const row of editedConstantWork) {
+      if (!tQSet.has((row.quarter || '').trim())) continue;
+      const rawSize = row.tshirt_size || row.t_shirt_size || '';
+      const size = normalizeSize(rawSize);
+      if (!T_SHIRT_PARAMS[size]) {
+        const rowId = String(row.jira_key || row.epic_key || '');
+        findings.push({
+          code: 'UNRECOGNIZED_SIZE_CONSTANT_WORK',
+          severity: 'WARNING',
+          category: 'T-shirt sizing',
+          locators: [{ kind: 'row', id: rowId }],
+          impact: 'Contributed 0 PM (person-month).',
+          message: `Constant work row with unrecognised t-shirt size "${rawSize}" contributed 0 PM (person-month).`,
+        });
+      }
+    }
+  }
+
+  return { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview, findings };
+}
+
+/**
+ * Render Data-quality findings into the #tab-error-report panel (DC-1/DC-2/DC-3).
+ * Groups findings by category, sorts ERROR → WARNING → INFO (then code, then first
+ * locator id — explicit sort, never Map/Set iteration order), shows a by-severity
+ * count badge, and renders the empty state when findings is empty.
+ * Advisory: this function never aborts or alters a Run (AC-13/I-1).
+ *
+ * @param {Array} findings — Data-quality findings from prepareSimulationData + collectRunLevelFindings
+ */
+function renderErrorReport(findings) {
+  const panel = document.getElementById('tab-error-report');
+  if (!panel) return;
+
+  if (!findings || findings.length === 0) {
+    panel.innerHTML = '<p style="padding:16px">No data issues detected.</p>';
+    return;
+  }
+
+  const SEV_ORDER = { ERROR: 0, WARNING: 1, INFO: 2 };
+
+  // Explicit sort: severity order, then code (stable secondary), then first locator id.
+  const sorted = findings.slice().sort((a, b) => {
+    const sd = (SEV_ORDER[a.severity] !== undefined ? SEV_ORDER[a.severity] : 3)
+             - (SEV_ORDER[b.severity] !== undefined ? SEV_ORDER[b.severity] : 3);
+    if (sd !== 0) return sd;
+    if (a.code < b.code) return -1;
+    if (a.code > b.code) return 1;
+    const aId = (a.locators && a.locators[0] ? a.locators[0].id : '') || '';
+    const bId = (b.locators && b.locators[0] ? b.locators[0].id : '') || '';
+    if (aId < bId) return -1;
+    if (aId > bId) return 1;
+    return 0;
+  });
+
+  // Count by severity.
+  let errorCount = 0, warnCount = 0, infoCount = 0;
+  for (const f of findings) {
+    if (f.severity === 'ERROR') errorCount++;
+    else if (f.severity === 'WARNING') warnCount++;
+    else if (f.severity === 'INFO') infoCount++;
+  }
+
+  // Group into sections by category, preserving the severity-derived category order.
+  const categoryOrder = [];
+  const byCategory = new Map();
+  for (const f of sorted) {
+    if (!byCategory.has(f.category)) {
+      byCategory.set(f.category, []);
+      categoryOrder.push(f.category);
+    }
+    byCategory.get(f.category).push(f);
+  }
+
+  const badgeParts = [];
+  if (errorCount) badgeParts.push(`${errorCount} ERROR`);
+  if (warnCount)  badgeParts.push(`${warnCount} WARNING`);
+  if (infoCount)  badgeParts.push(`${infoCount} INFO`);
+
+  let html = `<div style="padding:16px">`;
+  html += `<div style="margin-bottom:12px;font-weight:bold">${badgeParts.join(' · ')}</div>`;
+
+  for (const cat of categoryOrder) {
+    const catFindings = byCategory.get(cat);
+    html += `<div style="margin-bottom:16px">`;
+    html += `<h3 style="margin:0 0 8px">${cat}</h3>`;
+    for (const f of catFindings) {
+      const ids = f.locators.map(l => l.id).join(', ');
+      html += `<div style="margin-bottom:6px">`;
+      html += `<strong>${f.severity}</strong>`;
+      if (ids) html += ` [${ids}]`;
+      html += `: ${f.message}`;
+      if (f.impact) html += ` ${f.impact}`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  panel.innerHTML = html;
 }
 
 /**
@@ -4549,7 +4674,7 @@ document.getElementById('run-btn').addEventListener('click', () => {
   // Defer heavy computation so the browser can paint the spinner first
   setTimeout(() => {
     try {
-      const { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview } =
+      const { lambda, epicSizingDist, kPerGroup, fixedEffortPerGroup, preview, findings } =
         prepareSimulationData(histQs, targetQs);
 
       // ── Validate inputs ───────────────────────────────────────
@@ -4612,12 +4737,16 @@ document.getElementById('run-btn').addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.tab === 'org')
       );
+      // ── Render Error Report tab (feature 0023) ───────────────────
+      renderErrorReport(findings);
+
       document.getElementById('tab-org').style.display            = 'flex';
       document.getElementById('tab-teams').style.display          = 'none';
       document.getElementById('tab-projections').style.display    = 'none';
       document.getElementById('tab-initiatives').style.display    = 'none';
       document.getElementById('tab-constant-work').style.display  = 'none';
       document.getElementById('tab-groups').style.display         = 'none';
+      document.getElementById('tab-error-report').style.display   = 'none';
       document.getElementById('results-content').style.display  = 'flex';
 
     } catch (err) {
