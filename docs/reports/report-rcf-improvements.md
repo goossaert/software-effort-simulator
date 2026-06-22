@@ -144,6 +144,103 @@ next to the reference-class uplift's P80 and flag when they diverge.
 The three are complementary: 1c fixes per-size spread, 2 fixes joint/correlation structure, 3
 catches the unknown-unknowns none of the bottom-up channels can.
 
+### Addendum (2026-06-22) — extending 1c to uncalibrated sizes (2XS / XL / XL+)
+
+As written, 1c samples `effort = sampleLognormal(size) × bootstrapChoice(ratioPool[size])`, and the
+ratio pools only exist for the four sizes with Q1 2026 data — `XS, S, M, L`
+([index.html:1322](index.html:1322)). `2XS`, `XL`, and `XL+` have **empty** pools, so the multiply
+has nothing to draw and 1c is a no-op for exactly the sizes (`XL`) most likely to drive the tail.
+[ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md) handled the same gap by
+carrying the synthetic params through for those sizes — algebraically a ratio of **1.0**. This
+addendum sketches how to give them 1c's *spread* (and, optionally, its *centre* correction) by
+**borrowing the estimation-error distribution across sizes**.
+
+**Borrow the ratio, not the effort.** [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md)
+rejected neighbour-inheritance — but for the *absolute effort fit*, where deriving an `XL`'s PM
+distribution from `L`'s `n=3` is genuinely worse than the synthetic band. The
+`actual / synthetic_mean` **ratio** is a different quantity: it measures the *estimation process*,
+which plausibly transfers across size buckets far better than effort does. The four observed mean
+ratios — `1.39, 1.51, 1.24, 1.36` — sit in a tight band with no monotone trend in size, which is
+weak-but-real evidence that a *shared* ratio distribution is a defensible reference class for the
+sizes we never measured.
+
+**Two separable benefits, different justification strength.**
+
+- *Spread* — pool it. This is what 1c is for, and it is the safe part: transplant the shape of
+  estimation error onto 2XS/XL/XL+, which today carry none.
+- *Centre* — a judgment call this addendum resolves toward the pooled mean. ADR-0026's carry-through
+  asserts 2XS/XL are **unbiased** (ratio 1.0), yet all four measured sizes underestimate by 24–51%.
+  Modelling the unmeasured sizes as the only optimism-free ones is the least defensible option on the
+  table; the pooled centre (≈ 1.40×) is a better prior.
+
+**Shrinkage formula (centre).** Shrink each size's mean ratio toward the pooled grand mean `g`, with
+weight set by its sample size:
+
+```
+B_i = n_i / (n_i + κ)                 # 0 ≤ B_i ≤ 1 — weight on the size's own data
+c_i = B_i · r_i + (1 − B_i) · g       # shrunk centre for size i
+g   = Σ nᵢrᵢ / Σ nᵢ  ≈  1.40          # epic-weighted pooled ratio (size-weighted: 1.375)
+```
+
+`κ` is a pseudo-count — the number of observations' worth of pull toward `g` — formally
+`κ = σ²_within / τ²` (within-size ratio variance over between-size variance). A size with
+**`n_i = 0` collapses to `B_i = 0`, i.e. `c_i = g`** — exactly the fallback we want for 2XS/XL/XL+:
+no data ⇒ adopt the pooled centre, not 1.0.
+
+Worked against the four ratios, with `g = 1.40` and an illustrative `κ = 8`:
+
+| Size | n | raw ratio `r_i` | `B_i` | shrunk centre `c_i` |
+|---|---|---|---|---|
+| XS | 10 | 1.39 | 0.56 | **1.39** |
+| S  | 14 | 1.51 | 0.64 | **1.47** |
+| M  | 8  | 1.24 | 0.50 | **1.32** |
+| L  | 3  | 1.36 | 0.27 | **1.39** |
+| 2XS / XL / XL+ | 0 | — | 0.00 | **1.40** (= g) |
+
+Shrinkage pulls the noisy outliers in — `S` (1.51, n=14) eases to 1.47, `M` (1.24, n=8) lifts to
+1.32, and `L`'s 1.36 barely moves because it already sits near `g`. The pull strengthens as `κ`
+grows (`κ=4` → 1.39 / 1.49 / 1.29 / 1.38; `κ=15` → 1.40 / 1.45 / 1.34 / 1.39); every column
+converges on 1.40.
+
+**Picking κ — and a green light for pooling.** Estimate `τ²` by subtracting sampling noise from the
+observed scatter of the means: `τ² ≈ Var(rᵢ) − σ²_within · mean(1/nᵢ)`. The four means have
+`Var ≈ 0.012` and `mean(1/nᵢ) ≈ 0.16`, so for any plausible within-size spread (ratio SD ≈ 0.25–0.30,
+`σ²_within ≈ 0.06–0.09` — typical for estimation error) the subtraction drives `τ²` to between ≈ 0.004
+and ≈ 0, giving `κ = σ²_within/τ²` of **≈ 12 up to ∞**. Either way `κ` is large relative to the
+per-size `n`s — heavy pooling — and at the upper end the between-size differences are statistically
+indistinguishable from sampling noise: **the data cannot reject a single shared ratio**, which is
+precisely the licence to transplant it onto the unmeasured sizes. (The `κ = 8` worked above is, if
+anything, *conservative* — less shrinkage than the data likely warrants. Recompute `κ` for real once
+the 35 raw ratios are pulled.)
+
+**Sampling mechanism.** Decompose each observed ratio into centre × residual,
+`r_ij = r_i · (r_ij / r_i)`, and pool the **mean-1 residuals** across all four sizes into one shape
+pool `R` (≈ 35 values capturing the estimation-error spread). Then for *every* size:
+
+```
+effort = sampleLognormal(size) × c_size × bootstrapChoice(R)
+```
+
+For calibrated sizes this reproduces 1c with a shrunk centre and a partially-pooled shape — honest
+at `n = 3–14`, where a single size's own shape is itself mostly noise. For 2XS/XL/XL+, `c = 1.40`
+and the shape comes entirely from `R`: they inherit both the pooled centre and the pooled spread.
+*Refinement as data grows:* draw the residual from a `B_i`-weighted mixture of the size's own
+residuals and `R`, so well-sampled sizes recover their own shape.
+
+**Caveats.**
+
+- *Extremes are the weak point.* 2XS and XL sit at the ends of the range, where estimation error is
+  often worst (tiny tasks rounded up, huge tasks hardest to scope). Pooling extrapolates the interior
+  to the tails. Hedge by inflating the residual spread for uncalibrated sizes (scale `R`'s
+  deviations-from-1 by ≈ 1.2–1.5) and treat the transplanted spread as a **floor, not a ceiling**.
+- *This re-opens [ADR-0026](docs/adr/0026-empirical-lognormal-parameters-mode-toggle.md).* Its
+  "carry synthetic through" rule (ratio 1.0 for uncalibrated sizes) is load-bearing; replacing it
+  with shrink-to-`g` is a deliberate revision, and it directly implements the §3C
+  shrinkage / partial-pooling hygiene point below. Unlike 1c proper, this is **not** a free drop-in.
+- *Borrowing is not data.* This buys a defensible prior, not knowledge. The real fix remains the §3C
+  ingestion path actually capturing 2XS/XL actuals; until it does, flag those sizes in the **Data
+  preview** as *pooled-prior* rather than self-calibrated.
+
 ---
 
 ## 3. Other improvements for more accurate / trustable outputs
