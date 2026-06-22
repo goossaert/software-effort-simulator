@@ -4,17 +4,17 @@ id: "0023"
 slug: error-report-tab
 title: Error Report tab
 stage: implement
-status: ready
+status: needs-human
 priority: normal
-flagged_for_human: false
+flagged_for_human: true
 total_phases: 6
 current_phase: 1
 retry_count: 1
 max_retries: 3
 next_handover: handover-06-review-p1.md
-updated_at: 2026-06-22T23:05:00Z
+updated_at: 2026-06-22T21:04:23Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: ""
+blocked_reason: "phase 'implement' failed to commit 4 times (see /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/.backlog-logs/20260622_230418_0023_implement_p1.log)"
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
