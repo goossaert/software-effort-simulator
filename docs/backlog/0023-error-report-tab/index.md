@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: plan
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
-total_phases: 0
-current_phase: 0
+total_phases: 6
+current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-02-apply-docs.md
-updated_at: 2026-06-22T19:17:18Z
+next_handover: handover-03-plan.md
+updated_at: 2026-06-22T19:24:06Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -38,3 +38,12 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > **apply-docs done (2026-06-22):** the five glossary terms are in `CONTEXT.md`
 > (four new + the pre-existing **Recognised t-shirt size** augmented in place) and
 > ADR-0037 is created; toolchain was already selected (no-op). Next stage: **plan**.
+>
+> **plan done (2026-06-22):** `docs/plans/0023-error-report-tab.md` written with
+> **`total_phases: 6`** thin vertical slices — (1) tab + finding model + render +
+> empty state + unrecognised-size; (2) scope/calibration exclusions; (3)
+> run-parameter / degenerate-run findings; (4) duplicates & overlaps; (5) initiative
+> & cross-ref integrity + constant-work exclusion; (6) multi-quarter section + full
+> presentation contract. AC-1…AC-13, I-1…I-5, and DC-1…DC-5 are formalised (not
+> re-decided); the 22 test-facing `code`s + per-code severities are pinned in the
+> plan's Data models. Next stage: **atdd** (feature-phase 1).
