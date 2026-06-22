@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: apply-docs
+stage: plan
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 0
 current_phase: 0
 retry_count: 0
 max_retries: 3
-next_handover: handover-01-grill.md
-updated_at: 2026-06-22T18:49:16Z
+next_handover: handover-02-apply-docs.md
+updated_at: 2026-06-22T19:17:18Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -33,4 +33,8 @@ never disagree with what the simulation computed) and are **advisory only**: the
 report never aborts or alters a Run, and the two existing hard stops are unchanged.
 The known multi-quarter forward double-count is **reported at ERROR but not fixed**
 here — the underlying per-key-vs-per-row unit-consistency fix is a separate future
-task. See ADR-0037 (to be created by apply-docs).
+task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
+
+> **apply-docs done (2026-06-22):** the five glossary terms are in `CONTEXT.md`
+> (four new + the pre-existing **Recognised t-shirt size** augmented in place) and
+> ADR-0037 is created; toolchain was already selected (no-op). Next stage: **plan**.
