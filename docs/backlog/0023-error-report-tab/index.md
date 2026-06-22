@@ -3,22 +3,24 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: review
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 6
 current_phase: 1
-retry_count: 0
+retry_count: 1
 max_retries: 3
-next_handover: handover-05-implement-p1.md
-updated_at: 2026-06-22T20:42:02Z
+next_handover: handover-06-review-p1.md
+updated_at: 2026-06-22T23:05:00Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
   impl_commit: d77e0abc6f340e4915560b91bf4fad942839c8ee
+  reviews:
+    - docs/reviews/0023-error-report-tab-phase-1-review-01.md
 ---
 # 0023 — Error Report tab
 
@@ -82,3 +84,18 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > Human test-fix needed: loosen 0020/0021 AT-1 to check positional relationships
 > (constant-work=5th, groups=6th) rather than total count. See
 > `handover-05-implement-p1.md` for proposed fix. **`flagged_for_human: true`.**
+>
+> **review (integrity) p1 — FAIL (2026-06-22):** integrity is otherwise clean — no
+> test gaming, test immutability intact (the human's 0020/0021 migration in `fdbb375`
+> is outside the reviewed range `36d5b1c..d77e0ab` and production-only-free), both
+> required PBT properties present, advisory I-1 satisfied, behavioral negative control
+> killed. **But** the plan tags invariants **I-3** (severity ∈ enum) and **I-4**
+> (`locators.length >= 1`) as `[contract]` and prescribes asserting them "in the finding
+> constructor", while the production code builds findings as bare object literals with
+> **no runtime assertion**. Step 6's contracted-invariant negative control proves the
+> **dead contract**: an invalid `severity` is caught only by a downstream test
+> expectation, never by a runtime abort. Per stage-review Step 5/6 this is a
+> production-code gap → **FAIL routed to `/stage-implement`** (add a `makeFinding`
+> factory asserting I-3/I-4 and route both detectors through it; production-only, no
+> test edits). Review: `docs/reviews/0023-error-report-tab-phase-1-review-01.md`.
+> `retry_count` 0 → 1. Next stage: **implement** (feature-phase 1).
