@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 6
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-06-22T19:24:06Z
+next_handover: handover-04-atdd-p1.md
+updated_at: 2026-06-22T19:45:25Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -47,3 +47,11 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > presentation contract. AC-1…AC-13, I-1…I-5, and DC-1…DC-5 are formalised (not
 > re-decided); the 22 test-facing `code`s + per-code severities are pinned in the
 > plan's Data models. Next stage: **atdd** (feature-phase 1).
+>
+> **atdd p1 done (2026-06-22):** Phase-1 acceptance + property tests committed
+> under `tests/acceptance/0023-phase-1-*.test.js` (6 acceptance AT-1…AT-5 + 7
+> inner/property tests incl. 2 `fast-check` properties). **Stable RED** confirmed
+> across 5 flakiness reruns (acceptance 5/5 exit 1, inner 5/5 exit 1); RED logs in
+> `docs/atdd-logs/0023-error-report-tab-phase-1-*.log`. Tests target only the named
+> seams (`prepareSimulationData(...).findings`, `renderErrorReport(findings)`, the
+> rendered `#tab-error-report` DOM). Next stage: **implement** (feature-phase 1).

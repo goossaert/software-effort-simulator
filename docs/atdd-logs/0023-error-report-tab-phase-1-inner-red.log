@@ -1,0 +1,212 @@
+command: npx vitest run tests/acceptance/0023-phase-1-finding-model-property.test.js
+run_at: 2026-06-22T19:45:25Z
+exit_code: 1
+shrunk_counterexample: [] (empty epic-size array) — prepareSimulationData(...).findings is undefined; the additive findings field is unimplemented
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags exactly the in-scope Epics whose normalised size is not a Recognised t-shirt size, one finding each (with seed=2106965318)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags an Epic whose size "XXL" is not a Recognised t-shirt size
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags Epics whose size is empty or whitespace-only
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > does NOT flag recognised sizes that differ only by case or trailing space
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > produces no UNRECOGNIZED_SIZE_EPIC findings when there are no Epics
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — every Data-quality finding obeys the contract shape > a produced finding carries a valid Severity, a non-empty message, a string code/category, and >= 1 locator with {kind,id}
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — collecting the Error Report is advisory: the engine output is unaffected by findings (I-1) > the engine output from prepareSimulationData’s outputs is identical with and without the findings field (with seed=108465361)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js (7 tests | 7 failed) 156ms
+   × 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags exactly the in-scope Epics whose normalised size is not a Recognised t-shirt size, one finding each (with seed=2106965318) 31ms
+     → Property failed after 1 tests
+{ seed: 2106965318, path: "0", endOnFailure: true }
+Counterexample: [[]]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   × 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags an Epic whose size "XXL" is not a Recognised t-shirt size 21ms
+     → expected false to be true // Object.is equality
+   × 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags Epics whose size is empty or whitespace-only 19ms
+     → expected false to be true // Object.is equality
+   × 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > does NOT flag recognised sizes that differ only by case or trailing space 17ms
+     → expected false to be true // Object.is equality
+   × 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > produces no UNRECOGNIZED_SIZE_EPIC findings when there are no Epics 17ms
+     → expected false to be true // Object.is equality
+   × 0023 Phase 1 — every Data-quality finding obeys the contract shape > a produced finding carries a valid Severity, a non-empty message, a string code/category, and >= 1 locator with {kind,id} 17ms
+     → expected false to be true // Object.is equality
+   × 0023 Phase 1 — collecting the Error Report is advisory: the engine output is unaffected by findings (I-1) > the engine output from prepareSimulationData’s outputs is identical with and without the findings field (with seed=108465361) 33ms
+     → Property failed after 1 tests
+{ seed: 108465361, path: "0:0", endOnFailure: true }
+Counterexample: [[]]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags exactly the in-scope Epics whose normalised size is not a Recognised t-shirt size, one finding each (with seed=2106965318)
+Error: Property failed after 1 tests
+{ seed: 2106965318, path: "0", endOnFailure: true }
+Counterexample: [[]]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:78:46
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+ ❯ asyncRunIt node_modules/fast-check/lib/fast-check.js:2495:30
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:79:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags an Epic whose size "XXL" is not a Recognised t-shirt size
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:103:44
+    101|     inScopeEpics(win, ['XXL']);
+    102|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    103|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    104|     expect(result.findings.filter(f => f.code === 'UNRECOGNIZED_SIZE_E…
+    105|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags Epics whose size is empty or whitespace-only
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:113:44
+    111|     inScopeEpics(win, ['', '   ']);
+    112|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    113|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    114|     expect(result.findings.filter(f => f.code === 'UNRECOGNIZED_SIZE_E…
+    115|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > does NOT flag recognised sizes that differ only by case or trailing space
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:124:44
+    122|     inScopeEpics(win, [' m ', 'xl+', '2xs', 'S ']);
+    123|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    124|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    125|     expect(result.findings.filter(f => f.code === 'UNRECOGNIZED_SIZE_E…
+    126|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > produces no UNRECOGNIZED_SIZE_EPIC findings when there are no Epics
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:134:44
+    132|     setEpics(win, []);
+    133|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    134|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    135|     expect(result.findings.filter(f => f.code === 'UNRECOGNIZED_SIZE_E…
+    136|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — every Data-quality finding obeys the contract shape > a produced finding carries a valid Severity, a non-empty message, a string code/category, and >= 1 locator with {kind,id}
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:146:44
+    144|     inScopeEpics(win, ['XXL']);
+    145|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    146|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    147|     expect(result.findings.length).toBeGreaterThan(0);
+    148|     for (const f of result.findings) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — collecting the Error Report is advisory: the engine output is unaffected by findings (I-1) > the engine output from prepareSimulationData’s outputs is identical with and without the findings field (with seed=108465361)
+Error: Property failed after 1 tests
+{ seed: 108465361, path: "0:0", endOnFailure: true }
+Counterexample: [[]]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-finding-model-property.test.js:180:44
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+ ❯ asyncRunIt node_modules/fast-check/lib/fast-check.js:2495:30
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:79:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  21:45:05
+   Duration  729ms (transform 15ms, setup 0ms, collect 336ms, tests 156ms, environment 0ms, prepare 58ms)
+

@@ -1,0 +1,134 @@
+command: npx vitest run tests/acceptance/0023-phase-1-error-report-tab.test.js
+run_at: 2026-06-22T19:45:25Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-3: an in-scope Epic whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_EPIC (ERROR) > collects exactly one UNRECOGNIZED_SIZE_EPIC finding locating the offending Epic and notes exclusion from Poisson λ and the Bootstrap pool
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-4: a target-quarter Constant work row whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_CONSTANT_WORK (WARNING) > collects exactly one UNRECOGNIZED_SIZE_CONSTANT_WORK finding with a row locator and a message noting it contributed 0 PM
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-5: collecting the Error Report never alters the Run — runSimulation reads no findings (advisory, I-1) > returns findings additively while the engine output depends only on its declared arguments (a findings field is ignored)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js (6 tests | 6 failed) 179ms
+   × AT-1: the Error Report Tab is present, last in the tab bar, and org is the resting Tab > renders a .tab-btn[data-tab="error-report"] labelled "Error Report" as the LAST tab in .tab-bar 77ms
+     → expected 'groups' to be 'error-report' // Object.is equality
+   × AT-1: the Error Report Tab is present, last in the tab bar, and org is the resting Tab > renders a #tab-error-report Tab panel that is display:none while the org Tab stays active 24ms
+     → expected null not to be null
+   × AT-2: the Error Report shows an explicit empty state when there are no Data-quality findings > renderErrorReport([]) paints #tab-error-report with the literal text "No data issues detected." and zero finding entries 18ms
+     → expected null not to be null
+   × AT-3: an in-scope Epic whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_EPIC (ERROR) > collects exactly one UNRECOGNIZED_SIZE_EPIC finding locating the offending Epic and notes exclusion from Poisson λ and the Bootstrap pool 22ms
+     → expected false to be true // Object.is equality
+   × AT-4: a target-quarter Constant work row whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_CONSTANT_WORK (WARNING) > collects exactly one UNRECOGNIZED_SIZE_CONSTANT_WORK finding with a row locator and a message noting it contributed 0 PM 19ms
+     → expected false to be true // Object.is equality
+   × AT-5: collecting the Error Report never alters the Run — runSimulation reads no findings (advisory, I-1) > returns findings additively while the engine output depends only on its declared arguments (a findings field is ignored) 18ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-1: the Error Report Tab is present, last in the tab bar, and org is the resting Tab > renders a .tab-btn[data-tab="error-report"] labelled "Error Report" as the LAST tab in .tab-bar
+AssertionError: expected 'groups' to be 'error-report' // Object.is equality
+
+Expected: "error-report"
+Received: "groups"
+
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:54:30
+     52|     expect(btns.length).toBeGreaterThan(0);
+     53|     const last = btns[btns.length - 1];
+     54|     expect(last.dataset.tab).toBe('error-report');
+       |                              ^
+     55|     expect(last.textContent.trim()).toBe('Error Report');
+     56|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-1: the Error Report Tab is present, last in the tab bar, and org is the resting Tab > renders a #tab-error-report Tab panel that is display:none while the org Tab stays active
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:61:23
+     59|     const win = loadSimulator();
+     60|     const panel = win.document.getElementById('tab-error-report');
+     61|     expect(panel).not.toBeNull();
+       |                       ^
+     62|     expect(panel.classList.contains('tab-panel')).toBe(true);
+     63|     expect(panel.style.display).toBe('none');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-2: the Error Report shows an explicit empty state when there are no Data-quality findings > renderErrorReport([]) paints #tab-error-report with the literal text "No data issues detected." and zero finding entries
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:78:23
+     76|     execIn(win, 'renderErrorReport([])');
+     77|     const panel = win.document.getElementById('tab-error-report');
+     78|     expect(panel).not.toBeNull();
+       |                       ^
+     79|     expect(panel.textContent).toContain('No data issues detected.');
+     80|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-3: an in-scope Epic whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_EPIC (ERROR) > collects exactly one UNRECOGNIZED_SIZE_EPIC finding locating the offending Epic and notes exclusion from Poisson λ and the Bootstrap pool
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:95:44
+     93| 
+     94|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+     95|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+     96| 
+     97|     const flagged = result.findings.filter(f => f.code === 'UNRECOGNIZ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-4: a target-quarter Constant work row whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_CONSTANT_WORK (WARNING) > collects exactly one UNRECOGNIZED_SIZE_CONSTANT_WORK finding with a row locator and a message noting it contributed 0 PM
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:132:44
+    130| 
+    131|     const result = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q…
+    132|     expect(Array.isArray(result.findings)).toBe(true);
+       |                                            ^
+    133| 
+    134|     const flagged = result.findings.filter(f => f.code === 'UNRECOGNIZ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-5: collecting the Error Report never alters the Run — runSimulation reads no findings (advisory, I-1) > returns findings additively while the engine output depends only on its declared arguments (a findings field is ignored)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0023-phase-1-error-report-tab.test.js:160:42
+    158|     const data = evalIn(win, "prepareSimulationData(['Q1 2026'], ['Q2 …
+    159|     // Advisory contract: findings are collected as an array (additive…
+    160|     expect(Array.isArray(data.findings)).toBe(true);
+       |                                          ^
+    161| 
+    162|     const args = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  21:44:58
+   Duration  897ms (transform 14ms, setup 0ms, collect 223ms, tests 179ms, environment 0ms, prepare 91ms)
+
