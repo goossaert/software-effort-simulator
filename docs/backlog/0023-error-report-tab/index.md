@@ -4,7 +4,7 @@ id: "0023"
 slug: error-report-tab
 title: Error Report tab
 stage: implement
-status: ready
+status: needs-human
 priority: normal
 flagged_for_human: true
 total_phases: 6
@@ -12,9 +12,9 @@ current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-05-implement-p1.md
-updated_at: 2026-06-22T22:05:00Z
+updated_at: 2026-06-22T20:07:25Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: "frozen tests 0020-AT-1 / 0021-AT-1 assert toHaveLength(6) + exact slug array ending in groups — broken by any 7th tab-btn; cannot satisfy alongside 0023-AT-1 (error-report last) without editing frozen test files"
+blocked_reason: "frozen tests 0020-AT-1 / 0021-AT-1 assert toHaveLength(6) and an exact slug array ending in groups — any 7th .tab-btn in .tab-bar breaks them; cannot satisfy alongside 0023-AT-1 (error-report must be last .tab-btn in .tab-bar) without editing frozen test files"
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
 ---
