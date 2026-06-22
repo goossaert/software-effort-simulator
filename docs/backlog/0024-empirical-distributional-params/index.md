@@ -4,17 +4,17 @@ id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
 stage: plan
-status: needs-human
+status: ready
 priority: normal
-flagged_for_human: true
+flagged_for_human: false
 total_phases: 0
 current_phase: 0
 retry_count: 0
 max_retries: 3
 next_handover: handover-02-apply-docs.md
-updated_at: 2026-06-22T21:04:48Z
+updated_at: 2026-06-22T23:17:00Z
 created_at: 2026-06-22T18:55:38Z
-blocked_reason: "phase 'plan' failed to commit 4 times (see /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/.backlog-logs/20260622_230443_0024_plan_p0.log)"
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0024-empirical-distributional-params.md
 ---
