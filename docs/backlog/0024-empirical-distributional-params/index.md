@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: review
+stage: review-correctness
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-10-implement-p2.md
-updated_at: 2026-06-23T09:10:00Z
+next_handover: handover-11-review-p2.md
+updated_at: 2026-06-23T09:40:00Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -20,6 +20,7 @@ artifacts:
   reviews:
     - docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md
     - docs/reviews/0024-empirical-distributional-params-phase-1-correctness-01.md
+    - docs/reviews/0024-empirical-distributional-params-phase-2-review-01.md
 ---
 # 0024 — Empirical (distributional) lognormal parameters mode
 
@@ -135,3 +136,21 @@ per-layer logs persisted under `docs/atdd-logs/0024-…-phase-2-*`. No `tests/**
 `index.html` changed; Phase-1 engine untouched. One reversible recorded decision: the handler uses an
 explicit `if/else` (control-flow left free by the plan). Advanced to `stage: review`,
 `current_phase: 2` — next phase is `review` p2.
+
+**Status (review p2 PASS, 2026-06-23):** integrity review clean — diff `f9ceb3c..5787647`,
+production-only (`index.html`, +20/-4). No test file changed between test/impl commits
+(`git diff … -- tests features e2e acceptance` empty); no config/threshold patch
+(`'*.config.*' '*.json' tsconfig* .ast-grep/* package.json` diff empty); no test-gaming pattern, no
+production import from tests, no env/identity branch, no blanket suppression. The third
+`empirical-distributional` radio is placed last with Empirical keeping `checked` (DC-1/DC-4); the
+tri-state `change` handler binds **both** `activeParams` **and** `activeSampler` per mode (residual
+sampler only in the new mode — DC-2) and toggles exactly one `.active` label. The committed suite
+covers AT-1..AT-3, all four plan counterexamples, and PBT-4 (table + sampler + single highlight, with
+a seeded behavioral check that the residual binding takes effect); PBT structural floor met
+(`test.prop`). All three invariants are `[test-only]` and SATISFIED; no `[contract]` invariant this
+phase (contract floor skipped by config). Negative control — dropping the residual sampler binding —
+fails 3 tests (exit 1: PBT-4 + AT-2 sampler-ref + AT-2 seeded residual-multiply) and green restores
+on revert (11/11). Mutation N/A (ADR-0036, recorded). Review file:
+`docs/reviews/0024-empirical-distributional-params-phase-2-review-01.md`. Advanced to
+`stage: review-correctness`, `current_phase: 2` — next phase is `review-correctness` p2 (it owns the
+advance to `done`, the last feature-phase).
