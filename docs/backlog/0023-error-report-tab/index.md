@@ -4,17 +4,17 @@ id: "0023"
 slug: error-report-tab
 title: Error Report tab
 stage: review-correctness
-status: ready
+status: needs-human
 priority: normal
-flagged_for_human: false
+flagged_for_human: true
 total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
 next_handover: handover-13-review-p2.md
-updated_at: 2026-06-23T21:08:01Z
+updated_at: 2026-06-23T21:11:18Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: ""
+blocked_reason: "suspect-test: 0023-phase-2-acc-presentation.test.js (AT-5) asserts '1 WARNING' in a λ=0 orphan-recognised-size Run, requiring the LAMBDA_ZERO guard that contradicts the plan invariant 'LAMBDA_ZERO ⇔ lambda === 0' — production cannot satisfy both spec and frozen test."
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
