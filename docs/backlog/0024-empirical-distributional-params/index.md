@@ -3,8 +3,8 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: review-correctness
-status: ready
+stage: done
+status: done
 priority: normal
 flagged_for_human: false
 total_phases: 2
@@ -12,7 +12,7 @@ current_phase: 2
 retry_count: 0
 max_retries: 3
 next_handover: handover-11-review-p2.md
-updated_at: 2026-06-23T09:40:00Z
+updated_at: 2026-06-23T09:46:00Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -21,6 +21,7 @@ artifacts:
     - docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md
     - docs/reviews/0024-empirical-distributional-params-phase-1-correctness-01.md
     - docs/reviews/0024-empirical-distributional-params-phase-2-review-01.md
+    - docs/reviews/0024-empirical-distributional-params-phase-2-correctness-01.md
 ---
 # 0024 — Empirical (distributional) lognormal parameters mode
 
@@ -154,3 +155,22 @@ on revert (11/11). Mutation N/A (ADR-0036, recorded). Review file:
 `docs/reviews/0024-empirical-distributional-params-phase-2-review-01.md`. Advanced to
 `stage: review-correctness`, `current_phase: 2` — next phase is `review-correctness` p2 (it owns the
 advance to `done`, the last feature-phase).
+
+**Status (review-correctness p2 PASS — TASK DONE, 2026-06-23):** independent correctness review
+clean — diff `f9ceb3c..5787647`, production-only (`index.html`, +20/-4), reasoning from the spec
+(plan Phase-2 + ADRs + CONTEXT), tests excluded. A single clean pass produced **zero** candidate
+findings; the judge pass dropped nothing; Step 5b (suspect-test) not reached. Confirmed: the
+tri-state handler binds `synthetic→{T_SHIRT_PARAMS, sampleLognormal}`,
+`empirical→{T_SHIRT_PARAMS_EMPIRICAL, sampleLognormal}`,
+`empirical-distributional→{T_SHIRT_PARAMS_DISTRIBUTIONAL, sampleLognormalWithResidual}`; binding and
+the three `.active` toggles both key off the same `radio.value` synchronously, so exactly one label
+is active and they cannot desync; the residual sampler is restored to `sampleLognormal` for the two
+pre-existing modes (DC-2 — no residual leak); the page-load default rests on consistent markup +
+module defaults (Empirical `checked` + `.active`, `activeParams = T_SHIRT_PARAMS_EMPIRICAL`,
+`activeSampler = sampleLognormal` — DC-4/ADR-0035); no `localStorage` write (AC-7); reference panel
+never touched (ADR-0038 dec. 9). All four plan counterexamples absent. error-handling/security/
+complexity axes N/A (no I/O, no injection surface, O(1)). Boot smoke: `smoke_command` empty ⇒ logged
+no-op; base health confirmed directly (committed Phase-2 suite green 11/11 on the inherited base
+`b0bf3c1`). Cross-family pass disabled ⇒ this Claude pass owns the verdict. Review file:
+`docs/reviews/0024-empirical-distributional-params-phase-2-correctness-01.md`. **Verdict PASS, k = N
+= 2** ⇒ `stage: done`, `status: done` — the task is **COMPLETE**.
