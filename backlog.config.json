@@ -2,16 +2,16 @@
   "schema": "backlog-config/v1",
   "config_version": 3,
   "models": {
-    "default": "opus",
-    "apply-docs": "opus",
-    "plan": "opus",
+    "default": "sonnet",
+    "apply-docs": "sonnet",
+    "plan": "sonnet",
     "atdd": "opus",
-    "implement": "opus",
+    "implement": "sonnet",
     "review": "opus",
     "review-correctness": "opus"
   },
   "max_retries": 3,
-  "stop_on_flag": false,
+  "stop_on_flag": true,
   "poll_interval_seconds": 10,
   "usage": {
     "reprobe_interval_seconds": 600
