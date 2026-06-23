@@ -4,21 +4,21 @@ id: "0023"
 slug: error-report-tab
 title: Error Report tab
 stage: atdd
-status: needs-human
+status: ready
 priority: normal
-flagged_for_human: true
-total_phases: 6
-current_phase: 1
+flagged_for_human: false
+total_phases: 2
+current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-08-atdd-p1.md
-updated_at: 2026-06-23T05:45:46Z
+next_handover: handover-09-replan-p2.md
+updated_at: 2026-06-23T08:00:00Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: "atdd RED gate unsatisfiable: inherited base (HEAD 2b3fe7f) is post-implementation — committed phase-1 *-red.log commands now exit 0 (GREEN); atdd cannot restore a pre-impl RED base without editing production code. (Underlying pbt-floor: whole-plan floor=12 vs 4 committed.)"
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
-  impl_commit: d77e0abc6f340e4915560b91bf4fad942839c8ee
+  impl_commit: 79dcd45d80f09efb7b13c44738deb98e4373a441
   reviews:
     - docs/reviews/0023-error-report-tab-phase-1-review-01.md
 ---
@@ -99,6 +99,21 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > factory asserting I-3/I-4 and route both detectors through it; production-only, no
 > test edits). Review: `docs/reviews/0023-error-report-tab-phase-1-review-01.md`.
 > `retry_count` 0 → 1. Next stage: **implement** (feature-phase 1).
+>
+> **operator re-plan — UNBLOCKED (2026-06-23):** human chose "re-plan the remaining
+> work." Two root causes fixed: (1) the orphaned I-3/I-4 `makeFinding` fix (`d9a720d`,
+> lost in the auth-recovery `01d8397`) was **re-applied** on top of the now-shipped 0024
+> work → commit **`79dcd45`** (`npm run verify` green, 275 passed); (2) the
+> thin-slice-vs-whole-plan-`pbt-floor` mismatch was resolved by **consolidating Phases
+> 2-6 into a single Phase 2** (codes 3-22 + full presentation) in
+> `docs/plans/0023-error-report-tab.md` — the former phase bodies are preserved verbatim
+> as `###` sub-sections, the 12 PBT property rows are unchanged. Phase 1 (codes 1-2) is
+> marked DELIVERED. State set to `stage: atdd`, `current_phase: 2`, `total_phases: 2`,
+> `status: ready`, flag cleared. The Phase-2 atdd is RED-satisfiable on `79dcd45` (codes
+> 3-22 unimplemented) and must front-load all **10** remaining property tests (cumulative
+> ≥14 ≥ 12 floor). See `handover-09-replan-p2.md`. **Resume with `bin/backlog-loop`.**
+> ⚠️ A residual *strategic* decision remains for the human: the whole-plan `pbt-floor`
+> will block any future thin-slice plan the same way — see the handover's "Strategic note".
 >
 > **atdd p1 re-run — BLOCKED, FLAGGED FOR HUMAN (2026-06-23):** the gate rewound to
 > `atdd` on `pbt-floor` (whole-plan floor **12** parametric rules vs **4** committed

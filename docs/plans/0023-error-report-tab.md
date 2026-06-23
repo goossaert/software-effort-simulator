@@ -267,6 +267,18 @@ freely, but these signatures are a contract:
 
 ## Phase 1: Error Report tab renders findings (tracer bullet: tab + model + render + unrecognised-size)
 
+> **✅ DELIVERED (operator re-plan, 2026-06-23).** Phase 1 is implemented and committed:
+> the `error-report` tab + panel, the `Finding` model, the `makeFinding` factory
+> (enforcing the `[contract]` invariants I-3/I-4 at construction), `renderErrorReport`
+> mechanics + empty state, and detectors for codes **1-2**
+> (`UNRECOGNIZED_SIZE_EPIC`, `UNRECOGNIZED_SIZE_CONSTANT_WORK`). Impl state recovered at
+> commit **`79dcd45`** (re-applies the orphaned I-3/I-4 fix `d9a720d` lost in the
+> auth-failure recovery). The phase-1 acceptance + property tests
+> (`tests/acceptance/0023-phase-1-*.test.js`, 4 committed property invocations) are
+> frozen and GREEN on the current base. **Do not re-run atdd/implement for this phase.**
+> All remaining work (codes 3-22 + the full presentation contract) is consolidated into
+> **Phase 2** below.
+
 ### Acceptance behavior
 
 Scenario AT-1: the Error Report tab is present and org stays the resting tab
@@ -470,7 +482,37 @@ After the test commit, the implementation session may NOT edit `tests/**`,
 
 ---
 
-## Phase 2: Scope & calibration exclusions (out-of-scope epic, orphan epic, quarter-with-no-epics)
+## Phase 2: All remaining diagnostics (codes 3-22) + full presentation contract
+
+> **CONSOLIDATED PHASE (operator re-plan, 2026-06-23).** This single feature-phase
+> covers **all** the work formerly split across thin Phases 2-6: codes **3-22** and the
+> full DC-3 presentation contract. The thin-slice split was abandoned because the gate's
+> `pbt-floor` counts the **whole plan's** parametric rules (12) — no thin slice of ~2
+> properties could ever satisfy a 12-floor, so every intermediate phase rewound to atdd.
+> Folding the remainder into one phase lets a single atdd front-load all the remaining
+> property tests at once. The former Phase 2-6 bodies are preserved verbatim below as the
+> `###` sub-sections of this phase (same scenarios, invariants, properties, oracles).
+>
+> **Scope of this phase — codes 3-22:** `EPIC_OUT_OF_SCOPE`, `ORPHAN_EPIC`,
+> `QUARTER_NO_EPICS` (scope & calibration); `LAMBDA_ZERO`, `TOTAL_K_ZERO`,
+> `CAPACITY_COERCED`, `ITERATIONS_CLAMPED` (run parameters); `DUP_INITIATIVE_KEY`,
+> `QUARTER_NORM_VARIANT`, `HIST_TARGET_OVERLAP` (duplicates & overlaps);
+> `INIT_MISSING_KEY`, `INIT_BAD_QUARTER`, `INIT_MISSING_TEAM_OR_CATEGORY`,
+> `DANGLING_EPIC_LINK`, `TARGET_QUARTER_NO_INITIATIVES`, `CONSTANT_WORK_EXCLUDED`
+> (initiative integrity + constant work); `MQ_FORWARD_DOUBLE_COUNT`,
+> `MQ_PARTIAL_WINDOW_EXCLUSION`, `MQ_MULTI_QUARTER_HISTORICAL`,
+> `MQ_INIT_EPIC_QUARTER_MISMATCH` + the full presentation contract (multi-quarter).
+>
+> **PBT floor — atdd MUST front-load.** The whole-plan floor is **12** committed
+> `fc.property|test.prop|it.prop` invocations; phase 1 committed **4**. This phase's atdd
+> must author a property test for **each** of the **10** remaining property rows below
+> (the `### Properties / invariants to PBT` tables of former Phases 2-6), bringing the
+> cumulative committed count to **≥14 ≥ 12**. All new tests are RED on commit `79dcd45`
+> (codes 3-22 are unimplemented), so the atdd RED gate is satisfiable on the current base.
+> Detectors built this phase route their findings through the existing `makeFinding`
+> factory (so the `[contract]` invariants I-3/I-4 stay live).
+
+### (former Phase 2) Scope & calibration exclusions — codes 3-5
 
 ### Acceptance behavior
 
@@ -591,7 +633,7 @@ As Phase 1 (`tests/**` etc. frozen after the test commit).
 
 ---
 
-## Phase 3: Run-parameter & degenerate-run findings (λ=0, total K=0, capacity coercion, iterations clamp)
+### (former Phase 3) Run-parameter & degenerate-run findings — codes 6-9 (λ=0, total K=0, capacity coercion, iterations clamp)
 
 ### Acceptance behavior
 
@@ -720,7 +762,7 @@ As Phase 1.
 
 ---
 
-## Phase 4: Duplicates & overlaps (duplicate initiative keys, quarter-label variants, historical∩target overlap)
+### (former Phase 4) Duplicates & overlaps — codes 10-12 (duplicate initiative keys, quarter-label variants, historical∩target overlap)
 
 ### Acceptance behavior
 
@@ -831,7 +873,7 @@ As Phase 1.
 
 ---
 
-## Phase 5: Initiative & cross-reference integrity + constant-work exclusion
+### (former Phase 5) Initiative & cross-reference integrity + constant-work exclusion — codes 13-18
 
 ### Acceptance behavior
 
@@ -962,7 +1004,7 @@ As Phase 1.
 
 ---
 
-## Phase 6: Multi-quarter initiatives section + full presentation contract
+### (former Phase 6) Multi-quarter initiatives section + full presentation contract — codes 19-22
 
 ### Acceptance behavior
 
