@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: implement
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 6
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-06-review-p1.md
-updated_at: 2026-06-22T23:17:00Z
+next_handover: handover-07-gate-p1.md
+updated_at: 2026-06-23T05:32:20Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
