@@ -957,6 +957,10 @@
             <input type="radio" name="param-mode" value="empirical" checked>
             <span>Empirical lognormal parameters<br><span class="param-mode-note">Bias-corrected from Q1 2026 actuals</span></span>
           </label>
+          <label id="param-label-empirical-distributional">
+            <input type="radio" name="param-mode" value="empirical-distributional">
+            <span>Empirical (distributional) lognormal parameters<br><span class="param-mode-note">Empirical centre + bootstrapped estimation-error spread</span></span>
+          </label>
         </div>
       </div>
 
@@ -4704,9 +4708,23 @@ document.getElementById('results-content').addEventListener('click', e => {
 // ── Parameter mode selector ───────────────────────────────────────
 document.querySelectorAll('input[name="param-mode"]').forEach(radio => {
   radio.addEventListener('change', () => {
-    activeParams = radio.value === 'empirical' ? T_SHIRT_PARAMS_EMPIRICAL : T_SHIRT_PARAMS;
+    // Tri-state selector: each mode binds BOTH the parameter table and the effort
+    // sampler. The residual-multiplying sampler is bound ONLY for the new mode; the
+    // other two restore the plain lognormal sampler (DC-2 RNG isolation), so selecting
+    // Synthetic/Empirical leaves their draw sequence byte-identical.
+    if (radio.value === 'empirical') {
+      activeParams = T_SHIRT_PARAMS_EMPIRICAL;
+      activeSampler = sampleLognormal;
+    } else if (radio.value === 'empirical-distributional') {
+      activeParams = T_SHIRT_PARAMS_DISTRIBUTIONAL;
+      activeSampler = sampleLognormalWithResidual;
+    } else {
+      activeParams = T_SHIRT_PARAMS;
+      activeSampler = sampleLognormal;
+    }
     document.getElementById('param-label-synthetic').classList.toggle('active', radio.value === 'synthetic');
     document.getElementById('param-label-empirical').classList.toggle('active', radio.value === 'empirical');
+    document.getElementById('param-label-empirical-distributional').classList.toggle('active', radio.value === 'empirical-distributional');
   });
 });
 

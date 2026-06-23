@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-09-atdd-p2.md
-updated_at: 2026-06-23T07:02:12Z
+next_handover: handover-10-implement-p2.md
+updated_at: 2026-06-23T09:10:00Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -121,3 +121,17 @@ skip) then reverted — the commit carries no production code. Three autonomous 
 in handover-09: S3 (label id `param-label-empirical-distributional`), S4 (handler reassigns
 `activeSampler` on every mode), S5 (reference-panel invariance pinned to `.size-table` `outerHTML`).
 Advanced to `stage: implement`, `current_phase: 2` — next phase is `implement` p2.
+
+**Status (implement p2 done, 2026-06-23):** wired the Phase-2 UI slice in `index.html` only —
+the third `empirical-distributional` radio (placed last; label id
+`param-label-empirical-distributional`; Empirical keeps `checked`) and the tri-state `param-mode`
+`change` handler that binds **both** `activeParams` and `activeSampler` per mode (residual sampler
+only in the new mode — DC-2) and toggles exactly one `.active` label. Both committed Phase-2
+commands pass (`0024-phase-2-radio-wiring.test.js` **10/10**,
+`0024-phase-2-mode-toggle-property.test.js` **1/1**), **stable green** across 3 default reruns + 1
+randomized-order run each. `npm run verify` exits 0 (275 passed, 1 pre-existing skip) in the working
+tree **and** under a hermetic, network-disabled (`npm ci --offline`), lockfile-pinned fresh worktree;
+per-layer logs persisted under `docs/atdd-logs/0024-…-phase-2-*`. No `tests/**` drift; only
+`index.html` changed; Phase-1 engine untouched. One reversible recorded decision: the handler uses an
+explicit `if/else` (control-flow left free by the plan). Advanced to `stage: review`,
+`current_phase: 2` — next phase is `review` p2.

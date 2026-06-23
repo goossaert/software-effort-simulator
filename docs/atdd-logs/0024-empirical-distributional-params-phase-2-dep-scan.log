@@ -1,0 +1,13 @@
+command: npm run scan:deps
+run_at: 2026-06-23T07:08:30Z
+
+> scan:deps
+> node scripts/dep-scan.mjs
+
+dep-scan: accepted (documented) high/critical advisories:
+  ACCEPTED high	vite via GHSA-fx2h-pf6j-xcff	vite: `server.fs.deny` bypass on Windows alternate paths
+      reason: vite `server.fs.deny` bypass (Windows alternate paths) — affects the vite DEV SERVER only; this repo never starts it (headless `vitest run`). Fix requires vite 6.x ⇒ a vitest major upgrade (refused).
+  ACCEPTED critical	vitest via GHSA-5xrq-8626-4rwp	When Vitest UI server is listening, arbitrary file can be read and executed
+      reason: vitest UI-server arbitrary file read/exec — only when `vitest --ui` is LISTENING; the loop only ever runs `vitest run`. Fix requires vitest 3.2.6+/4.x ⇒ a refused major upgrade.
+dep-scan: PASS — no non-allowlisted high/critical advisories.
+exit: 0

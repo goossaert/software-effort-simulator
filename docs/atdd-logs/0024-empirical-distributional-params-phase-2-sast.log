@@ -1,0 +1,8 @@
+command: npm run lint  # SAST = eslint-plugin-security folded into the flat config (sast_command == lint_command)
+run_at: 2026-06-23T07:08:30Z
+note: see -lint.log; single eslint run covers both layers
+
+> lint
+> { [ -e node_modules/.bin/eslint ] || npm ci; } && eslint index.html --max-warnings 0
+
+exit: 0
