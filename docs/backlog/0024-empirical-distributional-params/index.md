@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-06-23T08:35:00Z
+next_handover: handover-04-atdd-p1.md
+updated_at: 2026-06-23T06:11:11Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -47,4 +47,15 @@ Synthetic/Empirical modes stay byte-identical (values **and** PRNG draw sequence
 the third `empirical-distributional` radio + the tri-state `change` handler (table swap,
 sampler swap, single `.active`), ephemeral, default still Empirical, reference panel
 untouched. DC-1..4 / ADR-0038 formalised (not re-decided); mutation **N/A** (ADR-0036);
-PBT via fast-check. Advanced to `stage: atdd`, `current_phase: 1` — next phase is `atdd` p1.
+PBT via fast-check.
+
+**Status (atdd p1 done, 2026-06-23):** wrote `tests/acceptance/0024-phase-1-distributional-sampler.test.js`
+(AT-1..AT-5) and `tests/acceptance/0024-phase-1-distributional-params-property.test.js` (PBT-1/2/3,
+fast-check). **Stable RED** confirmed on the base across 5 reruns (acceptance 12 failed | 2 passed,
+property 3 failed; both exit 1) — the new symbols `T_SHIRT_PARAMS_DISTRIBUTIONAL` / `RATIO_RESIDUALS` /
+`activeSampler` / `sampleLognormalWithResidual` are undefined on the base. RED logs persisted under
+`docs/atdd-logs/0024-empirical-distributional-params-phase-1-*`. Satisfiability verified via a throwaway
+implementation (14/14 + 3/3 green, full suite green) then reverted — the commit carries no production code.
+Two autonomous seam decisions recorded in handover-04: S1 (residual sampler named
+`sampleLognormalWithResidual`) and S2 (lognormal-draw-first-then-residual order). Advanced to
+`stage: implement`, `current_phase: 1` — next phase is `implement` p1.

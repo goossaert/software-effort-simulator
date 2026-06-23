@@ -1,0 +1,210 @@
+command: npx vitest run tests/acceptance/0024-phase-1-distributional-sampler.test.js
+run_at: 2026-06-23T06:11:11Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js (14 tests | 12 failed) 294ms
+   × 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > multiplies the distributional lognormal draw by the exact bootstrapped Ratio residual for size M 73ms
+     → expected 'undefined' to be 'function' // Object.is equality
+   × 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > applies the residual factor for the near-deterministic boundary size XL+ 24ms
+     → expected 'undefined' to be 'function' // Object.is equality
+   × 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > returns 0 for an unknown t-shirt size label (0 × residual), never negative 20ms
+     → expected 'undefined' to be 'function' // Object.is equality
+   × 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > binds each calibrated size (XS/S/M/L) to the Empirical (μ,σ) exactly 17ms
+     → expected undefined to be defined
+   × 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > shifts each uncalibrated size (2XS/XL/XL+) μ by ln(1.40) and keeps the synthetic σ exactly 18ms
+     → expected undefined to be defined
+   × 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > shares an identical t-shirt-size key set across the three parameter tables (I-3) 16ms
+     → expected undefined to be defined
+   × 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > has a mean-1 Ratio residual pool of strictly positive residuals (I-2/I-4) 16ms
+     → expected false to be true // Object.is equality
+   × 0024 Phase 1 AT-3 — uncalibrated-size centre uplift + spread injection (AC-5) > lifts the XL+ sample mean to ~1.40× synthetic and widens variance beyond the Empirical lognormal-only spread 15ms
+     → expected 'undefined' to be 'function' // Object.is equality
+   × 0024 Phase 1 AT-4 — Synthetic and Empirical modes stay byte-identical to the pre-feature app (I-1) > leaves no residual state: synthetic→new-mode→synthetic round-trip reproduces the synthetic golden, new-mode leg differs 18ms
+     → expected [ 19.704968370221216, …(49) ] to not deeply equal [ 19.704968370221216, …(49) ]
+   × 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > returns exp(μ+σ²/2) under the distributional table for the calibrated size M (matches Empirical) 15ms
+     → expected undefined to be defined
+   × 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > lifts the uncalibrated size XL+ constant-work mean to 1.40× the synthetic mean 15ms
+     → expected undefined to be defined
+   × 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > returns 0 PM for an unknown size under the distributional table 15ms
+     → expected undefined to be defined
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > multiplies the distributional lognormal draw by the exact bootstrapped Ratio residual for size M
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:81:56
+     79|     const win = loadSimulator();
+     80|     // Symbol-presence guard — crisp RED reason on the base.
+     81|     expect(typeOf(win, 'sampleLognormalWithResidual')).toBe('function'…
+       |                                                        ^
+     82|     expect(typeOf(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL')).toBe('object'…
+     83|     expect(typeOf(win, 'RATIO_RESIDUALS')).toBe('object');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > applies the residual factor for the near-deterministic boundary size XL+
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:103:56
+    101|   it('applies the residual factor for the near-deterministic boundary …
+    102|     const win = loadSimulator();
+    103|     expect(typeOf(win, 'sampleLognormalWithResidual')).toBe('function'…
+       |                                                        ^
+    104| 
+    105|     execIn(win, `${seedExpr(SEED)} activeParams = T_SHIRT_PARAMS_DISTR…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > returns 0 for an unknown t-shirt size label (0 × residual), never negative
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:122:56
+    120|   it('returns 0 for an unknown t-shirt size label (0 × residual), neve…
+    121|     const win = loadSimulator();
+    122|     expect(typeOf(win, 'sampleLognormalWithResidual')).toBe('function'…
+       |                                                        ^
+    123| 
+    124|     execIn(win, `${seedExpr(SEED)} activeParams = T_SHIRT_PARAMS_DISTR…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > binds each calibrated size (XS/S/M/L) to the Empirical (μ,σ) exactly
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:136:18
+    134|     const dist = read(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL');
+    135|     const emp = read(win, 'T_SHIRT_PARAMS_EMPIRICAL');
+    136|     expect(dist).toBeDefined();
+       |                  ^
+    137|     for (const size of ['XS', 'S', 'M', 'L']) {
+    138|       expect(dist[size]).toEqual(emp[size]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > shifts each uncalibrated size (2XS/XL/XL+) μ by ln(1.40) and keeps the synthetic σ exactly
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:146:18
+    144|     const dist = read(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL');
+    145|     const syn = read(win, 'T_SHIRT_PARAMS');
+    146|     expect(dist).toBeDefined();
+       |                  ^
+    147|     for (const size of ['2XS', 'XL', 'XL+']) {
+    148|       expect(dist[size].sigma).toBe(syn[size].sigma); // σ preserved e…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > shares an identical t-shirt-size key set across the three parameter tables (I-3)
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:158:18
+    156|     const emp = read(win, 'T_SHIRT_PARAMS_EMPIRICAL');
+    157|     const syn = read(win, 'T_SHIRT_PARAMS');
+    158|     expect(dist).toBeDefined();
+       |                  ^
+    159|     const keys = (o) => Object.keys(o).sort();
+    160|     expect(keys(dist)).toEqual(keys(emp));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-2 — baked constants match the frozen calibration (AC-3/AC-6/I-2/I-4) > has a mean-1 Ratio residual pool of strictly positive residuals (I-2/I-4)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:167:38
+    165|     const win = loadSimulator();
+    166|     const residuals = read(win, 'RATIO_RESIDUALS');
+    167|     expect(Array.isArray(residuals)).toBe(true);
+       |                                      ^
+    168|     expect(residuals.length).toBeGreaterThan(0);
+    169|     for (const r of residuals) expect(r).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-3 — uncalibrated-size centre uplift + spread injection (AC-5) > lifts the XL+ sample mean to ~1.40× synthetic and widens variance beyond the Empirical lognormal-only spread
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:181:56
+    179|   it('lifts the XL+ sample mean to ~1.40× synthetic and widens varianc…
+    180|     const win = loadSimulator();
+    181|     expect(typeOf(win, 'sampleLognormalWithResidual')).toBe('function'…
+       |                                                        ^
+    182|     const N = 20000;
+    183|     const size = 'XL+';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-4 — Synthetic and Empirical modes stay byte-identical to the pre-feature app (I-1) > leaves no residual state: synthetic→new-mode→synthetic round-trip reproduces the synthetic golden, new-mode leg differs
+AssertionError: expected [ 19.704968370221216, …(49) ] to not deeply equal [ 19.704968370221216, …(49) ]
+
+Compared values have no visual difference.
+
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:252:24
+    250|     expect(first).toEqual(SYNTH_GOLDEN);
+    251|     expect(third).toEqual(SYNTH_GOLDEN);
+    252|     expect(middle).not.toEqual(SYNTH_GOLDEN);
+       |                        ^
+    253|   });
+    254| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > returns exp(μ+σ²/2) under the distributional table for the calibrated size M (matches Empirical)
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:263:18
+    261|     const win = loadSimulator();
+    262|     const dist = read(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL');
+    263|     expect(dist).toBeDefined();
+       |                  ^
+    264|     execIn(win, 'activeParams = T_SHIRT_PARAMS_DISTRIBUTIONAL;');
+    265|     const pm = evalIn(win, "tshirtToPersonMonths('M')");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > lifts the uncalibrated size XL+ constant-work mean to 1.40× the synthetic mean
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:276:18
+    274|     const win = loadSimulator();
+    275|     const dist = read(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL');
+    276|     expect(dist).toBeDefined();
+       |                  ^
+    277|     const syn = read(win, 'T_SHIRT_PARAMS')['XL+'];
+    278|     const synMean = Math.exp(syn.mu + (syn.sigma * syn.sigma) / 2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-5 — Constant work follows the distributional table (AC-8) > returns 0 PM for an unknown size under the distributional table
+AssertionError: expected undefined to be defined
+ ❯ tests/acceptance/0024-phase-1-distributional-sampler.test.js:287:56
+    285|   it('returns 0 PM for an unknown size under the distributional table'…
+    286|     const win = loadSimulator();
+    287|     expect(read(win, 'T_SHIRT_PARAMS_DISTRIBUTIONAL')).toBeDefined();
+       |                                                        ^
+    288|     execIn(win, 'activeParams = T_SHIRT_PARAMS_DISTRIBUTIONAL;');
+    289|     expect(evalIn(win, "tshirtToPersonMonths('NOT-A-SIZE')")).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 2 passed (14)
+   Start at  08:11:11
+   Duration  722ms (transform 15ms, setup 0ms, collect 191ms, tests 294ms, environment 0ms, prepare 52ms)
+

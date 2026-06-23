@@ -1,0 +1,105 @@
+command: npx vitest run tests/acceptance/0024-phase-1-distributional-params-property.test.js
+run_at: 2026-06-23T06:11:11Z
+exit_code: 1
+shrunk_counterexample: PBT-1 size=["2XS"]; PBT-2 [seed,size]=[1,"2XS"]; PBT-3 size=["2XS"] — T_SHIRT_PARAMS_DISTRIBUTIONAL / RATIO_RESIDUALS / sampleLognormalWithResidual undefined on base
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/0024-phase-1-distributional-params-property.test.js (3 tests | 3 failed) 14ms
+   × 0024 Phase 1 PBT-1 — distributional centre table follows the calibration rule (AC-3) > for every t-shirt size: calibrated → Empirical (μ,σ) exactly; uncalibrated → synthetic σ and μ shifted by ln(1.40) (with seed=1869675771) 5ms
+     → Property failed after 1 tests
+{ seed: 1869675771, path: "0:0", endOnFailure: true }
+Counterexample: ["2XS"]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   × 0024 Phase 1 PBT-2 — new-mode effort = distributional lognormal × bootstrapped residual (AC-2) > for every seed and size, the new-mode effort equals sampleLognormal(size) × the residual bootstrapChoice draws, and is > 0 (with seed=-1983926618) 1ms
+     → Property failed after 1 tests
+{ seed: -1983926618, path: "0:0:0", endOnFailure: true }
+Counterexample: [1,"2XS"]
+Shrunk 2 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+   × 0024 Phase 1 PBT-3 — uncalibrated centre uplift + spread injection (AC-5) > for every uncalibrated size, sample mean ≈ 1.40× synthetic mean and variance strictly exceeds the Empirical lognormal-only variance (with seed=-1848154719) 7ms
+     → Property failed after 1 tests
+{ seed: -1848154719, path: "0", endOnFailure: true }
+Counterexample: ["2XS"]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-params-property.test.js > 0024 Phase 1 PBT-1 — distributional centre table follows the calibration rule (AC-3) > for every t-shirt size: calibrated → Empirical (μ,σ) exactly; uncalibrated → synthetic σ and μ shifted by ln(1.40) (with seed=1869675771)
+Error: Property failed after 1 tests
+{ seed: 1869675771, path: "0:0", endOnFailure: true }
+Counterexample: ["2XS"]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: TypeError: Cannot read properties of undefined (reading '2XS')
+ ❯ tests/acceptance/0024-phase-1-distributional-params-property.test.js:55:20
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+ ❯ asyncRunIt node_modules/fast-check/lib/fast-check.js:2495:30
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:79:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-params-property.test.js > 0024 Phase 1 PBT-2 — new-mode effort = distributional lognormal × bootstrapped residual (AC-2) > for every seed and size, the new-mode effort equals sampleLognormal(size) × the residual bootstrapChoice draws, and is > 0 (with seed=-1983926618)
+Error: Property failed after 1 tests
+{ seed: -1983926618, path: "0:0:0", endOnFailure: true }
+Counterexample: [1,"2XS"]
+Shrunk 2 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: AssertionError: expected undefined to be NaN // Object.is equality
+
+- Expected: 
+NaN
+
++ Received: 
+undefined
+
+ ❯ tests/acceptance/0024-phase-1-distributional-params-property.test.js:77:22
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+ ❯ asyncRunIt node_modules/fast-check/lib/fast-check.js:2495:30
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:79:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/acceptance/0024-phase-1-distributional-params-property.test.js > 0024 Phase 1 PBT-3 — uncalibrated centre uplift + spread injection (AC-5) > for every uncalibrated size, sample mean ≈ 1.40× synthetic mean and variance strictly exceeds the Empirical lognormal-only variance (with seed=-1848154719)
+Error: Property failed after 1 tests
+{ seed: -1848154719, path: "0", endOnFailure: true }
+Counterexample: ["2XS"]
+Shrunk 0 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: TypeError: Cannot read properties of undefined (reading 'mean')
+ ❯ tests/acceptance/0024-phase-1-distributional-params-property.test.js:109:18
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+ ❯ asyncRunIt node_modules/fast-check/lib/fast-check.js:2495:30
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:79:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  08:11:13
+   Duration  525ms (transform 13ms, setup 0ms, collect 277ms, tests 14ms, environment 0ms, prepare 57ms)
+
