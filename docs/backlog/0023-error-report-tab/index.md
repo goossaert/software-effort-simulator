@@ -12,9 +12,9 @@ current_phase: 1
 retry_count: 0
 max_retries: 3
 next_handover: handover-08-atdd-p1.md
-updated_at: 2026-06-23T05:43:02Z
+updated_at: 2026-06-23T05:45:46Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: "atdd RED gate unsatisfiable on inherited base: HEAD 2b3fe7f is post-implementation (d77e0ab in ancestry), so committed phase-1 *-red.log commands exit 0 (GREEN); atdd cannot restore a pre-impl RED base without editing production code. Needs human: reset index.html to test commit 36d5b1c (pre-impl) and front-load phase-1 property tests to ≥12, OR re-plan as 1 phase, OR make pbt-floor per-phase. See handover-08-atdd-p1.md."
+blocked_reason: "atdd RED gate unsatisfiable: inherited base (HEAD 2b3fe7f) is post-implementation — committed phase-1 *-red.log commands now exit 0 (GREEN); atdd cannot restore a pre-impl RED base without editing production code. (Underlying pbt-floor: whole-plan floor=12 vs 4 committed.)"
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
