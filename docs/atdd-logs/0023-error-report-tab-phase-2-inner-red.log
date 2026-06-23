@@ -1,0 +1,45 @@
+command: npx vitest run 0023-phase-2-prop
+run_at: 2026-06-23T18:31:30Z
+exit_code: 1
+shrunk_counterexample: capacity raw="0" ⇒ CAPACITY_COERCED expected, none (collectRunLevelFindings undefined); scope [{link:"",q:"Q1 2026"}] ⇒ ORPHAN_EPIC "E0" expected, [] (code 4); quarter {q0Inits:1,q0HasEpic:false} ⇒ QUARTER_NO_EPICS "Q0 2026" expected, [] (code 5); dup [["A","A"]] ⇒ DUP_INITIATIVE_KEY "A" expected, [] (code 10); overlap (["Q1 2026"],["Q1 2026"]) ⇒ HIST_TARGET_OVERLAP "Q1 2026" expected, [] (code 12); dangling [[""]] ⇒ ORPHAN_EPIC "E0" expected, [] (code 16 partition); cw [{cat:"Locked",q:"Q2 2026",size:"M"}] ⇒ CONSTANT_WORK_EXCLUDED expected, none (code 18); MQ [{key:"M-1",q:"Q2 2026"},{key:"M-1",q:"Q4 2026"}] ⇒ MQ_FORWARD_DOUBLE_COUNT "M-1" expected, [] (code 19) — see body for all 9
+---
+Phase-2 property suite — 10 generator-based properties (one per declared parametric
+rule in the former Phase 2-6 "Properties / invariants to PBT" tables), via
+@fast-check/vitest `test.prop` with shrinking ON. RED on the pre-implementation base:
+9 properties FAIL with minimal shrunk counterexamples (the detector / seam is absent);
+2 tests PASS deterministically and are EXPECTED to be green here:
+  • prop-presentation property 1 (renderErrorReport ordering + badge) — renderErrorReport
+    shipped in Phase 1, so this is a regression guard the implement phase must keep green.
+  • prop-scope "produces no scope findings when there are no Epics" — a boundary example
+    whose expectation (empty) is already satisfied.
+Because the 9 unimplemented-behavior properties (incl. prop-coercion, whose seam is
+missing for EVERY input) fail deterministically regardless of fast-check seed, the
+combined `0023-phase-2-prop` command exits non-zero on every rerun (stable RED).
+
+Shrunk counterexamples + reasons (all 9):
+ FAIL prop-coercion > CAPACITY_COERCED iff used!==entered
+   Counterexample: ["0"]   Caused by: expected false to be true (collectRunLevelFindings undefined) (coercion:49)
+ FAIL prop-coercion > ITERATIONS_CLAMPED iff used!==entered
+   Counterexample: ["0"]   Caused by: expected false to be true (collectRunLevelFindings undefined) (coercion:77)
+ FAIL prop-duplicates > DUP_INITIATIVE_KEY multiplicity
+   Counterexample: [["A","A"]]   Caused by: expected [] to deeply equal [ 'A' ]  (duplicates:58)
+ FAIL prop-duplicates > HIST_TARGET_OVERLAP intersection
+   Counterexample: [["Q1 2026"],["Q1 2026"]]   Caused by: expected [] to deeply equal [ 'Q1 2026' ]  (duplicates:90)
+ FAIL prop-scope > ORPHAN_EPIC / EPIC_OUT_OF_SCOPE partition
+   Counterexample: [[{"link":"","q":"Q1 2026"}]]   Caused by: expected [] to deeply equal [ 'E0' ]  (scope:90)
+ FAIL prop-scope > QUARTER_NO_EPICS iff inits>0 & no epics
+   Counterexample: [{"q1Inits":0,"q1HasEpic":false,"q0Inits":1,"q0HasEpic":false}]
+                   Caused by: expected [] to deeply equal [ 'Q0 2026' ]  (scope:138)
+ FAIL prop-integrity > DANGLING_EPIC_LINK / ORPHAN_EPIC partition
+   Counterexample: [[""]]   Caused by: expected [] to deeply equal [ 'E0' ]  (integrity:67)
+ FAIL prop-integrity > CONSTANT_WORK_EXCLUDED single-source PM/rows
+   Counterexample: [[{"cat":"Locked","q":"Q2 2026","size":"M"}]]   Caused by: expected false to be true  (integrity:101)
+ FAIL prop-presentation > MQ_FORWARD_DOUBLE_COUNT + kPerGroup unchanged
+   Counterexample: [[{"key":"M-1","q":"Q2 2026"},{"key":"M-1","q":"Q4 2026"}]]
+                   Caused by: expected [] to deeply equal [ 'M-1' ]  (presentation:122)
+
+ ✓ prop-presentation > renderErrorReport orders sections/findings ERROR→WARNING→INFO with badge
+ ✓ prop-scope     > produces no scope findings when there are no Epics
+
+ Test Files  5 failed (5)
+      Tests  9 failed | 2 passed (11)

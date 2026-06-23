@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-09-replan-p2.md
-updated_at: 2026-06-23T08:00:00Z
+next_handover: handover-10-atdd-p2.md
+updated_at: 2026-06-23T18:31:30Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -114,6 +114,18 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > ≥14 ≥ 12 floor). See `handover-09-replan-p2.md`. **Resume with `bin/backlog-loop`.**
 > ⚠️ A residual *strategic* decision remains for the human: the whole-plan `pbt-floor`
 > will block any future thin-slice plan the same way — see the handover's "Strategic note".
+>
+> **atdd p2 done (2026-06-23):** Phase-2 acceptance + property tests committed under
+> `tests/acceptance/0023-phase-2-*.test.js` (11 files: 22 acceptance scenarios for codes
+> 3-22 + the DC-3 presentation contract, and **10 new `test.prop` properties** — one per
+> declared parametric rule). **Stable RED** confirmed across 5 flakiness reruns on the
+> pre-impl base (acceptance 5/5 exit 1 = 22 failed; inner 5/5 exit 1 = 9 failed / 2
+> intentionally-green). Cumulative committed properties now **12 genuine `test.prop`** (2
+> phase-1 + 10 phase-2) ≥ the whole-plan `pbt-floor` of 12. RED logs in
+> `docs/atdd-logs/0023-error-report-tab-phase-2-*.log`. Tests target only the named seams
+> (`prepareSimulationData(...).findings`, the new `collectRunLevelFindings({...})`,
+> `renderErrorReport`, the `#tab-error-report` DOM). No frozen test edited; no production
+> code touched. Next stage: **implement** (feature-phase 2) reading `handover-10-atdd-p2.md`.
 >
 > **atdd p1 re-run — BLOCKED, FLAGGED FOR HUMAN (2026-06-23):** the gate rewound to
 > `atdd` on `pbt-floor` (whole-plan floor **12** parametric rules vs **4** committed

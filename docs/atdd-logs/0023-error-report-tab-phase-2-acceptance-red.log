@@ -1,0 +1,42 @@
+command: npx vitest run 0023-phase-2-acc
+run_at: 2026-06-23T18:31:30Z
+exit_code: 1
+---
+Phase-2 acceptance suite (codes 3-22 + full presentation contract). RED on the
+pre-implementation base (HEAD 02e99c9, descendant of impl_commit 79dcd45): codes
+3-22 are unimplemented and the named seam `collectRunLevelFindings({...})` does not
+exist, so every acceptance scenario's expected finding is absent. 22 tests / 6 files,
+all FAIL — the canonical "expected [the finding] to have a length of 1 but got []".
+(The gate's RED re-check (c) re-runs this exact `command:` header against the atdd
+commit and requires a non-zero exit.)
+
+Per-file result:
+ ❯ 0023-phase-2-acc-scope-exclusions.test.js   (3 tests | 3 failed)  codes 3-5
+ ❯ 0023-phase-2-acc-run-parameters.test.js     (5 tests | 5 failed)  codes 6-9
+ ❯ 0023-phase-2-acc-duplicates-overlaps.test.js(3 tests | 3 failed)  codes 10-12
+ ❯ 0023-phase-2-acc-integrity.test.js          (6 tests | 6 failed)  codes 13-18
+ ❯ 0023-phase-2-acc-multi-quarter.test.js      (4 tests | 4 failed)  codes 19-22
+ ❯ 0023-phase-2-acc-presentation.test.js       (1 test  | 1 failed)  AT-5 (DC-3)
+
+Representative failures (one per file):
+ FAIL acc-scope-exclusions > AT-1 EPIC_OUT_OF_SCOPE (INFO)
+   AssertionError: expected [] to have a length of 1 but got +0           (scope-exclusions:50)
+ FAIL acc-run-parameters > AT-3 CAPACITY_COERCED (WARNING)
+   AssertionError: expected false to be true   // collectRunLevelFindings is undefined (run-parameters:93)
+ FAIL acc-duplicates-overlaps > AT-3 HIST_TARGET_OVERLAP (WARNING)
+   AssertionError: expected 0 to be greater than or equal to 1            (duplicates-overlaps:98)
+ FAIL acc-integrity > AT-6 CONSTANT_WORK_EXCLUDED (WARNING)
+   AssertionError: expected [] to have a length of 1 but got +0           (integrity:175)
+ FAIL acc-multi-quarter > AT-1 MQ_FORWARD_DOUBLE_COUNT (ERROR)
+   AssertionError: expected [] to have a length of 1 but got +0           (multi-quarter:45)
+ FAIL acc-presentation > AT-5 full DC-3 presentation
+   AssertionError: expected '1 ERRORT-shirt sizingERROR [EPIC-XXL]…' to contain 'Scope & calibration'
+                                                                          (presentation:54)
+
+All 22 failures are "the detector / seam does not exist yet" — they flip GREEN once a
+faithful implementation collects codes 3-22 (routed through the existing makeFinding
+factory) and wires collectRunLevelFindings into the run handler. No failure is a
+harness crash or oracle defect.
+
+ Test Files  6 failed (6)
+      Tests  22 failed (22)

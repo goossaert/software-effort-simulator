@@ -1,0 +1,40 @@
+command: npx vitest run 0023-phase-2-acc
+command: npx vitest run 0023-phase-2-prop
+runs: 5
+run_at: 2026-06-23T18:31:30Z
+outcome: acceptance 5/5 FAIL (exit 1), inner 5/5 FAIL (exit 1) — stable RED
+---
+acceptance run 1: exit 1 — 22 failed (22) — codes 3-22 / collectRunLevelFindings unimplemented
+acceptance run 2: exit 1 — 22 failed (22) — same reason
+acceptance run 3: exit 1 — 22 failed (22) — same reason
+acceptance run 4: exit 1 — 22 failed (22) — same reason
+acceptance run 5: exit 1 — 22 failed (22) — same reason
+inner run 1: exit 1 — 9 failed | 2 passed (11) — 9 unimplemented properties + 2 deterministically-green (render-order, no-epics)
+inner run 2: exit 1 — 9 failed | 2 passed (11) — same reason
+inner run 3: exit 1 — 9 failed | 2 passed (11) — same reason
+inner run 4: exit 1 — 9 failed | 2 passed (11) — same reason
+inner run 5: exit 1 — 9 failed | 2 passed (11) — same reason
+
+No run flipped GREEN; both commands are deterministically non-zero. The acceptance
+suite and the prop-coercion file fail on FIXED inputs (the seam/detector is absent),
+so the RED does not depend on the fast-check seed. The 2 always-passing inner tests
+are the Phase-1-shipped renderErrorReport ordering property and a no-epics boundary
+example — they are intentionally green and remain in the RED *set* (the command is
+RED via the other 9). No test was quarantined: the RED is stable, not flaky.
+--- full output (run 1, representative; reruns 2-5 identical exit/summary) ---
+$ npx vitest run 0023-phase-2-acc   →  exit 1
+ Test Files  6 failed (6)
+      Tests  22 failed (22)
+
+$ npx vitest run 0023-phase-2-prop  →  exit 1
+ ❯ 0023-phase-2-prop-coercion.test.js      (2 tests | 2 failed)
+ ❯ 0023-phase-2-prop-duplicates.test.js    (2 tests | 2 failed)
+ ❯ 0023-phase-2-prop-scope.test.js         (3 tests | 2 failed)
+ ❯ 0023-phase-2-prop-integrity.test.js     (2 tests | 2 failed)
+ ❯ 0023-phase-2-prop-presentation.test.js  (2 tests | 1 failed)
+ Test Files  5 failed (5)
+      Tests  9 failed | 2 passed (11)
+
+(Full per-test failures + shrunk counterexamples: see
+ 0023-error-report-tab-phase-2-acceptance-red.log and
+ 0023-error-report-tab-phase-2-inner-red.log.)
