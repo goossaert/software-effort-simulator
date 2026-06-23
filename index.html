@@ -2103,6 +2103,29 @@ function bucketRowsByGroups(rows, categoryCol) {
 }
 
 /**
+ * Construct a Data-quality finding, enforcing the finding contract at build time.
+ *
+ * Design-by-contract guards for the plan's [contract] invariants (Phase 1):
+ *   • I-3 — every finding's `severity` is exactly one of ERROR/WARNING/INFO.
+ *   • I-4 — every finding carries >= 1 locator (item-level locators, or the
+ *           single run-level locator a run-level finding holds).
+ * Both detectors (and every later-phase detector / collectRunLevelFindings) build
+ * findings through this factory, so a bad severity or a missing locator aborts
+ * loudly and locally at construction rather than silently flowing into the report.
+ *
+ * @returns {{code,severity,category,locators,impact,message}}
+ */
+function makeFinding({ code, severity, category, locators, impact = '', message }) {
+  if (severity !== 'ERROR' && severity !== 'WARNING' && severity !== 'INFO') {
+    throw new Error(`[finding] invalid severity "${severity}" for code "${code}"`); // I-3
+  }
+  if (!Array.isArray(locators) || locators.length < 1) {
+    throw new Error(`[finding] code "${code}" must carry >= 1 locator`);            // I-4
+  }
+  return { code, severity, category, locators, impact, message };
+}
+
+/**
  * Build all inputs needed for the Monte Carlo engine.
  *
  * @param {string[]} histQuarters    e.g. ["Q2 2026"]
@@ -2174,14 +2197,14 @@ function prepareSimulationData(histQuarters, targetQuarters) {
       // normalised size is not a Recognised t-shirt size — excluded from the
       // Bootstrap pool and (when linked) from the Poisson λ denominator.
       const epicId = String(epic._epic_key || '');
-      findings.push({
+      findings.push(makeFinding({
         code: 'UNRECOGNIZED_SIZE_EPIC',
         severity: 'ERROR',
         category: 'T-shirt sizing',
         locators: [{ kind: 'epic', id: epicId }],
         impact: 'Excluded from Poisson λ and the Bootstrap pool.',
         message: `Epic "${epicId}" has unrecognised t-shirt size "${epic._tshirt_size}": excluded from Poisson λ and the Bootstrap pool.`,
-      });
+      }));
     }
   }
 
@@ -2227,14 +2250,14 @@ function prepareSimulationData(histQuarters, targetQuarters) {
       const size = normalizeSize(rawSize);
       if (!T_SHIRT_PARAMS[size]) {
         const rowId = String(row.jira_key || row.epic_key || '');
-        findings.push({
+        findings.push(makeFinding({
           code: 'UNRECOGNIZED_SIZE_CONSTANT_WORK',
           severity: 'WARNING',
           category: 'T-shirt sizing',
           locators: [{ kind: 'row', id: rowId }],
           impact: 'Contributed 0 PM (person-month).',
           message: `Constant work row with unrecognised t-shirt size "${rawSize}" contributed 0 PM (person-month).`,
-        });
+        }));
       }
     }
   }
