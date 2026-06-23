@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-03-plan.md
-updated_at: 2026-06-23T06:49:52Z
+next_handover: handover-09-atdd-p2.md
+updated_at: 2026-06-23T07:02:12Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -108,3 +108,16 @@ mean(RATIO_RESIDUALS)=1.0000, all >0); `tshirtToPersonMonths` returns `exp(μ+σ
 file: `docs/reviews/0024-empirical-distributional-params-phase-1-correctness-01.md`. **Verdict PASS**
 advances the feature-phase — `stage: atdd`, `current_phase: 2`, `retry_count: 0`, `next_handover:
 handover-03-plan.md` — next phase is `atdd` p2 (the third radio + tri-state `change` handler).
+
+**Status (atdd p2 done, 2026-06-23):** wrote `tests/acceptance/0024-phase-2-radio-wiring.test.js`
+(AT-1..AT-3, 10 tests) and `tests/acceptance/0024-phase-2-mode-toggle-property.test.js` (PBT-4,
+fast-check). **Stable RED** confirmed on the current base (HEAD `851045d`, post-Phase-1) across 5
+reruns (acceptance 10 failed; property 1 failed, stable shrunk counterexample `["synthetic"]`; both
+exit 1) — the third `empirical-distributional` radio + the `param-label-empirical-distributional`
+label do not exist and the base `change` handler maps only `empirical`↔`synthetic` and never assigns
+`activeSampler`. RED logs persisted under `docs/atdd-logs/0024-empirical-distributional-params-phase-2-*`.
+Satisfiability verified via a throwaway implementation (10/10 + 1/1 green, full suite 275 passed/1
+skip) then reverted — the commit carries no production code. Three autonomous seam decisions recorded
+in handover-09: S3 (label id `param-label-empirical-distributional`), S4 (handler reassigns
+`activeSampler` on every mode), S5 (reference-panel invariance pinned to `.size-table` `outerHTML`).
+Advanced to `stage: implement`, `current_phase: 2` — next phase is `implement` p2.

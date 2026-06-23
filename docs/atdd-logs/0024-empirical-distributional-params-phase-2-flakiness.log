@@ -1,0 +1,30 @@
+command: npx vitest run tests/acceptance/0024-phase-2-radio-wiring.test.js
+command: npx vitest run tests/acceptance/0024-phase-2-mode-toggle-property.test.js
+runs: 5
+run_at: 2026-06-23T06:59:00Z
+outcome: acceptance 5/5 FAIL (10 failed each), property 5/5 FAIL (1 failed each, stable shrunk counterexample ["synthetic"]) — stable RED, both exit 1 every run
+---
+acceptance run 1: exit 1 — Tests 10 failed (10): new-option radio/label null; third option/handler-sampler wiring absent
+acceptance run 2: exit 1 — Tests 10 failed (10): same reason
+acceptance run 3: exit 1 — Tests 10 failed (10): same reason
+acceptance run 4: exit 1 — Tests 10 failed (10): same reason
+acceptance run 5: exit 1 — Tests 10 failed (10): same reason
+inner run 1: exit 1 — Tests 1 failed (1): PBT-4 reads null.classList for missing param-label-empirical-distributional; Counterexample ["synthetic"]
+inner run 2: exit 1 — Tests 1 failed (1): same reason; Counterexample ["synthetic"]
+inner run 3: exit 1 — Tests 1 failed (1): same reason; Counterexample ["synthetic"]
+inner run 4: exit 1 — Tests 1 failed (1): same reason; Counterexample ["synthetic"]
+inner run 5: exit 1 — Tests 1 failed (1): same reason; Counterexample ["synthetic"]
+--- full output (run 1; all runs were identical in outcome and reason) ---
+The per-run full output is identical in structure to the canonical capture persisted in
+docs/atdd-logs/0024-empirical-distributional-params-phase-2-acceptance-red.log and
+docs/atdd-logs/0024-empirical-distributional-params-phase-2-inner-red.log (same failing
+tests, same assertion/TypeError reasons, same stable shrunk counterexample). Every one of the
+5 reruns of each command exited 1; no run flipped GREEN and no run failed for a different
+reason, so the RED is deterministic and safe to freeze into the immutable set. The failing
+paths are deterministic (DOM-only assertions; the single seeded sampling sub-assertion in
+AT-2 pins `rng` + Box-Muller before drawing), so there is no flakiness source.
+
+Note: the satisfiability check (a throwaway Phase-2 implementation of the third radio + the
+tri-state change handler) made both commands GREEN (acceptance 10/10, property 1/1) and the
+full suite 275 passed | 1 skipped; index.html was then fully reverted (`git checkout`), so the
+committed RED set is proven satisfiable and the commit carries no production code.

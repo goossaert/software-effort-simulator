@@ -1,0 +1,48 @@
+command: npx vitest run tests/acceptance/0024-phase-2-mode-toggle-property.test.js
+run_at: 2026-06-23T07:00:10Z
+exit_code: 1
+shrunk_counterexample: mode="synthetic" — the param-label-empirical-distributional label does not exist on the base, so the tri-state "exactly one of three labels .active" check reads `null.classList` and throws (the third label / tri-state wiring is unimplemented)
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/0024-phase-2-mode-toggle-property.test.js (1 test | 1 failed) 7ms
+   × 0024 Phase 2 PBT-4 — the param-mode radio is a tri-state selector (table + sampler + single highlight) > for every mode, dispatching change binds activeParams + activeSampler to the matching mode and leaves exactly the matching label .active (with seed=-255570563) 6ms
+     → Property failed after 1 tests
+{ seed: -255570563, path: "0:0", endOnFailure: true }
+Counterexample: ["synthetic"]
+Shrunk 1 time(s)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0024-phase-2-mode-toggle-property.test.js > 0024 Phase 2 PBT-4 — the param-mode radio is a tri-state selector (table + sampler + single highlight) > for every mode, dispatching change binds activeParams + activeSampler to the matching mode and leaves exactly the matching label .active (with seed=-255570563)
+Error: Property failed after 1 tests
+{ seed: -255570563, path: "0:0", endOnFailure: true }
+Counterexample: ["synthetic"]
+Shrunk 1 time(s)
+
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2441:16
+ ❯ asyncThrowIfFailed node_modules/fast-check/lib/fast-check.js:2453:8
+
+Caused by: TypeError: Cannot read properties of null (reading 'classList')
+ ❯ tests/acceptance/0024-phase-2-mode-toggle-property.test.js:62:20
+ ❯ node_modules/@fast-check/vitest/lib/vitest-fast-check.js:7:38
+ ❯ AsyncProperty.predicate node_modules/fast-check/lib/fast-check.js:1261:104
+ ❯ AsyncProperty.run node_modules/fast-check/lib/fast-check.js:1197:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:00:10
+   Duration  554ms
+
+RED reason: PBT-4 quantifies over the three param-mode values and asserts, for each, that
+`activeParams`/`activeSampler` bind to the matching table/function and that exactly the matching
+label of the THREE options is `.active`. On the base the `param-label-empirical-distributional`
+label does not exist, so the per-label loop reads `null.classList` and throws — for every mode,
+including the shrunk minimal `["synthetic"]`. The base handler also never assigns `activeSampler`
+and the `empirical-distributional` radio is absent. fast-check shrinking is ON (default); the
+counterexample is stable across reruns (seed varies, the minimal `["synthetic"]` does not).

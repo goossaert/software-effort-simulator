@@ -1,0 +1,125 @@
+command: npx vitest run tests/acceptance/0024-phase-2-radio-wiring.test.js
+run_at: 2026-06-23T07:00:09Z
+exit_code: 1
+---
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js (10 tests | 10 failed) 240ms
+   × 0024 Phase 2 AT-1 — the third radio option is present, labelled, and placed last (AC-1/DC-1) > renders a third param-mode radio with value "empirical-distributional" and a label containing "Empirical (distributional)" 75ms
+     → expected null not to be null
+   × 0024 Phase 2 AT-1 — the third radio option is present, labelled, and placed last (AC-1/DC-1) > places the new option last in the Lognormal Parameters group, after synthetic and empirical 25ms
+     → expected [ 'synthetic', 'empirical' ] to deeply equal [ 'synthetic', 'empirical', …(1) ]
+   × 0024 Phase 2 AT-1 — the third radio option is present, labelled, and placed last (AC-1/DC-1) > keeps Empirical the checked default on load, with synthetic and the new option unchecked 20ms
+     → Cannot read properties of null (reading 'checked')
+   × 0024 Phase 2 AT-2 — selecting the new radio swaps table + sampler + highlight (AC-1/DC-2) > binds activeParams to the distributional table, activeSampler to the residual sampler, and activates only the new label 18ms
+     → expected null not to be null
+   × 0024 Phase 2 AT-2 — selecting the new radio swaps table + sampler + highlight (AC-1/DC-2) > makes a seeded sample multiply the distributional lognormal draw by a bootstrapped residual after selection 19ms
+     → Cannot set properties of null (setting 'checked')
+   × 0024 Phase 2 AT-2 — selecting the new radio swaps table + sampler + highlight (AC-1/DC-2) > restores activeParams, activeSampler, and the highlight when Empirical is re-selected after the new mode 16ms
+     → expected null not to be null
+   × 0024 Phase 2 AT-2 — selecting the new radio swaps table + sampler + highlight (AC-1/DC-2) > clears the residual sampler when Synthetic is selected from the new mode 16ms
+     → expected null not to be null
+   × 0024 Phase 2 AT-3 — selecting the new mode is ephemeral and leaves the reference panel untouched (AC-7/DC-4/ADR-0038 dec. 9) > defaults a fresh page-load to Empirical even after a prior window selected the new mode 16ms
+     → Cannot set properties of null (setting 'checked')
+   × 0024 Phase 2 AT-3 — selecting the new mode is ephemeral and leaves the reference panel untouched (AC-7/DC-4/ADR-0038 dec. 9) > writes nothing to localStorage when any of the three options is selected 17ms
+     → Cannot set properties of null (setting 'checked')
+   × 0024 Phase 2 AT-3 — selecting the new mode is ephemeral and leaves the reference panel untouched (AC-7/DC-4/ADR-0038 dec. 9) > leaves the T-shirt size reference panel DOM unchanged after selecting the new mode 17ms
+     → Cannot set properties of null (setting 'checked')
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-1 — the third radio option is present, labelled, and placed last (AC-1/DC-1) > renders a third param-mode radio with value "empirical-distributional" and a label containing "Empirical (distributional)"
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:53:26
+     51|
+     52|     const newRadio = radio(win, 'empirical-distributional');
+     53|     expect(newRadio).not.toBeNull();
+       |                          ^
+     54|     expect(newRadio.getAttribute('name')).toBe('param-mode');
+     55|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-1 — the third radio option is present, labelled, and placed last (AC-1/DC-1) > places the new option last in the Lognormal Parameters group, after synthetic and empirical
+AssertionError: expected [ 'synthetic', 'empirical' ] to deeply equal [ 'synthetic', 'empirical', …(1) ]
+
+- Expected
++ Received
+
+  Array [
+    "synthetic",
+    "empirical",
+-   "empirical-distributional",
+  ]
+
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:69:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-1 — ... > keeps Empirical the checked default on load, with synthetic and the new option unchecked
+TypeError: Cannot read properties of null (reading 'checked')
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:79:50
+     77|     expect(radio(win, 'empirical').checked).toBe(true);
+     78|     expect(radio(win, 'synthetic').checked).toBe(false);
+     79|     expect(radio(win, 'empirical-distributional').checked).toBe(false);
+       |                                                  ^
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-2 — ... > binds activeParams to the distributional table, activeSampler to the residual sampler, and activates only the new label
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:89:56
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-2 — ... > makes a seeded sample multiply the distributional lognormal draw by a bootstrapped residual after selection
+TypeError: Cannot set properties of null (setting 'checked')
+ ❯ select tests/acceptance/0024-phase-2-radio-wiring.test.js:43:13
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:109:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-2 — ... > restores activeParams, activeSampler, and the highlight when Empirical is re-selected after the new mode
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:127:56
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-2 — ... > clears the residual sampler when Synthetic is selected from the new mode
+AssertionError: expected null not to be null
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:145:56
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-3 — ... > defaults a fresh page-load to Empirical even after a prior window selected the new mode
+TypeError: Cannot set properties of null (setting 'checked')
+ ❯ select tests/acceptance/0024-phase-2-radio-wiring.test.js:43:13
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:163:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-3 — ... > writes nothing to localStorage when any of the three options is selected
+TypeError: Cannot set properties of null (setting 'checked')
+ ❯ select tests/acceptance/0024-phase-2-radio-wiring.test.js:43:13
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:180:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  tests/acceptance/0024-phase-2-radio-wiring.test.js > 0024 Phase 2 AT-3 — ... > leaves the T-shirt size reference panel DOM unchanged after selecting the new mode
+TypeError: Cannot set properties of null (setting 'checked')
+ ❯ select tests/acceptance/0024-phase-2-radio-wiring.test.js:43:13
+ ❯ tests/acceptance/0024-phase-2-radio-wiring.test.js:193:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+ Test Files  1 failed (1)
+      Tests  10 failed (10)
+   Start at  09:00:09
+   Duration  685ms
+
+RED reason: the third `<input name="param-mode" value="empirical-distributional">` and the
+`param-label-empirical-distributional` label do not exist on the base, and the base `change`
+handler maps only `empirical`↔`synthetic` and never assigns `activeSampler`. So the new-option
+references resolve to `null` (AT-1 presence/order/default; AT-2 selection; AT-3 ephemerality +
+reference-panel). This is exactly the Phase-2 gap; deterministic (no RNG in the failing path).
