@@ -12,7 +12,7 @@ current_phase: 2
 retry_count: 0
 max_retries: 3
 next_handover: handover-13-review-p2.md
-updated_at: 2026-06-23T20:55:01Z
+updated_at: 2026-06-23T21:08:01Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -22,6 +22,7 @@ artifacts:
   reviews:
     - docs/reviews/0023-error-report-tab-phase-1-review-01.md
     - docs/reviews/0023-error-report-tab-phase-2-review-01.md
+    - docs/reviews/0023-error-report-tab-phase-2-correctness-01.md
 ---
 # 0023 — Error Report tab
 
@@ -161,3 +162,24 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > WARNING`). Review: `docs/reviews/0023-error-report-tab-phase-2-review-01.md`.
 > `retry_count` unchanged (PASS). Next stage: **review-correctness** (feature-phase 2)
 > reading `handover-13-review-p2.md`.
+>
+> **review-correctness p2 — BLOCKED `suspect-test`, FLAGGED FOR HUMAN (2026-06-23):**
+> reasoning from the spec, one correctness deviation survived: `LAMBDA_ZERO` (code 6) is
+> guarded `lambda === 0 && epicSizingDist.length === 0`, contradicting the plan's
+> `[test-only]` invariant **`LAMBDA_ZERO ⇔ lambda === 0`** + behavioral rule. Because the
+> only fatal stop fires when `epicSizingDist.length === 0` (run handler ~5105) *before* the
+> report renders (~5171), the guard makes `LAMBDA_ZERO` **structurally unreachable** in any
+> rendered report, and it suppresses the warning in a genuinely degenerate completed run
+> (in-window orphan Epic with recognised size ⇒ λ=0 with `epicSizingDist=['M']`). The guard
+> is wrong — **but** the committed GREEN AT-5 test
+> `tests/acceptance/0023-phase-2-acc-presentation.test.js` seeds exactly that orphan scenario
+> and asserts the badge `1 WARNING` (ORPHAN_EPIC only), which *requires* the guard.
+> Production cannot satisfy **both** the spec and the frozen test (a strict rule yields
+> `2 WARNING`), so per `stage-review-correctness` Step 5b this is **`suspect-test`**, not a
+> production FAIL — **never routed to `implement`**. All other detectors (codes 3-5, 7, 8-9,
+> 10-22) reviewed clean; I-1 holds. Stage/status/current_phase/retry_count left unchanged;
+> the loop flags a human. **Human picks:** (1, recommended) drop the guard + migrate AT-5 to
+> `2 WARNING` (or re-seed AT-5 so λ>0); or (2) amend the plan invariant away from the strict
+> biconditional. Either re-enters via **`/stage-atdd`**. Review:
+> `docs/reviews/0023-error-report-tab-phase-2-correctness-01.md`; handover
+> `handover-14-review-correctness-p2.md`.
