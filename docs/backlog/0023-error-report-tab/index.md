@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: review
+stage: review-correctness
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-12-implement-p2.md
-updated_at: 2026-06-23T22:38:00Z
+next_handover: handover-13-review-p2.md
+updated_at: 2026-06-23T20:55:01Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -21,6 +21,7 @@ artifacts:
   impl_commit: 79dcd45d80f09efb7b13c44738deb98e4373a441
   reviews:
     - docs/reviews/0023-error-report-tab-phase-1-review-01.md
+    - docs/reviews/0023-error-report-tab-phase-2-review-01.md
 ---
 # 0023 — Error Report tab
 
@@ -142,3 +143,21 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > front-load phase-1 property tests to **≥12** cumulative; **or** re-plan 0023 as a
 > single feature-phase; **or** make the pbt-floor per-phase. Evidence:
 > `docs/atdd-logs/0023-error-report-tab-phase-1-base-health.log`.
+>
+> **review (integrity) p2 — PASS (2026-06-23):** integrity is clean for codes 3-22 + the
+> presentation contract. Test immutability holds (`git diff 57b38dc..cbbabc6 -- tests
+> features e2e acceptance` empty); no test gaming, env branches, suppression tokens, or
+> fixture-identity special-casing in the production change (`index.html`, originating in
+> `0ea82c9`); all detectors route through the `makeFinding` factory so the I-3/I-4
+> `[contract]` assertions are live — **proven** by a contract negative control that fired
+> `makeFinding`'s own throw (`[finding] invalid severity "CRITICAL"`). PBT meets the
+> whole-plan floor: 10 Phase-2 `test.prop` rows + 2 Phase-1 = **12 ≥ 12**. A behavioral
+> negative control on the marquee `MQ_FORWARD_DOUBLE_COUNT` rule (`qSet.size >= 2` → `>= 3`)
+> was killed and cleanly reverted. Mutation Step 7 skipped (recorded N/A — ADR-0036).
+> **One spec deviation handed to correctness review (not an integrity failure):**
+> `LAMBDA_ZERO` is implemented as `lambda===0 && epicSizingDist.length===0` vs the plan's
+> `[test-only]` `LAMBDA_ZERO ⇔ lambda===0`; the committed AT-5 presentation test *requires*
+> the guard (orphan epic with recognised size ⇒ λ=0 with sizing data; badge asserts `1
+> WARNING`). Review: `docs/reviews/0023-error-report-tab-phase-2-review-01.md`.
+> `retry_count` unchanged (PASS). Next stage: **review-correctness** (feature-phase 2)
+> reading `handover-13-review-p2.md`.
