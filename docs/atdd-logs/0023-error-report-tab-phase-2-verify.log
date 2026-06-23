@@ -1,0 +1,975 @@
+
+> verify
+> { [ -e node_modules/.bin/eslint ] || npm ci; } && npm run lint && npm run scan:forbidden && npm run scan:deps && npx secretlint "**/*" && vitest run
+
+
+> lint
+> { [ -e node_modules/.bin/eslint ] || npm ci; } && eslint index.html --max-warnings 0
+
+
+> scan:forbidden
+> if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html --inspect=summary
+
+sg: summary|project: isProject=true,projectDir=/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+sg: summary|file: scannedFileCount=1,skippedFileCount=0
+sg: summary|rule: effectiveRuleCount=5,skippedRuleCount=0
+
+> scan:deps
+> node scripts/dep-scan.mjs
+
+dep-scan: accepted (documented) high/critical advisories:
+  ACCEPTED high	vite via GHSA-fx2h-pf6j-xcff	vite: `server.fs.deny` bypass on Windows alternate paths
+      reason: vite `server.fs.deny` bypass (Windows alternate paths) — affects the vite DEV SERVER only; this repo never starts it (headless `vitest run`). Fix requires vite 6.x ⇒ a vitest major upgrade (refused).
+  ACCEPTED critical	vitest via GHSA-5xrq-8626-4rwp	When Vitest UI server is listening, arbitrary file can be read and executed
+      reason: vitest UI-server arbitrary file read/exec — only when `vitest --ui` is LISTENING; the loop only ever runs `vitest run`. Fix requires vitest 3.2.6+/4.x ⇒ a refused major upgrade.
+dep-scan: PASS — no non-allowlisted high/critical advisories.
+
+ RUN  v2.1.9 /Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+
+ ↓ tests/verification/0003-sanity-check-engine-mean.test.js (1 test | 1 skipped)
+stdout | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-1: a team section lifts only the Groups whose members include a matching-team constant-work row's Category > credits the team's matching Group its t-shirt person-months, leaves the non-matching Group at 0, and ignores rows outside the Target quarters
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-2: a constant-work row for another team does not lift this team > leaves every Group entry of the non-matching team at 0 while the matching team is lifted
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-3: the per-team vector is aligned with the Groups and is team-scoped AND Category-scoped > has one entry per Group and excludes the team's constant-work row whose Category is in no Group
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-4: the Team Level tab stats reflect the per-Group team shift > shifts only the Group whose Category matches the team's constant work; the other Group's column is not lifted
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderTeamSection (http://localhost/:304:29)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:71)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js > AT-5: the per-team constant-work match is case-insensitive on the team name > credits a row whose team casing differs from the initiative team, and still excludes other teams' rows
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-3-team-level-constant-work-scoping.test.js (5 tests) 462ms
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-1: a projection cell shows only constant work whose Category is in the Projection group's members > appends the Backend constant-work row to the cell and omits the Ops row when the Projection group's members are ['Backend']
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > sets cwEffort to the Backend row's person-months only, not the Backend+Ops total, and flattens the band to that scoped floor
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-2: a projection cell's cwEffort band floor is scoped to the Projection group's members > scopes by Category case-insensitively and after trimming surrounding whitespace
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-3: a zero-member Projection group collapses the band to a scoped cwEffort of 0 > scopes cwEffort to 0 and flattens the Effort projection band to (0, 0, 0) even when the cell has constant work
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-4: with no Projection group (empty groupsStore) the cell falls back to all constant work for that (team, quarter) > sums every constant-work row into cwEffort, flattens the band to that total, and keeps all rows in the matrix (ADR-0023 degenerate fallback)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js > AT-5: a Projection group whose members include the (Blank) sentinel includes blank-Category constant work in the cell > scopes cwEffort to the blank-Category row and excludes a non-blank-Category row when members === [BLANK]
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-4-projections-constant-work-scoping.test.js (6 tests) 502ms
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-1: a constant-work-only quarter is selectable as a Target quarter but not a Historical quarter > lists constant-work-only quarters in the Target selector, omits them from the Historical selector, and the Target⊇Historical difference is exactly the constant-work-only quarters
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-2: selecting a constant-work-only Target quarter yields a pure-constant-work forecast > produces kPerGroup all-zero (no Initiatives in the quarter) and sits each Group flat at its own fixedEffortPerGroup entry
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-3: the Historical quarter selector source is unchanged (initiatives ∪ epics) > lists exactly the initiative ∪ epic quarters in the Historical selector, with no constant-work-only quarter added
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-4: the Data preview shows per-Group constant-work PM beside each per-Group K row > reports a group-aligned fixedEffortPerGroup (lifted Group at its PM, other Group at 0) and surfaces the per-Group PM in the rendered preview
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-5: the Data preview shows an in-no-group excluded line for constant work matching no Group > counts only target-quarter rows whose Category is in no Group toward cwExcludedPM/cwExcludedRows (overlap-aware) and renders an excluded line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js > AT-6: the Data preview shows no non-zero excluded line when all constant work is in a Group > reports zero excluded PM and rows, and renders no positive "excluded" line
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-5-constant-work-quarters-and-preview.test.js (6 tests) 519ms
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-1: a constant-work row lifts only the Groups whose members include its Category > credits the matching Group its t-shirt person-months, leaves non-matching Groups at 0, and ignores rows outside the Target quarters
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-2: a constant-work row whose Category is in no Group lifts nothing > excludes the row from every Group when its Category matches no members
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-3: per-Group Category matching is case-insensitive and trimmed > matches " backend " against the member "Backend"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-4: a blank-Category constant-work row lifts only Groups whose members include the (Blank) sentinel > credits the BLANK-member Group and leaves a string-member Group at 0
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-7: constant work changes only fixedEffortPerGroup — never kPerGroup, λ, or the epic sizing pool > keeps kPerGroup, lambda and epicSizingDist identical with and without a constant-work row
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-8: a constant-work Category present in multiple Groups lifts each of them > credits every Group whose members include the overlapping Category
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions {Analytics,Backend} (initiatives) with {Compliance} (constant work) when initiatives load first
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-9: the auto-default All Group members union initiative and constant-work Categories (load-order independent) > unions the same Categories when constant work loads first
+[ConstantWork] 1 rows
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-10: the auto-default stops auto-syncing once the user has modified Groups > leaves user-defined Groups untouched when a later Constant Work CSV introduces a new Category
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js > AT-11: a Run with totalK === 0 but constant work present sits each Group at its own per-Group shift > produces a flat per-Group distribution at each Group constant-work person-months (pure constant work)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-2-constant-work-org-scoping.test.js (12 tests) 744ms
+stdout | tests/acceptance/0021-phase-7-constant-work-add-delete.test.js > AT-2: + Add row appends a blank row carrying the imported header set, not the canonical schema > gives the new row exactly the imported headers (blank) so all rows share columns
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every initiative Category and every constant-work-only Category
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > does not list a Category that is in neither initiatives nor constant work (negative)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-1: the Members popover lists a constant-work-only Category alongside initiative Categories > lists every distinct constant-work Category (property over a multi-row, multi-Category model)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-2: a Category present in both sources appears once, with the Initiative casing > a single merged entry uses the Initiative casing, not the constant-work casing
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-2: a Category present in both sources appears once, with the Initiative casing > dedups case-insensitively across several overlapping case variants (property)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > renders the constant-work casing verbatim when the Category is absent from initiatives
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-3: a constant-work-only Category keeps its own casing > preserves a mixed-case constant-work-only Category exactly (boundary)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-4: adding a constant-work-only Category to a Group scopes that constant work on the next Run > after adding the Category via the popover, the Group's fixedEffortPerGroup includes the row PM and the row is no longer excluded
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-7-constant-work-add-delete.test.js (11 tests) 756ms
+stderr | tests/acceptance/0021-phase-7-constant-work-add-delete.test.js
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-5: the popover still lists the (Blank) row and the free-text input > a dedicated (Blank) row and a free-text input are present (unchanged from feature 0020)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > an unsaved edit to an initiative Category and to a constant-work Category both appear without a Run
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-8-groups-popover-union.test.js > AT-6: the union reflects the current edited state of both tabs (computed at open time) > recomputes on each open, so an edit made after a first open is reflected on reopen (not cached)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0021-phase-8-groups-popover-union.test.js (11 tests) 781ms
+stderr | tests/acceptance/0024-phase-1-distributional-sampler.test.js > 0024 Phase 1 AT-1 — new-mode per-epic effort = lognormal(distributional) × residual > returns 0 for an unknown t-shirt size label (0 × residual), never negative
+[sampler] Unknown size label: "NOT-A-SIZE"
+
+ ✓ tests/acceptance/0024-phase-1-distributional-sampler.test.js (14 tests) 794ms
+stdout | tests/acceptance/0021-phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > seeds the category datalist from the union of initiative and constant-work Categories
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-6-constant-work-tab.test.js > AT-5: the category, team, and quarter cells are <input list> datalist combos seeded from the observed union > renders team and quarter as datalist combos seeded from the union of initiative and constant-work values
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0021-phase-6-constant-work-tab.test.js > AT-8: ↓ Export CSV downloads constant-work-edited.csv preserving the imported header set > triggers a constant-work-edited.csv download whose header row is exactly the imported headers (aliases + extras, original order)
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-6-constant-work-tab.test.js > AT-9: the exported Constant Work CSV round-trips through re-import > reproduces the edited model (same columns and edited values) when the export is re-imported
+[ConstantWork] 1 rows
+[ConstantWork] 1 rows
+
+ ✓ tests/acceptance/0021-phase-6-constant-work-tab.test.js (15 tests) 846ms
+stderr | tests/acceptance/0021-phase-6-constant-work-tab.test.js
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+
+ ✓ tests/acceptance/0020-phase-3-json-persistence-inner.test.js (28 tests) 1121ms
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-1: category header detection > detects the literal `category` header via detectCategoryCol
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-2: legacy moscow header detection > falls back to the `moscow` header when no `category` header is present
+[Initiatives] 1 rows | key="jira_key" | category="moscow" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-3: Quirky-format emoji header detection > falls back to the `emoji` header when neither `category` nor `moscow` is present
+[Initiatives] 1 rows | key="jira_key" | category="emoji" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-4: missing category/moscow/emoji header > yields categoryCol === null and every initiative resolves to the (Blank) sentinel
+[Initiatives] 1 rows | key="jira_key" | category="null" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-5: normalizeCategory equality semantics > buckets Automation, automation, "Automation " under one canonical Category
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-8: auto-default All Group on first CSV load > creates one Group {name:"All", color:"#4f46e5", isProjection:true, members:<observed>}
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-9: subsequent CSV load preserves user Groups > does NOT re-create the auto-default when groupsStore is non-empty
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-10: prepareSimulationData kPerGroup output > returns one count per Group in groupsStore order
+[Initiatives] 7 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/0020-phase-1-engine.test.js > AT-13: org-level chart renders one dataset per Group > renderChart produces a Chart instance whose data.datasets length === groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:12110)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-16: Data preview renders one per-Group K row > renderPreview emits N K-rows, one per Group, no K_must/K_must+should/K_must+should+could labels
+[Initiatives] 9 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-19: Initiatives tab category cell is input list datalist combo > renders <input list="category-options" …> per row and emits one <datalist> once
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-20: free-text Category typed in datalist combo writes through > after onchange fires, editedInitiatives[idx][categoryCol] === typed string
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-22: auto-default All Group includes (Blank) sentinel > members contains BLANK when any Initiative has an empty category cell
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-23: auto-default All Group → single Scenario covering all > kPerGroup[0] === total target-quarter initiative count
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-24: unreferenced Category buckets are excluded > initiatives in Categories absent from any Group.members do not influence any Scenario
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-26: buildTeamProjections drives band from the Projection Group > a zero-member Projection Group collapses the band to cwEffort even when MSC has non-zero count
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-27: empty groupsStore falls back to cwEffort-only band > every projection band collapses to the constant-work-only triple when groupsStore === []
+[Initiatives] 10 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-28: overlapping Group membership counts in every match > an Initiative in a Category present in multiple Groups contributes to each K
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-29: subsequent CSV (re)load does NOT re-sync the existing All Group > the auto-default fires once; later loads leave the existing Group untouched
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-1-engine.test.js > AT-30: resetInitiativesFile leaves groupsStore intact > CSV reset clears parsedInitiatives but not Groups
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0020-phase-1-engine.test.js (30 tests) 1258ms
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-4: Groups table renders one row per Group plus + New group > groupsStore order is preserved; tbody has groupsStore.length + 1 <tr>
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-10: clicking + opens a MultiSelect popover with observed Categories + (Blank) + free-text > popover lists each observed Category as a checkbox plus a dedicated (Blank) row plus a free-text input
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-11: toggling a popover option writes through to groupsStore > checking an unchecked option adds it to members; unchecking removes it
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-12: adding a free-text Category creates an absent-from-CSV member > typing a new value + Enter pushes it to members; popover remains open
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-20: pressing Run after Group edits renders one dataset per Group > renderChart receives results whose length matches current groupsStore.length
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:10287)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-24: a Group whose members reference a CSV-absent Category still renders > chip text matches the literal member value
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-28: Members popover lists current editedInitiatives ∪ editedConstantWork Categories > an edit to editedInitiatives and a constant-work Category both appear in the popover even before Run
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0020-phase-2-groups-tab.test.js > AT-29: Members popover stays open across multiple option toggles > after a checkbox toggles, the popover element is still in the DOM
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0020-phase-2-groups-tab.test.js (34 tests) 1474ms
+stdout | tests/acceptance/0020-phase-3-json-persistence.test.js > AT-16: loaded members referencing absent Categories are preserved verbatim > a Group whose members reference a CSV-absent Category loads cleanly and silently matches zero at Run
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0020-phase-3-json-persistence.test.js (41 tests) 1603ms
+stderr | tests/acceptance/0020-phase-3-json-persistence.test.js
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7) undefined
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-1: loading a Constant Work CSV creates editedConstantWork as a per-row shallow clone of parsedConstantWork > clones every row into a new top-level array with equal length, distinct row references, equal values, and equal key order
+[ConstantWork] 3 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-2: mutating editedConstantWork[i][k] leaves parsedConstantWork[i][k] unchanged > keeps parsedConstantWork as the immutable parse output when a clone cell is reassigned
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-3: resetConstantWorkFile sets both parsedConstantWork and editedConstantWork to null > clears the constant-work substrate completely on file clear
+[ConstantWork] 2 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-4: getConstantWorkEffort reads editedConstantWork (deterministic person-months reflect edits) > returns the person-months of the EDITED t-shirt size, not the original parsed size
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-5: getConstantWorkEpics reads editedConstantWork > returns the EDITED epic name for the row's team and quarter
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-6: buildTeamProjections derives constant-work quarters from editedConstantWork > includes a team's EDITED constant-work quarter and drops the original parsed quarter
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[ConstantWork] 1 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-8: a freshly-loaded Constant Work CSV with no edits feeds the Run identically (transparent indirection) > makes editedConstantWork a structural clone of parsedConstantWork and the readers report the same effort
+[ConstantWork] 3 rows
+
+stdout | tests/acceptance/0021-phase-1-constant-work-substrate.test.js > AT-9: re-loading a Constant Work CSV rebuilds the clone wholesale and discards prior edits > replaces editedConstantWork with a fresh clone of the new file and drops the earlier edit
+[ConstantWork] 1 rows
+[ConstantWork] 1 rows
+
+ ✓ tests/acceptance/0021-phase-1-constant-work-substrate.test.js (9 tests) 390ms
+stdout | tests/acceptance/0023-phase-2-acc-run-parameters.test.js > AT-1: a Run whose in-scope historical Initiatives yield Poisson λ = 0 is reported as LAMBDA_ZERO (WARNING) > reports a LAMBDA_ZERO finding (WARNING) with a run-level locator when lambda === 0
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-run-parameters.test.js > AT-2: a Run where no Initiative matches any Group so total K = 0 is reported as TOTAL_K_ZERO (WARNING) > reports a TOTAL_K_ZERO finding (WARNING) with a run-level locator when sum(kPerGroup) === 0
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-acc-run-parameters.test.js (5 tests) 345ms
+ ✓ tests/acceptance/0024-phase-2-radio-wiring.test.js (10 tests) 618ms
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-1: an Initiatives row whose Initiative key cell is blank is reported as INIT_MISSING_KEY (WARNING) > reports one INIT_MISSING_KEY finding with a row locator for the blank-key row only
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-2: an Initiatives row with a blank Quarter or a Quarter in no selected window is reported as INIT_BAD_QUARTER (WARNING) > reports INIT_BAD_QUARTER for the blank-quarter row and the not-selected-quarter row, but not for valid rows
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-3: an Initiatives row with a blank team or a blank Category is reported as INIT_MISSING_TEAM_OR_CATEGORY (WARNING) > reports INIT_MISSING_TEAM_OR_CATEGORY for the blank-category row and the blank-team row
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-4: an Epic whose Initiative key is non-blank but matches no Initiative is reported as DANGLING_EPIC_LINK (WARNING) > reports one DANGLING_EPIC_LINK locating the Epic + dangling key, and does NOT also report it as ORPHAN_EPIC
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-5: a selected target Quarter that no Initiative falls in is reported as TARGET_QUARTER_NO_INITIATIVES (INFO) > reports TARGET_QUARTER_NO_INITIATIVES (INFO) for the empty target Quarter, not for the populated one
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-integrity.test.js > AT-6: Constant work excluded because its Category matches no Group is reported as CONSTANT_WORK_EXCLUDED (WARNING) > reports CONSTANT_WORK_EXCLUDED whose impact PM/rows equal getConstantWorkExcluded(...) for the target quarters (single source)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-3: an in-scope Epic whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_EPIC (ERROR) > collects exactly one UNRECOGNIZED_SIZE_EPIC finding locating the offending Epic and notes exclusion from Poisson λ and the Bootstrap pool
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-4: a target-quarter Constant work row whose size is not a Recognised t-shirt size is reported as UNRECOGNIZED_SIZE_CONSTANT_WORK (WARNING) > collects exactly one UNRECOGNIZED_SIZE_CONSTANT_WORK finding with a row locator and a message noting it contributed 0 PM
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-error-report-tab.test.js > AT-5: collecting the Error Report never alters the Run — runSimulation reads no findings (advisory, I-1) > returns findings additively while the engine output depends only on its declared arguments (a findings field is ignored)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-1-error-report-tab.test.js (6 tests) 392ms
+ ✓ tests/acceptance/0023-phase-2-acc-integrity.test.js (6 tests) 411ms
+stdout | tests/acceptance/0023-phase-2-acc-multi-quarter.test.js > AT-1: an Initiative key in more than one selected target Quarter is reported as MQ_FORWARD_DOUBLE_COUNT (ERROR), engine math unchanged > reports MQ_FORWARD_DOUBLE_COUNT (ERROR) for the multi-quarter key while leaving the engine outputs intact
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-multi-quarter.test.js > AT-2: a historical Initiative whose Epics span quarters with some outside the window is reported as MQ_PARTIAL_WINDOW_EXCLUSION (WARNING) > reports MQ_PARTIAL_WINDOW_EXCLUSION (WARNING) for the Initiative, with the count of excluded Epics
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-multi-quarter.test.js > AT-3: a historical Initiative whose in-window Epics carry more than one distinct Quarter is reported as MQ_MULTI_QUARTER_HISTORICAL (INFO) > reports MQ_MULTI_QUARTER_HISTORICAL (INFO) for the Initiative spanning two selected historical quarters
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-multi-quarter.test.js > AT-4: an Initiative whose declared Quarter does not match its Epics’ quarters is reported as MQ_INIT_EPIC_QUARTER_MISMATCH (WARNING) > reports MQ_INIT_EPIC_QUARTER_MISMATCH (WARNING) for the Initiative, referencing the declared vs Epic quarters
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-acc-multi-quarter.test.js (4 tests) 291ms
+stderr | tests/verification/0020-drag-reorder-groups.test.js > reorderGroup propagates the same permutation to caches > lastRenderState[ctx].results.results is reordered in lockstep with groupsStore
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at rerenderContext (http://localhost/:150:21)
+    at reorderGroup (http://localhost/:624:5)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:36)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23) undefined
+
+stderr | tests/verification/0020-drag-reorder-groups.test.js > Chart legend + Summary Statistics columns track the new order on re-render > after a reorder, renderStatsTableInto produces THs in the new order
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at rerenderContext (http://localhost/:150:21)
+    at reorderGroup (http://localhost/:624:5)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:36)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23) undefined
+
+ ✓ tests/verification/0020-drag-reorder-groups.test.js (8 tests) 479ms
+stdout | tests/verification/0020-phase-1-2-review-01.test.js > Phase 1 — forbidden legacy fields are absent from engine returns > prepareSimulationData return shape carries kPerGroup only
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/verification/0020-phase-1-2-review-01.test.js > Phase 1 — forbidden legacy fields are absent from engine returns > detectedCols carries categoryCol but not moscowCol
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stderr | tests/verification/0020-phase-1-2-review-01.test.js > Phase 1 — chart datasets derive translucent backgroundColor from Group color > backgroundColor is a translucent rgba; borderColor has alpha === 0
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at renderChartOnCanvas (http://localhost/:32:25)
+    at renderChart (http://localhost/:207:19)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:14)
+    at eval (eval at window.__readBinding (http://localhost/:66:23), <anonymous>:1:10325)
+    at eval (<anonymous>)
+    at window.__readBinding (http://localhost/:66:23)
+    at Module.execIn (/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator/tests/harness.js:192:14) undefined
+
+stdout | tests/verification/0020-phase-1-2-review-01.test.js > Phase 1 — Initiatives-tab datalist options are sorted alphabetically (case-insensitive) > options for `KR2`, `Automation`, `KR1`, `analytics` render in alpha order
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-scope-exclusions.test.js > AT-1: an Epic excluded from Poisson λ with a non-blank Initiative key is reported as EPIC_OUT_OF_SCOPE (INFO) > reports one EPIC_OUT_OF_SCOPE finding (INFO) locating an in-link Epic whose Initiative is not in the historical window
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-scope-exclusions.test.js > AT-2: an Epic whose Initiative key is blank is reported as ORPHAN_EPIC (WARNING), distinct from EPIC_OUT_OF_SCOPE > reports one ORPHAN_EPIC finding (WARNING) and does not also report the same Epic as EPIC_OUT_OF_SCOPE
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-scope-exclusions.test.js > AT-3: a selected historical Quarter with Initiatives but zero in-scope Epics is reported as QUARTER_NO_EPICS (WARNING) > reports QUARTER_NO_EPICS (WARNING) with a quarter locator and an impact stating the count of its excluded Initiatives
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-acc-scope-exclusions.test.js (3 tests) 293ms
+ ✓ tests/verification/0020-phase-1-2-review-01.test.js (5 tests) 404ms
+stdout | tests/verification/0009-preview-hist-init-count-engine-denominator.test.js > preview.histInitCount reports the engine denominator (regression for handoff-fix-quarter-count) > matches countArray.length when initiatives CSV has no rows for the historical quarters but epics CSV does
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/verification/0009-preview-hist-init-count-engine-denominator.test.js > preview.histInitCount reports the engine denominator (regression for handoff-fix-quarter-count) > grows when adding a historical quarter that contributes more initiative keys via epics
+[Initiatives] 24 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/verification/0009-preview-hist-init-count-engine-denominator.test.js > preview.histInitCount reports the engine denominator (regression for handoff-fix-quarter-count) > renderPreview displays the renamed label "Initiatives used (hist.)" and the engine denominator
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/verification/0009-preview-hist-init-count-engine-denominator.test.js (3 tests) 300ms
+stdout | tests/acceptance/0023-phase-2-acc-duplicates-overlaps.test.js > AT-1: an Initiative key appearing in more than one Initiatives row is reported as DUP_INITIATIVE_KEY (WARNING) > reports one DUP_INITIATIVE_KEY finding per duplicated key, with an initiative locator and an impact stating its row count
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-duplicates-overlaps.test.js > AT-2: two Quarter raw strings that collapse to one normalised value but differ raw are reported as QUARTER_NORM_VARIANT (WARNING) > reports one QUARTER_NORM_VARIANT for the cluster of raw variants, and none for a quarter with a single raw form
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-acc-duplicates-overlaps.test.js > AT-3: a normalised Quarter selected in both the historical and target window is reported as HIST_TARGET_OVERLAP (WARNING) > reports a HIST_TARGET_OVERLAP finding naming the overlapping Quarter
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-acc-duplicates-overlaps.test.js (3 tests) 237ms
+ ✓ tests/acceptance/0022-empirical-default-on-load.test.js (3 tests) 416ms
+ ✓ tests/acceptance/0024-phase-1-distributional-params-property.test.js (3 tests) 348ms
+   ✓ 0024 Phase 1 PBT-3 — uncalibrated centre uplift + spread injection (AC-5) > for every uncalibrated size, sample mean ≈ 1.40× synthetic mean and variance strictly exceeds the Empirical lognormal-only variance (with seed=2059208751) 338ms
+ ✓ tests/verification/0020-phase-3-review-01.test.js (2 tests) 128ms
+ ✓ tests/acceptance/0024-phase-2-mode-toggle-property.test.js (1 test) 18ms
+stdout | tests/acceptance/0023-phase-2-acc-presentation.test.js > AT-5: a Run producing findings across multiple categories and severities renders the full DC-3 presentation contract > groups findings into labelled per-category sections ordered ERROR → WARNING → INFO with a by-severity count badge
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-acc-presentation.test.js (1 test) 115ms
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags exactly the in-scope Epics whose normalised size is not a Recognised t-shirt size, one finding each (with seed=2071577817)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags an Epic whose size "XXL" is not a Recognised t-shirt size
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags Epics whose size is empty or whitespace-only
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > does NOT flag recognised sizes that differ only by case or trailing space
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > produces no UNRECOGNIZED_SIZE_EPIC findings when there are no Epics
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — every Data-quality finding obeys the contract shape > a produced finding carries a valid Severity, a non-empty message, a string code/category, and >= 1 locator with {kind,id}
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-1-finding-model-property.test.js > 0023 Phase 1 — collecting the Error Report is advisory: the engine output is unaffected by findings (I-1) > the engine output from prepareSimulationData’s outputs is identical with and without the findings field (with seed=-595623646)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-1-finding-model-property.test.js (7 tests) 3107ms
+   ✓ 0023 Phase 1 — UNRECOGNIZED_SIZE_EPIC partitions in-scope Epics by Recognised t-shirt size > flags exactly the in-scope Epics whose normalised size is not a Recognised t-shirt size, one finding each (with seed=2071577817) 2149ms
+   ✓ 0023 Phase 1 — collecting the Error Report is advisory: the engine output is unaffected by findings (I-1) > the engine output from prepareSimulationData’s outputs is identical with and without the findings field (with seed=-595623646) 823ms
+stdout | tests/acceptance/0023-phase-2-prop-scope.test.js > 0023 Phase 2 — ORPHAN_EPIC and EPIC_OUT_OF_SCOPE partition the scope-excluded Epics > flags exactly the scope-excluded Epics, partitioned by blank vs non-blank Initiative key (with seed=-869169128)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-prop-scope.test.js > 0023 Phase 2 — ORPHAN_EPIC and EPIC_OUT_OF_SCOPE partition the scope-excluded Epics > produces no scope findings when there are no Epics
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-prop-scope.test.js > 0023 Phase 2 — QUARTER_NO_EPICS flags exactly the historical quarters with Initiatives but no in-scope Epics > emits QUARTER_NO_EPICS iff a selected historical quarter has >= 1 Initiative and 0 tagged Epics, with the right count (with seed=-62728680)
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 6 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 7 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 5 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 3 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 7 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 4 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-prop-scope.test.js (3 tests) 3118ms
+   ✓ 0023 Phase 2 — ORPHAN_EPIC and EPIC_OUT_OF_SCOPE partition the scope-excluded Epics > flags exactly the scope-excluded Epics, partitioned by blank vs non-blank Initiative key (with seed=-869169128) 1831ms
+   ✓ 0023 Phase 2 — QUARTER_NO_EPICS flags exactly the historical quarters with Initiatives but no in-scope Epics > emits QUARTER_NO_EPICS iff a selected historical quarter has >= 1 Initiative and 0 tagged Epics, with the right count (with seed=-62728680) 1258ms
+stdout | tests/acceptance/0023-phase-2-prop-presentation.test.js > 0023 Phase 2 — MQ_FORWARD_DOUBLE_COUNT flags exactly the keys spanning >= 2 target quarters, engine kPerGroup unchanged > flags exactly the normalised keys appearing in >= 2 distinct target quarters, leaving kPerGroup intact (with seed=239246132)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-prop-presentation.test.js (2 tests) 2923ms
+   ✓ 0023 Phase 2 — renderErrorReport orders sections/findings ERROR→WARNING→INFO with a matching by-severity badge > renders every finding, sections ordered by severity, findings within a section in severity order, badge counts match (with seed=-1477855425) 1734ms
+   ✓ 0023 Phase 2 — MQ_FORWARD_DOUBLE_COUNT flags exactly the keys spanning >= 2 target quarters, engine kPerGroup unchanged > flags exactly the normalised keys appearing in >= 2 distinct target quarters, leaving kPerGroup intact (with seed=239246132) 1188ms
+stdout | tests/acceptance/0023-phase-2-prop-integrity.test.js > 0023 Phase 2 — DANGLING_EPIC_LINK and ORPHAN_EPIC partition Epics by blank vs unknown non-blank Initiative key > flags blank-link Epics as ORPHAN_EPIC and unknown-non-blank-link Epics as DANGLING_EPIC_LINK, disjointly (with seed=709880397)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-prop-integrity.test.js > 0023 Phase 2 — CONSTANT_WORK_EXCLUDED reports exactly getConstantWorkExcluded(...) PM and rows for the target quarters > emits CONSTANT_WORK_EXCLUDED iff getConstantWorkExcluded reports rows > 0, with matching PM and row count (with seed=-539209358)
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 2 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-prop-integrity.test.js (2 tests) 2624ms
+   ✓ 0023 Phase 2 — DANGLING_EPIC_LINK and ORPHAN_EPIC partition Epics by blank vs unknown non-blank Initiative key > flags blank-link Epics as ORPHAN_EPIC and unknown-non-blank-link Epics as DANGLING_EPIC_LINK, disjointly (with seed=709880397) 1570ms
+   ✓ 0023 Phase 2 — CONSTANT_WORK_EXCLUDED reports exactly getConstantWorkExcluded(...) PM and rows for the target quarters > emits CONSTANT_WORK_EXCLUDED iff getConstantWorkExcluded reports rows > 0, with matching PM and row count (with seed=-539209358) 1053ms
+stdout | tests/acceptance/0023-phase-2-prop-duplicates.test.js > 0023 Phase 2 — DUP_INITIATIVE_KEY flags exactly the Initiative keys whose normalised form occurs >= 2 times > flags exactly the trimmed keys occurring >= 2 times, each with its correct row count, and none occurring once (with seed=1014513682)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+stdout | tests/acceptance/0023-phase-2-prop-duplicates.test.js > 0023 Phase 2 — HIST_TARGET_OVERLAP lists exactly the quarters in the trimmed historical∩target intersection > flags exactly the normalised quarters selected in both windows (whitespace variants collapse) (with seed=-1879589187)
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+[Initiatives] 1 rows | key="jira_key" | category="category" | team="teams" | name="building_block" | kr="null"
+
+ ✓ tests/acceptance/0023-phase-2-prop-duplicates.test.js (2 tests) 2800ms
+   ✓ 0023 Phase 2 — DUP_INITIATIVE_KEY flags exactly the Initiative keys whose normalised form occurs >= 2 times > flags exactly the trimmed keys occurring >= 2 times, each with its correct row count, and none occurring once (with seed=1014513682) 1550ms
+   ✓ 0023 Phase 2 — HIST_TARGET_OVERLAP lists exactly the quarters in the trimmed historical∩target intersection > flags exactly the normalised quarters selected in both windows (whitespace variants collapse) (with seed=-1879589187) 1248ms
+ ✓ tests/acceptance/0022-empirical-default-params-property.test.js (5 tests) 3101ms
+   ✓ 0022 — Empirical parameters are the page-load default (per Recognised t-shirt size) > for every Recognised t-shirt size, a fresh page-load binds activeParams[size] to the Empirical (μ, σ) by value (with seed=-1251398396) 3017ms
+ ✓ tests/acceptance/0023-phase-2-prop-coercion.test.js (2 tests) 3363ms
+   ✓ 0023 Phase 2 — CAPACITY_COERCED is present iff the used Capacity differs from the entered value > reports CAPACITY_COERCED iff (parseFloat(raw) || 120) !== parseFloat(raw), naming the used value (with seed=-1271973656) 2050ms
+   ✓ 0023 Phase 2 — ITERATIONS_CLAMPED is present iff the used Iterations differs from the entered value > reports ITERATIONS_CLAMPED iff the clamped/defaulted value !== the entered integer, naming the used value (with seed=992386295) 1313ms
+
+ Test Files  35 passed | 1 skipped (36)
+      Tests  308 passed | 1 skipped (309)
+   Start at  22:36:42
+   Duration  7.42s (transform 360ms, setup 0ms, collect 19.47s, tests 37.08s, environment 5ms, prepare 2.33s)
+
