@@ -1,0 +1,40 @@
+base_health_check: atdd p1 re-run (pbt-floor gate rewind) — inherited base is POST-implementation
+run_at: 2026-06-23T05:43:02Z
+inherited_head: 2b3fe7f66a7b3a89654b0ac1dbd360ba2fc763f3
+impl_in_ancestry: d77e0ab (feat(0023): implement p1) — IS an ancestor of HEAD
+gate_examined_commit: d9a720d (feat(0023): implement p1 — makeFinding factory enforces I-3/I-4) — NOT an ancestor of HEAD (auth-failure-recovery divergence)
+blocker: the committed phase-1 *-red.log commands now PASS on the inherited tree (impl present), so the atdd RED gate (c) cannot be satisfied by any commit made on this base.
+---
+# Re-running the two committed phase-1 RED-log command headers verbatim against the
+# inherited base (HEAD 2b3fe7f). Gate sub-check (c) re-runs these exact commands and
+# REQUIRES a non-zero (RED) exit. They exit 0 (GREEN) — the implementation is present.
+
+command: npx vitest run tests/acceptance/0023-phase-1-error-report-tab.test.js
+exit_code: 0        # committed *-acceptance-red.log claims exit_code 1 — now GREEN (6/6 passed)
+result: Test Files 1 passed (1) | Tests 6 passed (6)
+
+command: npx vitest run tests/acceptance/0023-phase-1-finding-model-property.test.js
+exit_code: 0        # committed *-inner-red.log claims exit_code 1 — now GREEN (7/7 passed)
+result: Test Files 1 passed (1) | Tests 7 passed (7)
+
+# index.html at HEAD contains the phase-1 production code:
+#   grep -c renderErrorReport index.html      -> 2
+#   grep -c collectRunLevelFindings index.html-> 1
+#   grep -c findings index.html               -> 15
+#
+# Consequence: the atdd RED gate (post-stage sub-check (c)) re-runs the committed
+# *-red.log command headers against the atdd commit and requires exit != 0. On this
+# post-implementation base both exit 0, so ANY atdd commit here is rejected by (c).
+# atdd may not modify production code to restore a pre-implementation (RED) base.
+# => BLOCKED (see handover-08-atdd-p1.md). No tests authored; no commit advances stage.
+
+# Secondary (the failure that triggered this rewind) — pbt-floor (gate sub-check (f)):
+#   committed property-test invocations (fc.property|test.prop|it.prop) across test_paths = 4
+#     tests/acceptance/0023-phase-1-finding-model-property.test.js : 2 (test.prop)
+#     tests/acceptance/0022-empirical-default-params-property.test.js : 2
+#   whole-plan parametric rules declared in docs/plans/0023-error-report-tab.md
+#   ("Properties / invariants to PBT" across all 6 phases, 2 per phase) = 12
+#   pbt.min_per_rule = 1  =>  floor = 12  >  4  (FAIL)
+# The floor counts the WHOLE plan (12) but the plan is split into 6 thin slices of 2
+# properties each; this is independent of, and not fixable by, the base-health blocker
+# above. See handover-08-atdd-p1.md "Context the next phase needs" for both.

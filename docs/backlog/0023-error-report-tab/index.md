@@ -4,17 +4,17 @@ id: "0023"
 slug: error-report-tab
 title: Error Report tab
 stage: atdd
-status: ready
+status: needs-human
 priority: normal
-flagged_for_human: false
+flagged_for_human: true
 total_phases: 6
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-07-gate-p1.md
-updated_at: 2026-06-23T05:32:20Z
+next_handover: handover-08-atdd-p1.md
+updated_at: 2026-06-23T05:43:02Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: ""
+blocked_reason: "atdd RED gate unsatisfiable on inherited base: HEAD 2b3fe7f is post-implementation (d77e0ab in ancestry), so committed phase-1 *-red.log commands exit 0 (GREEN); atdd cannot restore a pre-impl RED base without editing production code. Needs human: reset index.html to test commit 36d5b1c (pre-impl) and front-load phase-1 property tests to ≥12, OR re-plan as 1 phase, OR make pbt-floor per-phase. See handover-08-atdd-p1.md."
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
@@ -99,3 +99,19 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > factory asserting I-3/I-4 and route both detectors through it; production-only, no
 > test edits). Review: `docs/reviews/0023-error-report-tab-phase-1-review-01.md`.
 > `retry_count` 0 → 1. Next stage: **implement** (feature-phase 1).
+>
+> **atdd p1 re-run — BLOCKED, FLAGGED FOR HUMAN (2026-06-23):** the gate rewound to
+> `atdd` on `pbt-floor` (whole-plan floor **12** parametric rules vs **4** committed
+> property invocations). But the atdd re-run inherited a **post-implementation** base —
+> HEAD `2b3fe7f` carries the phase-1 impl (`d77e0ab`) in its ancestry (note the impl
+> the gate examined, `d9a720d` with the I-3/I-4 `makeFinding` fix, is **not** in HEAD's
+> ancestry — auth-failure-recovery divergence). So the two **committed** phase-1
+> `*-red.log` commands now exit **0 (GREEN)** (acceptance 6/6, inner 7/7), and the gate's
+> RED re-check **(c)** — which re-runs those exact commands and requires a non-zero exit —
+> rejects **any** atdd commit on this base. atdd cannot edit production code to restore a
+> pre-impl RED base, so this is **not** autonomously resolvable: emitted **`blocked`**,
+> `stage` left at `atdd`, no tests authored. **Human action** (see
+> `handover-08-atdd-p1.md`): reset `index.html` to test commit `36d5b1c` (pre-impl) and
+> front-load phase-1 property tests to **≥12** cumulative; **or** re-plan 0023 as a
+> single feature-phase; **or** make the pbt-floor per-phase. Evidence:
+> `docs/atdd-logs/0023-error-report-tab-phase-1-base-health.log`.
