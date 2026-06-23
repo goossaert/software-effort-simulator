@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: review
+stage: review-correctness
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,12 +11,14 @@ total_phases: 2
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-06-implement-p1.md
-updated_at: 2026-06-23T06:32:32Z
+next_handover: handover-07-review-p1.md
+updated_at: 2026-06-23T06:42:55Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
   plan: docs/plans/0024-empirical-distributional-params.md
+  reviews:
+    - docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md
 ---
 # 0024 — Empirical (distributional) lognormal parameters mode
 
@@ -75,3 +77,17 @@ stable-green (acceptance 14/14, property 3/3 across 3 default reruns + 1 randomi
 `npm run verify` exits 0 (264 passed, 1 pre-existing skip) under a hermetic fresh-checkout, where the
 standalone `npm run lint` (the gate's `analysis` command) now exits 0 instead of 127. No `tests/**`
 drift. Advanced to `stage: review`, `current_phase: 1` — next phase is `review` p1.
+
+**Status (review p1 PASS, 2026-06-23):** integrity review clean — diff `e852039..4de0481`.
+No test file changed between test/impl commits; no test-gaming pattern, no production import
+from tests, no env/identity branch, no blanket suppression. The baked constants match the
+frozen calibration exactly (calibrated = Empirical; uncalibrated = synthetic σ + μ shifted by
+ln1.40 to 4 dp; mean-1 positive residual pool); DC-2 isolation holds (`activeSampler` default
+= `sampleLognormal`, residual drawn only in the new mode, lognormal-first/S2). The
+`package.json` `lint` bootstrap is an invocation-reliability fix, not a weakening. Two negative
+controls passed: dropping the residual fails AT-1×2 + PBT-2 (revert → 14/14 + 3/3 green), and a
+forbidden residual value fires the live I-4 `[contract]` module-load assertion (load aborts).
+Mutation N/A (ADR-0036, recorded); PBT-1/2/3 meet the structural floor; no additional tests
+needed. Review file: `docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md`.
+Advanced to `stage: review-correctness`, `current_phase: 1` — next phase is `review-correctness`
+p1 (it owns the advance to Phase 2).
