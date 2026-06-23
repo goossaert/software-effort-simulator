@@ -3,22 +3,23 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: review-correctness
+stage: atdd
 status: ready
 priority: normal
 flagged_for_human: false
 total_phases: 2
-current_phase: 1
+current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-07-review-p1.md
-updated_at: 2026-06-23T06:42:55Z
+next_handover: handover-03-plan.md
+updated_at: 2026-06-23T06:49:52Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
   plan: docs/plans/0024-empirical-distributional-params.md
   reviews:
     - docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md
+    - docs/reviews/0024-empirical-distributional-params-phase-1-correctness-01.md
 ---
 # 0024 — Empirical (distributional) lognormal parameters mode
 
@@ -91,3 +92,19 @@ Mutation N/A (ADR-0036, recorded); PBT-1/2/3 meet the structural floor; no addit
 needed. Review file: `docs/reviews/0024-empirical-distributional-params-phase-1-review-01.md`.
 Advanced to `stage: review-correctness`, `current_phase: 1` — next phase is `review-correctness`
 p1 (it owns the advance to Phase 2).
+
+**Status (review-correctness p1 PASS, 2026-06-23):** independent correctness review clean — diff
+`e852039..4de0481`, production-only (`index.html` + `package.json`), reasoning from the spec, tests
+excluded. A single clean pass produced **zero** candidate findings; the judge pass dropped nothing;
+Step 5b (suspect-test) not reached. Confirmed: the sampler computes `sampleLognormal(size) ×
+bootstrapChoice(RATIO_RESIDUALS)` with the lognormal draw first then the residual (S2); the size
+draw `bootstrapChoice(epicSizingDist)` stays outside the swapped `activeSampler` call so all three
+modes draw the size at the identical PRNG position; `activeSampler` defaults to `sampleLognormal`
+(byte-identical Synthetic/Empirical, no extra draw — DC-2); the baked constants satisfy AC-3
+(calibrated = empirical exactly; uncalibrated σ = synthetic σ and μ = synthetic μ + ln1.40 to 4 dp;
+mean(RATIO_RESIDUALS)=1.0000, all >0); `tshirtToPersonMonths` returns `exp(μ+σ²/2)` with no residual
+(AC-8); unknown size → `0 × residual = 0`; the I-4 `[contract]` predicate is logically correct. The
+`package.json` lint bootstrap is an invocation-reliability fix, out of correctness scope. Review
+file: `docs/reviews/0024-empirical-distributional-params-phase-1-correctness-01.md`. **Verdict PASS**
+advances the feature-phase — `stage: atdd`, `current_phase: 2`, `retry_count: 0`, `next_handover:
+handover-03-plan.md` — next phase is `atdd` p2 (the third radio + tri-state `change` handler).
