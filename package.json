@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "lint": "eslint index.html --max-warnings 0",
+    "lint": "{ [ -e node_modules/.bin/eslint ] || npm ci; } && eslint index.html --max-warnings 0",
     "scan:forbidden": "if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html --inspect=summary",
     "scan:deps": "node scripts/dep-scan.mjs",
     "scan:secrets": "secretlint \"**/*\"",

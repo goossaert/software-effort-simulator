@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0024"
 slug: empirical-distributional-params
 title: Empirical (distributional) lognormal parameters mode
-stage: implement
+stage: review
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 1
 retry_count: 0
 max_retries: 3
-next_handover: handover-05-gate-p1.md
-updated_at: 2026-06-23T06:24:19Z
+next_handover: handover-06-implement-p1.md
+updated_at: 2026-06-23T06:32:32Z
 created_at: 2026-06-22T18:55:38Z
 blocked_reason: ""
 artifacts:
@@ -59,3 +59,19 @@ implementation (14/14 + 3/3 green, full suite green) then reverted — the commi
 Two autonomous seam decisions recorded in handover-04: S1 (residual sampler named
 `sampleLognormalWithResidual`) and S2 (lognormal-draw-first-then-residual order). Advanced to
 `stage: implement`, `current_phase: 1` — next phase is `implement` p1.
+
+**Status (gate p1 rejected, 2026-06-23):** the post-stage gate rewound the first implement
+commit (`b9c4c7d4`) — not for any code defect (its hermetic `npm run verify` passed, 264 green)
+but because the gate's standalone `analysis` sub-check ran `npm run lint` on a fresh worktree
+with no `node_modules` and exited 127 (`sh: eslint: command not found`). The standalone `lint`
+script lacked the `npm ci` self-bootstrap guard that `verify` already had.
+
+**Status (implement p1 done, 2026-06-23):** re-applied the Phase-1 engine slice to `index.html`
+(the two baked constants, the `[contract]` I-4 module-load assertion, the `activeSampler`
+function-pointer seam, `sampleLognormalWithResidual`, and the `runScenario` hot-loop swap) **and**
+fixed the gate's 127 by making the `lint` npm script self-bootstrap `npm ci` like `verify`
+(production-only; eslint still runs `--max-warnings 0` — the layer is not weakened). Inner tests
+stable-green (acceptance 14/14, property 3/3 across 3 default reruns + 1 randomized-order run each);
+`npm run verify` exits 0 (264 passed, 1 pre-existing skip) under a hermetic fresh-checkout, where the
+standalone `npm run lint` (the gate's `analysis` command) now exits 0 instead of 127. No `tests/**`
+drift. Advanced to `stage: review`, `current_phase: 1` — next phase is `review` p1.

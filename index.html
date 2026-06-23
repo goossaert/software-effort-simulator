@@ -1334,8 +1334,50 @@ const T_SHIRT_PARAMS_EMPIRICAL = {
   'XL+': { mu:  2.3503, sigma: 0.0372 }, // no Q1 data; same as synthetic
 };
 
+/**
+ * Empirical (distributional) lognormal parameters — Option 1c (ADR-0038, report §2
+ * Addendum 2026-06-22). Centre = empirical for the calibrated sizes (XS/S/M/L); for the
+ * three sizes with no Q1 data (2XS/XL/XL+) a pooled grand-mean centre — synthetic μ shifted
+ * by ln(1.40) — keeping the synthetic σ. Drives the new mode together with the bootstrapped
+ * mean-1 Ratio residual (below), which injects the estimation-error spread the σ-preserving
+ * Empirical mode omits. Baked verbatim from the Q1 2026 calibration (DC-3); NOT recomputed
+ * at load. Same key set as the other two tables (I-3).
+ */
+const T_SHIRT_PARAMS_DISTRIBUTIONAL = {
+  '2XS': { mu: -1.5079, sigma: 0.3575 }, // no Q1 data; pooled centre 1.40× (synthetic μ + ln 1.40)
+  'XS':  { mu: -0.5093, sigma: 0.4286 }, // = empirical (centre 1.39×)
+  'S':   { mu:  0.4704, sigma: 0.2703 }, // = empirical (centre 1.51×)
+  'M':   { mu:  0.9636, sigma: 0.2703 }, // = empirical (centre 1.24×)
+  'L':   { mu:  1.7550, sigma: 0.2703 }, // = empirical (centre 1.36×)
+  'XL':  { mu:  2.3310, sigma: 0.1582 }, // no Q1 data; pooled centre 1.40× (synthetic μ + ln 1.40)
+  'XL+': { mu:  2.6868, sigma: 0.0372 }, // no Q1 data; pooled centre 1.40× (synthetic μ + ln 1.40)
+};
+
+/**
+ * Ratio residual pool — n=23 mean-1 multiplicative residuals (actual / fitted), pooled
+ * across the calibrated sizes (XS n=5 / S n=11 / M n=6 / L n=1) and drawn with replacement
+ * to inject estimation-error spread into the Empirical (distributional) mode for every size.
+ * Baked verbatim from the Q1 2026 calibration (DC-3); mean = 1.0000 to 4 dp, every value > 0.
+ */
+const RATIO_RESIDUALS = [
+  0.3692, 0.4286, 0.5714, 0.5714, 0.5714, 0.7353, 0.7353, 0.7385, 0.8571, 0.8571,
+  0.8571, 0.8824, 1.0000, 1.1077, 1.1077, 1.1429, 1.1429, 1.1765, 1.2000, 1.4706,
+  1.4769, 1.7143, 2.2857,
+];
+
+// [contract] I-4 — the Ratio residual pool must be a non-empty set of strictly positive
+// residuals: the positivity precondition of the new-mode sampler and the arr.length >= 1
+// precondition of bootstrapChoice/nextInt. Asserted once at module load.
+if (!(RATIO_RESIDUALS.length > 0 && RATIO_RESIDUALS.every((r) => r > 0))) {
+  throw new Error('[contract] RATIO_RESIDUALS must be a non-empty pool of strictly positive residuals');
+}
+
 // Active parameter set — toggled by the UI selector; default: empirical
 let activeParams = T_SHIRT_PARAMS_EMPIRICAL;
+// Active per-epic effort sampler — a function pointer mirroring activeParams (DC-2 RNG
+// isolation). Default identity is the plain lognormal sampler, so Synthetic/Empirical draw
+// byte-identically; the new mode swaps in sampleLognormalWithResidual (Phase 2 wires the UI).
+let activeSampler = sampleLognormal;
 
 /**
  * Convert a t-shirt size label to a deterministic person-months value
@@ -1382,6 +1424,20 @@ function sampleLognormal(sizeLabel) {
   const p = activeParams[sizeLabel];
   if (!p) { console.warn(`[sampler] Unknown size label: "${sizeLabel}"`); return 0; }
   return Math.exp(p.mu + p.sigma * sampleStdNormal());
+}
+
+// ── Empirical (distributional) sampler ────────────────────────────
+/**
+ * Sample per-epic effort for the Empirical (distributional) mode: the plain lognormal draw
+ * under the active (distributional) table, MULTIPLIED by one bootstrapped mean-1 Ratio
+ * residual — injecting the estimation-error spread the σ-preserving Empirical mode omits
+ * (ADR-0038 decision 2). Draw order is pinned lognormal-first, then the residual (atdd seam
+ * decision S2). An unknown size makes sampleLognormal return 0, so 0 × residual = 0 (never
+ * negative). The extra residual draw lives ONLY here, so the Synthetic/Empirical paths keep
+ * their exact sampled values and PRNG draw sequence (DC-2 / ADR-0038 decision 7).
+ */
+function sampleLognormalWithResidual(sizeLabel) {
+  return sampleLognormal(sizeLabel) * bootstrapChoice(RATIO_RESIDUALS);
 }
 
 // ── Poisson sampler ───────────────────────────────────────────────
@@ -2541,7 +2597,7 @@ function runScenario(K, lambda, epicSizingDist, iterations) {
     for (let k = 0; k < K; k++) {
       const numEpics = samplePoisson(lambda);
       for (let j = 0; j < numEpics; j++) {
-        total += sampleLognormal(bootstrapChoice(epicSizingDist));
+        total += activeSampler(bootstrapChoice(epicSizingDist));
       }
     }
     results[i] = total;

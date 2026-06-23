@@ -1,0 +1,9 @@
+=== correctness_gate layer: lint ===
+command: npm run lint
+captured_at: 2026-06-23T06:31:02Z
+
+
+> lint
+> { [ -e node_modules/.bin/eslint ] || npm ci; } && eslint index.html --max-warnings 0
+
+EXIT=0

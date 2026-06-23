@@ -1,0 +1,3 @@
+=== correctness_gate layer: typecheck ===
+status: N/A — typecheck_command empty in backlog.config.json (vanilla JS, no TypeScript; toolchain typecheck=n/a)
+captured_at: 2026-06-23T06:31:02Z

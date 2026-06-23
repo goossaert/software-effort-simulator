@@ -1,0 +1,3 @@
+=== correctness_gate layer: sanitizer ===
+status: N/A — sanitizer_command empty in backlog.config.json (managed/interpreted language JS; sanitizers are native/compiled-only)
+captured_at: 2026-06-23T06:31:02Z

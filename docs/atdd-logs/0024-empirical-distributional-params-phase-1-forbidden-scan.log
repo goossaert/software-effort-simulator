@@ -1,0 +1,12 @@
+=== gate forbidden-pattern scan (ast-grep) ===
+command: npm run scan:forbidden
+captured_at: 2026-06-23T06:31:05Z
+
+
+> scan:forbidden
+> if ! command -v ast-grep >/dev/null 2>&1; then echo 'ERROR: ast-grep not on PATH (install: brew install ast-grep) - required by scan:forbidden' >&2; exit 1; fi; ast-grep scan index.html --inspect=summary
+
+sg: summary|project: isProject=true,projectDir=/Users/emmanuel.goossaert@new10.com/code/software-effort-simulator
+sg: summary|file: scannedFileCount=1,skippedFileCount=0
+sg: summary|rule: effectiveRuleCount=5,skippedRuleCount=0
+EXIT=0
