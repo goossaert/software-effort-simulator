@@ -8,11 +8,13 @@
 // identifiers shown, and a by-severity count badge. Vocabulary verbatim from
 // CONTEXT.md: Error Report, Data-quality finding, Severity, Epic, Quarter.
 //
-// RED on the current base: the WARNING (ORPHAN_EPIC, code 4) and INFO
-// (TARGET_QUARTER_NO_INITIATIVES, code 17) findings are unimplemented, so only the
-// ERROR T-shirt-sizing section renders — the multi-category/multi-severity
-// assertions fail. (renderErrorReport's mechanics already exist from Phase 1; this
-// scenario exercises them across all categories, as the consolidated plan intends.)
+// RED on the current base: the LAMBDA_ZERO detector is guarded with
+// `lambda === 0 && epicSizingDist.length === 0`, which suppresses it in this λ=0
+// orphan-recognised-size Run (epicSizingDist === ['M']), so the badge currently
+// reads `1 WARNING`. Per the human-approved suspect-test resolution (handover-15,
+// 2026-06-24 — honor the spec) the guard is dropped so `LAMBDA_ZERO ⇔ lambda === 0`,
+// making the badge `2 WARNING`. This assertion is RED until /stage-implement drops
+// the guard. See handover-14-review-correctness-p2.md for the full adjudication.
 
 import { describe, it, expect } from 'vitest';
 import { loadSimulator, evalIn, execIn, csv } from '../harness.js';
@@ -67,9 +69,13 @@ describe('AT-5: a Run producing findings across multiple categories and severiti
     expect(text).toContain('EPIC-ORPH');
     expect(text).toContain('Q3 2026');
 
-    // By-severity count badge shows the ERROR/WARNING/INFO totals.
+    // By-severity count badge shows the ERROR/WARNING/INFO totals. This Run is also
+    // degenerate (Poisson λ = 0: the only in-scope historical Epic, EPIC-XXL, has an
+    // unrecognised size, so it contributes 0), so per the plan invariant
+    // `LAMBDA_ZERO ⇔ lambda === 0` the WARNING band carries TWO findings —
+    // ORPHAN_EPIC (Scope & calibration) and LAMBDA_ZERO (Run parameters).
     expect(text).toContain('1 ERROR');
-    expect(text).toContain('1 WARNING');
+    expect(text).toContain('2 WARNING');
     expect(text).toContain('1 INFO');
   });
 });

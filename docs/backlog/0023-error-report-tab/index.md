@@ -3,18 +3,18 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: review-correctness
-status: needs-human
+stage: atdd
+status: ready
 priority: normal
-flagged_for_human: true
+flagged_for_human: false
 total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-13-review-p2.md
-updated_at: 2026-06-23T21:11:18Z
+next_handover: handover-15-human-fix-p2.md
+updated_at: 2026-06-24T05:25:00Z
 created_at: 2026-06-22T18:49:16Z
-blocked_reason: "suspect-test: 0023-phase-2-acc-presentation.test.js (AT-5) asserts '1 WARNING' in a λ=0 orphan-recognised-size Run, requiring the LAMBDA_ZERO guard that contradicts the plan invariant 'LAMBDA_ZERO ⇔ lambda === 0' — production cannot satisfy both spec and frozen test."
+blocked_reason: ""
 artifacts:
   plan: docs/plans/0023-error-report-tab.md
   test_commit: 36d5b1c8c94e2e40c62787d660a2354622655daa
@@ -183,3 +183,18 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > biconditional. Either re-enters via **`/stage-atdd`**. Review:
 > `docs/reviews/0023-error-report-tab-phase-2-correctness-01.md`; handover
 > `handover-14-review-correctness-p2.md`.
+>
+> **human fix — UNBLOCKED (2026-06-24):** operator chose **Option 1 (honor the spec)** with
+> the **`2 WARNING` badge** treatment of AT-5. The plan invariant `LAMBDA_ZERO ⇔ lambda === 0`
+> is **kept unchanged** (a completed λ=0 Run forecasts ~0 work and must WARN). The frozen test
+> `tests/acceptance/0023-phase-2-acc-presentation.test.js` (AT-5) was **migrated by the human**
+> — badge `'1 WARNING'` → `'2 WARNING'` (ORPHAN_EPIC + LAMBDA_ZERO) + comments — the only edit
+> the loop may not make itself. Production is **left untouched** so the slice has a genuine RED
+> base: the migrated AT-5 **fails on HEAD** (guard still suppresses LAMBDA_ZERO → `1 WARNING`),
+> which `/stage-implement` resolves by dropping the `&& epicSizingDist.length === 0` guard at
+> `index.html:2353`. Verified this session: AT-5 RED on HEAD (exit ≠ 0); with the guard
+> temporarily dropped `npm run verify` = **308 passed, 1 skipped** then reverted (`git diff
+> index.html` empty) — AT-1 and all other detectors unaffected, no LAMBDA_ZERO PBT to satisfy.
+> This is **not** the handover-08 post-impl-base trap: there *is* an authentic RED test for the
+> slice. State set to `stage: atdd`, `status: ready`, `current_phase: 2`, flag cleared,
+> `blocked_reason` cleared. **Resume with `bin/backlog-loop`.** See `handover-15-human-fix-p2.md`.
