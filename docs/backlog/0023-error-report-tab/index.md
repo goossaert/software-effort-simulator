@@ -3,16 +3,16 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: review-correctness
-status: ready
+stage: done
+status: done
 priority: normal
 flagged_for_human: false
 total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-18-review-p2.md
-updated_at: 2026-06-24T08:15:00Z
+next_handover: handover-19-review-correctness-p2.md
+updated_at: 2026-06-24T08:30:00Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -24,6 +24,7 @@ artifacts:
     - docs/reviews/0023-error-report-tab-phase-2-review-01.md
     - docs/reviews/0023-error-report-tab-phase-2-correctness-01.md
     - docs/reviews/0023-error-report-tab-phase-2-review-02.md
+    - docs/reviews/0023-error-report-tab-phase-2-correctness-02.md
 ---
 # 0023 — Error Report tab
 
@@ -233,3 +234,22 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > `docs/reviews/0023-error-report-tab-phase-2-review-02.md`; handover
 > `handover-18-review-p2.md`. Next stage: **review-correctness** (feature-phase 2) — only
 > its PASS advances feature-phase 2 to `done`.
+>
+> **review-correctness p2 — PASS, TASK DONE (2026-06-24):** reasoning from the spec (plan +
+> the production-only `056c7b3..6734696` diff, **not** the tests), the single-line change
+> `if (lambda === 0 && epicSizingDist.length === 0)` → `if (lambda === 0)` at
+> `index.html:2353` is **correct**. It is the literal biconditional I-2
+> (`LAMBDA_ZERO ⇔ lambda === 0`), satisfies the behavioral rule ("when Poisson λ = 0 … a
+> WARNING is emitted"), and keeps the "must be exact `=== 0`" counterexample excluded
+> (`lambda` = integer-sum ÷ positive-integer-length ⇒ no IEEE-754 rounding, never `NaN`;
+> WARNING is the correct Severity per CONTEXT.md). The run-handler ordering is unchanged: the
+> fatal stop at `index.html:5105` guarantees `epicSizingDist.length >= 1` in any *rendered*
+> report, so the old conjunct was structurally dead — the fix makes the report **agree** with
+> the computed λ (ADR-0037 single-source). This resolves run-01's `suspect-test` block: the
+> human migrated AT-5 to a `2 WARNING` badge (handover-15), so the spec and the frozen test
+> now agree. Three judge-dropped candidates (no real defect): non-degenerate firing, float
+> precision, un-rendered-fatal-run findings — all spec-consistent. `verdict: pass`,
+> `findings: []`. As `current_phase (2) == total_phases (2)`, the gate advances **stage →
+> done, status → done**. Review:
+> `docs/reviews/0023-error-report-tab-phase-2-correctness-02.md`; handover
+> `handover-19-review-correctness-p2.md`. **Task 0023 is complete.**
