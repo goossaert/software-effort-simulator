@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: review
+stage: review-correctness
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-17-implement-p2.md
-updated_at: 2026-06-24T08:01:00Z
+next_handover: handover-18-review-p2.md
+updated_at: 2026-06-24T08:15:00Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -23,6 +23,7 @@ artifacts:
     - docs/reviews/0023-error-report-tab-phase-1-review-01.md
     - docs/reviews/0023-error-report-tab-phase-2-review-01.md
     - docs/reviews/0023-error-report-tab-phase-2-correctness-01.md
+    - docs/reviews/0023-error-report-tab-phase-2-review-02.md
 ---
 # 0023 — Error Report tab
 
@@ -211,3 +212,24 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > Boot smoke: `smoke_command` empty ⇒ minimal index.html parse check (PASS). State set to
 > `stage: implement`, `next_handover: handover-16-atdd-p2.md`. **Next stage: implement**
 > (feature-phase 2) — drop `&& epicSizingDist.length === 0` from `index.html:2353`.
+>
+> **implement p2 done (2026-06-24):** the single production line landed —
+> `index.html:2353` `if (lambda === 0 && epicSizingDist.length === 0)` → `if (lambda === 0)`
+> — restoring `LAMBDA_ZERO ⇔ lambda === 0` (I-2). AT-5 GREEN (badge `2 WARNING`);
+> `npm run verify` = 308 passed / 1 skipped (impl commit `6734696`). See
+> `handover-17-implement-p2.md`. Next stage: **review** (integrity, feature-phase 2).
+>
+> **review (integrity) p2 — PASS (2026-06-24):** re-reviewed the narrow
+> `056c7b3..6734696` diff (one production line, no test files). Test immutability holds
+> (test-path diff empty); no test-gaming patterns (the change *deletes* a special-case
+> conjunct — it generalises, not overfits); I-2 satisfied by the literal `if (lambda === 0)`;
+> the `[contract]` I-3/I-4 stay PRESENT and **live** in `makeFinding` — proven by a
+> contract negative control firing `[finding] invalid severity "CRITICAL" …`. The marquee
+> rule's behavioral negative control (re-add the guard ⇒ AT-5 fails `1 WARNING`; revert ⇒
+> passes) was killed and cleanly reverted. PBT floor (12) met and unchanged (20 committed
+> property invocations); `LAMBDA_ZERO` is acceptance-covered (not a parametric row).
+> Mutation Step 7 N/A (recorded — ADR-0036). `npm run verify` green (308 passed). No
+> additive tests needed. `retry_count` unchanged (PASS). Review:
+> `docs/reviews/0023-error-report-tab-phase-2-review-02.md`; handover
+> `handover-18-review-p2.md`. Next stage: **review-correctness** (feature-phase 2) — only
+> its PASS advances feature-phase 2 to `done`.
