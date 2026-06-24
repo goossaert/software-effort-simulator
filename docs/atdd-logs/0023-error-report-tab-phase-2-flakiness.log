@@ -1,40 +1,29 @@
-command: npx vitest run 0023-phase-2-acc
-command: npx vitest run 0023-phase-2-prop
+command: npx vitest run tests/acceptance/0023-phase-2-acc-presentation.test.js
 runs: 5
-run_at: 2026-06-23T18:31:30Z
-outcome: acceptance 5/5 FAIL (exit 1), inner 5/5 FAIL (exit 1) — stable RED
+run_at: 2026-06-24T05:53:15Z
+outcome: AT-5 5/5 FAIL (exit 1) — stable RED. No inner/property RED in this re-entry (LAMBDA_ZERO is acceptance-level; PBT floor already satisfied).
 ---
-acceptance run 1: exit 1 — 22 failed (22) — codes 3-22 / collectRunLevelFindings unimplemented
-acceptance run 2: exit 1 — 22 failed (22) — same reason
-acceptance run 3: exit 1 — 22 failed (22) — same reason
-acceptance run 4: exit 1 — 22 failed (22) — same reason
-acceptance run 5: exit 1 — 22 failed (22) — same reason
-inner run 1: exit 1 — 9 failed | 2 passed (11) — 9 unimplemented properties + 2 deterministically-green (render-order, no-epics)
-inner run 2: exit 1 — 9 failed | 2 passed (11) — same reason
-inner run 3: exit 1 — 9 failed | 2 passed (11) — same reason
-inner run 4: exit 1 — 9 failed | 2 passed (11) — same reason
-inner run 5: exit 1 — 9 failed | 2 passed (11) — same reason
+acceptance run 1: exit 1 — 1 failed (1) — badge renders '1 WARNING'; test wants '2 WARNING' (LAMBDA_ZERO suppressed by guard index.html:2353)
+acceptance run 2: exit 1 — 1 failed (1) — same reason
+acceptance run 3: exit 1 — 1 failed (1) — same reason
+acceptance run 4: exit 1 — 1 failed (1) — same reason
+acceptance run 5: exit 1 — 1 failed (1) — same reason
 
-No run flipped GREEN; both commands are deterministically non-zero. The acceptance
-suite and the prop-coercion file fail on FIXED inputs (the seam/detector is absent),
-so the RED does not depend on the fast-check seed. The 2 always-passing inner tests
-are the Phase-1-shipped renderErrorReport ordering property and a no-epics boundary
-example — they are intentionally green and remain in the RED *set* (the command is
-RED via the other 9). No test was quarantined: the RED is stable, not flaky.
+No run flipped GREEN; the failure is deterministic. AT-5's seed is FIXED (a constructed
+orphan Epic with size 'M'), so the RED does not depend on any RNG/clock — it is a pure
+function of production carrying the wrong guard. No test was quarantined.
+
+NOTE ON SCOPE — this re-entry resolves the LAMBDA_ZERO suspect-test ONLY. The former
+phase-2 flakiness log tracked two commands (`0023-phase-2-acc` + `0023-phase-2-prop`)
+for the original codes-3-22 atdd-p2 cycle; those tests are now DELIVERED and GREEN, so
+they are no longer part of the RED set. The stale `…-phase-2-inner-red.log` (command
+`npx vitest run 0023-phase-2-prop`, now exit 0 / 11 passed) was REMOVED this cycle so
+the gate's RED re-check (c) does not re-run a now-green command and reject. The 12
+committed `test.prop`/`fc.property` property tests themselves remain committed and
+unchanged (PBT floor 12 ≥ 12 holds; the floor reads the test files, not this log).
 --- full output (run 1, representative; reruns 2-5 identical exit/summary) ---
-$ npx vitest run 0023-phase-2-acc   →  exit 1
- Test Files  6 failed (6)
-      Tests  22 failed (22)
-
-$ npx vitest run 0023-phase-2-prop  →  exit 1
- ❯ 0023-phase-2-prop-coercion.test.js      (2 tests | 2 failed)
- ❯ 0023-phase-2-prop-duplicates.test.js    (2 tests | 2 failed)
- ❯ 0023-phase-2-prop-scope.test.js         (3 tests | 2 failed)
- ❯ 0023-phase-2-prop-integrity.test.js     (2 tests | 2 failed)
- ❯ 0023-phase-2-prop-presentation.test.js  (2 tests | 1 failed)
- Test Files  5 failed (5)
-      Tests  9 failed | 2 passed (11)
-
-(Full per-test failures + shrunk counterexamples: see
- 0023-error-report-tab-phase-2-acceptance-red.log and
- 0023-error-report-tab-phase-2-inner-red.log.)
+$ npx vitest run tests/acceptance/0023-phase-2-acc-presentation.test.js  →  exit 1
+ ❯ tests/acceptance/0023-phase-2-acc-presentation.test.js (1 test | 1 failed)
+   × AT-5 … → expected '1 ERROR · 1 WARNING · 1 INFOT-shirt s…' to contain '2 WARNING'
+ Test Files  1 failed (1)
+      Tests  1 failed (1)

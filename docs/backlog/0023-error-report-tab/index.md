@@ -3,7 +3,7 @@ schema: backlog-index/v1
 id: "0023"
 slug: error-report-tab
 title: Error Report tab
-stage: atdd
+stage: implement
 status: ready
 priority: normal
 flagged_for_human: false
@@ -11,8 +11,8 @@ total_phases: 2
 current_phase: 2
 retry_count: 0
 max_retries: 3
-next_handover: handover-15-human-fix-p2.md
-updated_at: 2026-06-24T05:25:00Z
+next_handover: handover-16-atdd-p2.md
+updated_at: 2026-06-24T05:55:00Z
 created_at: 2026-06-22T18:49:16Z
 blocked_reason: ""
 artifacts:
@@ -198,3 +198,16 @@ task. See [ADR-0037](../../adr/0037-error-report-advisory-diagnostics.md).
 > This is **not** the handover-08 post-impl-base trap: there *is* an authentic RED test for the
 > slice. State set to `stage: atdd`, `status: ready`, `current_phase: 2`, flag cleared,
 > `blocked_reason` cleared. **Resume with `bin/backlog-loop`.** See `handover-15-human-fix-p2.md`.
+>
+> **atdd p2 re-run (suspect-test RED base) done (2026-06-24):** the human-migrated AT-5
+> (`2 WARNING`) is confirmed **stable RED on HEAD `4d57d35`** across 5 flakiness reruns
+> (5/5 exit 1, same reason: badge renders `1 WARNING` because the guard at
+> `index.html:2353` still suppresses LAMBDA_ZERO when `epicSizingDist` is non-empty). **No
+> new test or production code was written** — the human already migrated the one frozen
+> test, and per handover-15 no new property is needed (LAMBDA_ZERO is acceptance-level;
+> PBT floor 12 ≥ 12 already met). The phase-2 RED logs were **re-scoped to the AT-5
+> command** and the now-GREEN stale `…-phase-2-inner-red.log` (`0023-phase-2-prop`, exit 0
+> / 11 passed) was **removed** so the gate's RED re-check (c) re-runs only AT-5 (RED).
+> Boot smoke: `smoke_command` empty ⇒ minimal index.html parse check (PASS). State set to
+> `stage: implement`, `next_handover: handover-16-atdd-p2.md`. **Next stage: implement**
+> (feature-phase 2) — drop `&& epicSizingDist.length === 0` from `index.html:2353`.
