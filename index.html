@@ -2350,7 +2350,7 @@ function prepareSimulationData(histQuarters, targetQuarters) {
   }
 
   // ── Code 6: LAMBDA_ZERO ──────────────────────────────────────────────────────
-  if (lambda === 0 && epicSizingDist.length === 0) {
+  if (lambda === 0) {
     findings.push(makeFinding({
       code: 'LAMBDA_ZERO', severity: 'WARNING', category: 'Run parameters',
       locators: [{ kind: 'run', id: 'lambda' }],
